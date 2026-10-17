@@ -22,6 +22,7 @@ src/
     screentime.ts       session/daily limits, idle, breaks (tick model)
     settings.ts         Fx switches/presets, limits, PIN record
     pin.ts              PIN hash/check (keeps kids out; not security)
+    teacher.ts          slider ranges, unlock expiry, PIN wait (teacher area rules)
     profiles.ts         Profile shape, recordSet, weekStrip, guide-seen
     storage.ts          versioned save, migrate, export/import, Store
   games/

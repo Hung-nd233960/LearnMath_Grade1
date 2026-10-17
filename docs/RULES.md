@@ -75,7 +75,11 @@ Code: [screentime.ts](../src/core/screentime.ts). Defaults are in `DEFAULT_LIMIT
 
 - **Location:** every setting lives only in the teacher area. That covers effects, time limits, weekend streaks and the PIN.
 - **Getting in:** the teacher area opens from a padlock that must be **held for about 1 s**, followed by the PIN.
-- **Default PIN:** `1234` (`DEFAULT_PIN`). The teacher area should ask for it to be changed.
+- **Default PIN:** `1234` (`DEFAULT_PIN`). The teacher area shows a bar asking for it to be changed until it is. It is not shown anywhere on a child's screen; if it is forgotten, clearing the site data resets it (and the progress, so export first).
+- **Staying open:** after the PIN the area stays open while it is used, and closes after `TEACHER_UNLOCK_MINUTES` (30) without a touch. Leaving it (back button, "Khoá lại") locks it at once.
+- **Guessing:** 5 wrong codes in a row make the pad wait 30 s (`PIN_TRIES`, `PIN_WAIT_MS` in [teacher.ts](../src/core/teacher.ts)).
+- **Extra time:** an adult can add 10 or 20 minutes for the child who is playing (ends a lock) or end a break early; both only in the teacher area.
+- **Sliders:** session 5–30 min, break 2–10 min, daily 10–60 min, idle nudge 10–60 s (the pause is 3× the nudge).
 - **What the PIN is:** it keeps children out. It is not real security: everything is stored in the browser.
 - **Effects:** four switches (`Fx` in [settings.ts](../src/core/settings.ts)):
 

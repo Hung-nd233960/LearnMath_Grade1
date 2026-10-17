@@ -15,6 +15,8 @@ function fnv1a(text: string): string {
   return h.toString(16).padStart(8, "0");
 }
 
+export const PIN_LENGTH = 4;
+
 export function isValidPin(pin: string): boolean {
   return /^\d{4}$/.test(pin);
 }

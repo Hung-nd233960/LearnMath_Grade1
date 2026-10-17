@@ -1,6 +1,7 @@
 // "Ai đang chơi hôm nay?": pick which child is playing (or add one). Pages of 8 tiles.
 import { say } from "../../i18n/speech.ts";
 import { STR } from "../../i18n/ui.ts";
+import { mountAdultGate } from "../adultGate.ts";
 import { avatarBadge } from "../avatars.ts";
 import { h } from "../dom.ts";
 import { ICON } from "../icons.ts";
@@ -74,12 +75,16 @@ export const whoScreen: ScreenDef = {
       if (now !== seen) { seen = now; render(); }
     });
 
+    // A teacher may need the teacher area before any child exists (e.g. to restore a backup).
+    const stopGate = mountAdultGate(screen, () => ctx.go("teacher"));
+
     // First run: nobody exists yet, so go straight to the "add" form. Otherwise greet.
     if (ctx.store.data.order.length === 0) add();
     else void ctx.voice.play(say("who_plays"));
 
     return () => {
       unsubscribe();
+      stopGate();
       ctx.voice.stop();
     };
   },

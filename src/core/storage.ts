@@ -155,6 +155,18 @@ export class Store {
     return p;
   }
 
+  /** Change one child (teacher area: rename, new picture). */
+  patchProfile(id: string, fn: (p: Profile) => Profile): void {
+    const p = this.data.profiles[id];
+    if (!p) return;
+    this.update((d) => ({ ...d, profiles: { ...d.profiles, [id]: { ...fn(p), id } } }));
+  }
+
+  /** Replace everything (a backup was imported). */
+  replace(data: AppData): void {
+    this.update(() => data);
+  }
+
   removeProfile(id: string): void {
     this.update((d) => {
       const profiles = { ...d.profiles };

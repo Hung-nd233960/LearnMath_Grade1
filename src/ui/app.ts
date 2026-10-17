@@ -18,12 +18,14 @@ import { homeScreen } from "./screens/home.ts";
 import { lockedScreen } from "./screens/locked.ts";
 import { playScreen } from "./screens/play.ts";
 import { starsScreen } from "./screens/stars.ts";
+import { teacherScreen } from "./screens/teacher.ts";
 import { whoScreen } from "./screens/who.ts";
 import { Router, type ScreenDef } from "./router.ts";
 import { createStage } from "./stage.ts";
 
-/** Screens by route name. Step 10 of docs/BUILD_PLAN.md adds: teacher. */
+/** Screens by route name. */
 const SCREENS: Record<string, ScreenDef> = {
+  teacher: teacherScreen,
   who: whoScreen,
   home: homeScreen,
   play: playScreen,

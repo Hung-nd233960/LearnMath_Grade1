@@ -76,7 +76,8 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `games/basket.ts`, `games/art.ts` | The Giỏ trái cây screen: the model for views that draw their own prompt (`ownPrompt`), move items with `dragTap`, and react to wrong tries / the mute switch. `art.ts` holds SVG drawings shared by several games. |
 | `games/equations.ts` | The Tính theo hình screen (second game screen; simpler than split, a good second example). |
 | `games/split.ts`, `games/bond.ts`, `games/splitLayout.ts` | The first game screen (Mấy và mấy): the model for the others. `bond.ts` is the number-bond widget; `splitLayout.ts` is pure and tested. |
-| `screens/addProfile.ts` | `openAddProfile(ctx, onAdded)`: the "Thêm bạn mới" form (name + picture). Reuse it in the teacher area. |
+| `screens/addProfile.ts` | `openAddProfile(ctx, onAdded)`: the "Thêm bạn mới" form (name + picture); `openEditProfile(ctx, profile, onSaved)` reuses it to rename a child. |
+| `screens/teacher.ts`, `pinPad.ts`, `teacherSession.ts` | The teacher area. `createPinPad(onComplete)` is the 4-digit entry (gate and change-PIN); `teacherSession` remembers the unlock. Add a new setting as a row in one of the four tabs; it must go through `ctx.store.update` so the page reacts at once. |
 | `screens/kit.ts` | Dev-only gallery at `#/kit`: every component above on one screen (not in production builds). Open it to see how they look and work. |
 
 Also: `src/i18n/ui.ts` holds fixed button and notice texts as `STR` (add new ones there). `src/styles/` has `tokens.css`, `base.css`, `components.css` and `fx.css`; add per-screen CSS next to the screen (`import "./home.css"`) and use the tokens.

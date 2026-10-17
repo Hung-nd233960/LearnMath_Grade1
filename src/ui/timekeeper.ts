@@ -135,6 +135,13 @@ export class Timekeeper {
     this.step();
   }
 
+  /** Forget the working usage WITHOUT saving it: a backup is about to replace all data. Follow with reload(). */
+  discard(): void {
+    this.usage = null;
+    this.id = null;
+    this.last = null;
+  }
+
   /** Write the working usage into the child's profile. */
   flush(): void {
     this.save(this.id, this.usage);

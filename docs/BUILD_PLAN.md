@@ -96,11 +96,16 @@
 - **A bug found by these tests:** switching children recursed forever (saving the previous child's time notified subscribers that still saw the old child). Fixed by taking over the new child first.
 - **Done when:** with limits set to 1 / 2 minutes in the teacher area, the break and the lock appear after a set, never during one, and idle time does not count. ✔ checked in a real browser (limits set directly until step 10 adds the sliders).
 
-## 10. Teacher area ☐
-- [ ] Padlock hold → `#/teacher` PIN gate (`checkPin`; prompt to change the default 1234)
-- [ ] Tabs: Hiệu ứng (presets + 4 switches), Thời gian chơi (limits, weekend streak), Học sinh (table + add / rename / remove), Sao lưu (`exportJSON` download / `importJSON` upload, change PIN)
-- [ ] Break / lock screens: adult can `grantBonus` / `endBreak`
-- **Done when:** the settings change behaviour immediately, and an export imported on another browser restores everything.
+## 10. Teacher area ☑
+- [x] `#/teacher` (`screens/teacher.ts`): the padlock (hold ~1 s; now also on the picker, so a teacher can restore a backup before any child exists) opens a PIN gate (`checkPin`, `pinPad.ts`). Five wrong codes in a row make the pad wait 30 s, and the wait survives leaving and coming back. While the default `1234` is still set, every tab shows a yellow "Đổi mã PIN" bar.
+- [x] Tabs: **Hiệu ứng** (presets + 4 switches; they change the page the moment they are touched), **Thời gian chơi** (the playing child's time today with +10 / +20 phút and "Kết thúc nghỉ mắt", then sliders for session, break, daily limit and idle nudge, and the weekend-streak switch), **Học sinh** (stars, streak and the Vòng each child has reached in all six games; add, rename / change picture, remove with a confirmation), **Sao lưu** (download, import with a confirmation, change PIN with a type-it-twice check).
+- [x] Break / lock screens: the padlock there opens the same area; "+10 phút" ends a lock, "Kết thúc nghỉ mắt" ends a break (`ctx.time.grantBonus` / `endBreak`).
+- [x] Unlock: held in `sessionStorage` (a reload does not ask again), dropped when the area is left, and closed after `TEACHER_UNLOCK_MINUTES` without a touch.
+- [x] Pure parts in `core/teacher.ts` (slider ranges, `setLimit`, `unlockValid`, PIN wait) and `Store.patchProfile` / `Store.replace`, all unit tested (`tests/teacher.test.ts`).
+- [x] `npm run ui:check`: 321 checks (60 new): gate, wrong/right PIN, every tab, a restore from an exported file, a bad file, bonus on the lock screen, ending a break, PIN change, 30-minute expiry, lockout.
+- **Bugs found by these checks:** the gate's back button sat under the full-screen gate layer; a `hidden` button stayed visible because `.btn` sets `display`; the extra-time buttons were off the bottom of the panel (they now come first on the tab).
+- **Done when:** the settings change behaviour immediately ✔, and an export imported on another browser restores everything ✔ (export → fresh store → import is unit tested; import of a real file is browser tested).
+- **Decision for you:** "+ Thêm bạn" is still on the child picker. Now that the teacher area can add children, you can hide it there once the first child exists (one line in `screens/who.ts`).
 
 ## 11. Guide (i) ☐
 - [ ] Card with `GUIDE_STEPS` + voice; auto-show the first time (`seenGuide`) → `markGuideSeen`

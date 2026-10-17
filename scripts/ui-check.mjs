@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8) and screen time (step 9).
+// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9) and the teacher area (step 10).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -174,7 +174,7 @@ check("guide: closed callback", (await ev(`document.querySelector('#kit-status')
 
 // leaving a screen cleans up
 await ev(`location.hash = '#/home'`); await sleep(200);
-check("navigation: kit gone, listeners cleaned; no child chosen so the picker shows", await ev(`!document.querySelector('#kit-status') && document.querySelectorAll('.gate-btn, .ghost').length === 0 && !!document.querySelector('.screen-who')`));
+check("navigation: kit gone, listeners cleaned; no child chosen so the picker shows", await ev(`!document.querySelector('#kit-status') && document.querySelectorAll('.ghost').length === 0 && document.querySelectorAll('.gate-btn').length === 1 && !!document.querySelector('.screen-who')`));
 
 // ---------- 5. profiles and home (step 2) ----------
 const key = (k, extra = {}) => send("Input.dispatchKeyEvent", { type: "keyDown", key: k, ...extra });
@@ -1111,6 +1111,214 @@ await ev(`window.__realToday = __app.today; __app.today = () => '2099-01-01'`);
 await sleep(2500);
 check("a new day resets today's usage", (await ev(`__app.time.playedMs()`)) < 3000 && (await snap()).lockDue === false);
 await ev(`__app.today = window.__realToday`);
+
+// ---------- 13. teacher area (step 10) ----------
+const holdPadlock = async () => { const [x, y] = await center(".gate-btn"); await mouse("mousePressed", x, y); await sleep(1500); await mouse("mouseReleased", x, y); await sleep(450); };
+const typePin = async (digits, scope = ".pin-keys") => { for (const d of digits) await click(`${scope} [data-k="${d}"]`); await sleep(750); };
+const inArea = () => ev(`!!document.querySelector('.t-panel')`);
+const atGate = () => ev(`!!document.querySelector('.t-gate-card') && !document.querySelector('.t-panel')`);
+const openTab = async (t) => { await click(`.t-nav [data-tab=${t}]`); await sleep(250); };
+const leaveArea = async () => { await click(".t-head .btn-round"); await sleep(500); };
+const setRange = (key, v) => ev(`(() => { const i = document.querySelector('[data-limit=${key}]'); i.value = ${v}; i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+const setUsage = (patch) => ev(`(() => { const id = __app.store.data.activeId; __app.store.update(d => ({ ...d, profiles: { ...d.profiles, [id]: { ...d.profiles[id], usage: { ...d.profiles[id].usage, ...${JSON.stringify(patch)} } } } })); __app.time.reload(); })()`);
+const setInputFile = async (selector, path) => {
+  const doc = await send("DOM.getDocument", { depth: 0 });
+  const q = await send("DOM.querySelector", { nodeId: doc.result.root.nodeId, selector });
+  await send("DOM.setFileInputFiles", { files: [path], nodeId: q.result.nodeId });
+  await sleep(400);
+};
+await send("Browser.setDownloadBehavior", { behavior: "deny" });
+
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, limits: { ...d.settings.limits, sessionMin: 30, breakMin: 5, dailyMin: 60, warnBeforeMin: 2, idleNudgeSec: 20, idlePauseSec: 60 } } }))`);
+await setFx({ anim: true, decor: true, celebrate: true, sfx: true });
+// earlier sections added many children for the pager: keep just the two this section uses
+await ev(`Object.values(__app.store.data.profiles).filter(p => p.id !== ${JSON.stringify(binhId)} && p.id !== ${JSON.stringify(anId)}).forEach(p => __app.store.removeProfile(p.id))`);
+await ev(`__app.store.setActive(${JSON.stringify(anId)})`);
+await resetUsage(anId);
+await goHash("#/home"); await sleep(300);
+
+// --- the gate ---
+await click(".gate-btn");
+check("padlock: a quick tap does not open the teacher area", (await ev(`location.hash`)) === "#/home");
+await holdPadlock();
+check("padlock: holding it opens the PIN gate (not the area)", (await ev(`location.hash`)) === "#/teacher" && await atGate());
+await shot("ui-13-gate");
+await typePin("1111");
+check("PIN: a wrong code is refused with a message", await atGate() && /chưa đúng/.test(await ev(`document.querySelector('#pin-error').textContent`)));
+check("PIN: the dots are emptied after a wrong code", (await ev(`document.querySelectorAll('.pin-dots .f').length`)) === 0);
+await typePin("1234");
+check("PIN: the right code opens the area", await inArea());
+check("area: four tabs", (await ev(`document.querySelectorAll('.t-nav button').length`)) === 4);
+check("area: the default PIN warning is shown", await ev(`!!document.querySelector('#t-default-pin')`));
+
+// --- Hiệu ứng: presets and switches change the page at once ---
+const fxClasses = () => ev(`['anim','decor','celebrate','sfx'].map(k => document.documentElement.classList.contains('fx-' + k) ? 1 : 0).join('')`);
+check("fx: opens on the Hiệu ứng tab with 'Rực rỡ' highlighted", (await fxClasses()) === "1111" && await ev(`document.querySelector('[data-preset=all]').classList.contains('on')`));
+await shot("ui-13-fx");
+await click("[data-preset=calm]");
+check("fx: 'Yên tĩnh' turns everything off at once", (await fxClasses()) === "0000" && await ev(`document.querySelector('[data-preset=calm]').classList.contains('on') && [...document.querySelectorAll('[data-fx]')].every(i => !i.checked)`));
+await click(".sw:has([data-fx=decor])");
+check("fx: one switch changes just that effect, and no preset stays highlighted", (await fxClasses()) === "0100" && (await ev(`document.querySelectorAll('.presets .on').length`)) === 0);
+await click("[data-preset=mid]");
+check("fx: 'Vừa phải' = no decoration", (await fxClasses()) === "1011");
+await click("[data-preset=all]");
+check("fx: 'Rực rỡ' = everything", (await fxClasses()) === "1111" && (await ev(`JSON.parse(localStorage.getItem('ttth.data')).settings.fx.decor`)) === true);
+
+// --- Thời gian chơi ---
+await openTab("time");
+await shot("ui-13-time");
+check("time: sliders show the saved limits", (await ev(`[...document.querySelectorAll('[data-limit]')].map(i => i.value).join(',')`)) === "30,5,60,20");
+await setRange("dailyMin", 10);
+check("time: the daily slider is saved at once", (await ev(`__app.store.data.settings.limits.dailyMin`)) === 10 && /10 phút/.test(await ev(`document.querySelectorAll('.rng output')[2].textContent`)));
+await setRange("idleNudgeSec", 35);
+check("time: the idle slider moves the pause with it", (await ev(`__app.store.data.settings.limits.idleNudgeSec`)) === 35 && (await ev(`__app.store.data.settings.limits.idlePauseSec`)) === 105);
+await setRange("idleNudgeSec", 20);
+await ev(`document.querySelector('.sw:has(#t-weekend)').scrollIntoView({ block: 'center' })`);
+check("time: the weekend switch is on and can be turned off", (await ev(`document.querySelector('#t-weekend').checked`)) === true);
+await click(".sw:has(#t-weekend)");
+check("time: weekend switch saved", (await ev(`__app.store.data.settings.skipWeekends`)) === false, await ev(`JSON.stringify({ chk: document.querySelector("#t-weekend").checked, st: __app.store.data.settings.skipWeekends, r: document.querySelector(".sw:has(#t-weekend)").getBoundingClientRect(), pt: document.querySelector("#t-panel").scrollTop, scr: document.querySelector(".stage").scrollTop })`));
+await click(".sw:has(#t-weekend)");
+check("time: the playing child is named with today's time", /An/.test(await ev(`document.querySelector('.t-today h3').textContent`)) && /còn \d+ phút/.test(await ev(`document.querySelector('#t-status').textContent`)));
+check("time: the break button is hidden when there is no break", await ev(`getComputedStyle(document.querySelector('#t-end-break')).display === 'none'`));
+
+// --- Học sinh ---
+await openTab("kids");
+check("kids: one row per child with stars", (await ev(`document.querySelectorAll('#t-kids tr[data-profile]').length`)) === 2 && (await ev(`document.querySelector('tr[data-profile="${anId}"] td:nth-child(2)').textContent`)) === String((await profileOf(anId)).stars));
+check("kids: six tier badges per child", (await ev(`document.querySelectorAll('tr[data-profile="${binhId}"] .v').length`)) === 6);
+await shot("ui-13-kids");
+await click("#t-add");
+await typeName("Hà");
+await click(".add-card .btn-primary");
+const haId = await idOf("Hà");
+check("kids: a child added here appears in the table", (await ev(`document.querySelectorAll('#t-kids tr[data-profile]').length`)) === 3 && !!haId);
+await click(`[data-edit="${haId}"]`);
+check("kids: edit opens with the current name", (await ev(`document.querySelector('.add-card .name-input').value`)) === "Hà");
+await ev(`(() => { const i = document.querySelector('.add-card .name-input'); i.value = 'Hạ'; i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+await click('.add-card .av-opt[data-avatar="kite"]');
+await click(".add-card .btn-primary");
+check("kids: rename + new picture saved, same child", (await profileOf(haId)).name === "Hạ" && (await profileOf(haId)).avatar === "kite" && (await ev(`document.querySelector('tr[data-profile="${haId}"] b').textContent`)) === "Hạ");
+const anStars = (await profileOf(anId)).stars;
+// remove: ask first, keeping is safe
+await click(`[data-remove="${haId}"]`);
+check("kids: remove asks first", /Xoá bạn Hạ\?/.test(await ev(`document.querySelector('.t-dialog h2').textContent`)));
+await click(".t-dialog .btn-secondary");
+check("kids: 'Giữ lại' keeps the child", !!(await profileOf(haId)));
+// remove the child who is playing: the clock must let go cleanly
+await ev(`__app.store.setActive(${JSON.stringify(haId)})`);
+await click(`[data-remove="${haId}"]`);
+await click(".t-dialog .btn-danger");
+await sleep(300);
+check("kids: removing the playing child works (no one is playing then)", (await ev(`__app.store.data.profiles[${JSON.stringify(haId)}]`)) === undefined && (await ev(`__app.store.data.activeId`)) === null && (await ev(`document.querySelectorAll('#t-kids tr[data-profile]').length`)) === 2);
+check("kids: the other children keep their progress", (await profileOf(anId)).stars === anStars);
+await openTab("time");
+check("time: with nobody playing the extra-time buttons are replaced by a note", await ev(`!document.querySelector('[data-bonus]') && /Chưa có bạn nào/.test(document.querySelector('.t-today').textContent)`));
+await ev(`__app.store.setActive(${JSON.stringify(anId)})`);
+
+// --- Sao lưu ---
+await openTab("backup");
+await shot("ui-13-backup");
+await click("#t-export");
+check("backup: download reports success", /Đã tải/.test(await ev(`document.querySelector('#t-backup-msg').textContent`)));
+const backupText = await ev(`import('/src/core/storage.ts').then(m => m.exportJSON(__app.store.data))`);
+const backupFile = `${SP}/backup-check.json`;
+writeFileSync(backupFile, backupText);
+// change things, then restore them from the file
+await ev(`__app.store.removeProfile(${JSON.stringify(binhId)})`);
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, fx: { anim: false, decor: false, celebrate: false, sfx: false }, limits: { ...d.settings.limits, dailyMin: 25 } } }))`);
+await setInputFile("#t-import", backupFile);
+check("backup: importing asks first and says how many children", /2 bạn/.test(await ev(`document.querySelector('.t-dialog p').textContent`)));
+await click(".t-dialog .btn-primary");
+await sleep(400);
+check("backup: after import both children are back", (await names()) === "Bình,An" && (await profileOf(anId)).stars === anStars);
+check("backup: after import the settings are back too", (await fxClasses()) === "1111" && (await ev(`__app.store.data.settings.limits.dailyMin`)) === 10);
+check("backup: nobody is playing after an import (the picker comes next)", (await ev(`__app.store.data.activeId`)) === null);
+check("backup: a confirmation is shown", /Đã nhập/.test(await ev(`document.querySelector('.t-dialog p').textContent`)));
+await click(".t-dialog .btn-primary");
+await sleep(200);
+writeFileSync(`${SP}/backup-bad.json`, "this is not json");
+await setInputFile("#t-import", `${SP}/backup-bad.json`);
+check("backup: an unreadable file is refused", /không đọc được/.test(await ev(`document.querySelector('.t-dialog p').textContent`)));
+await click(".t-dialog .btn-primary");
+writeFileSync(`${SP}/backup-other.json`, JSON.stringify({ app: "something-else", data: {} }));
+await setInputFile("#t-import", `${SP}/backup-other.json`);
+check("backup: a file from another app is refused", /không phải bản sao lưu/.test(await ev(`document.querySelector('.t-dialog p').textContent`)));
+await click(".t-dialog .btn-primary");
+check("backup: refused files change nothing", (await names()) === "Bình,An");
+await ev(`__app.store.setActive(${JSON.stringify(anId)})`);
+await resetUsage(anId);
+
+// --- leaving locks the area again ---
+await leaveArea();
+check("leaving: back goes home", await onHome());
+check("leaving: the area is locked again (no unlock left behind)", (await ev(`sessionStorage.getItem('ttth.teacher')`)) === null);
+await holdPadlock();
+check("leaving: coming back asks for the PIN again", await atGate());
+
+// --- lock screen: an adult grants more time ---
+await typePin("1234");
+await openTab("time");
+await setUsage({ playedMs: 11 * 60000 }); // dailyMin is 10: the child has used the whole day
+await leaveArea();
+check("lock: the night screen replaces home after the area is left", await waitFor(`!!document.querySelector('.screen-locked')`, 4000));
+await holdPadlock();
+await typePin("1234");
+await openTab("time");
+check("lock: the area says the day is over", /hết giờ/.test(await ev(`document.querySelector('#t-status').textContent`)));
+await click("[data-bonus='10']");
+check("lock: +10 phút is confirmed and the status changes", /Đã thêm 10 phút/.test(await ev(`document.querySelector('#t-msg').textContent`)) && /còn \d+ phút/.test(await ev(`document.querySelector('#t-status').textContent`)));
+check("lock: the bonus is saved in the child's usage", (await ev(`__app.time.snapshot().usage.bonusMs`)) === 10 * 60000);
+await leaveArea();
+check("lock: the child can play again", await waitFor(`!!document.querySelector('.screen-home')`, 3000));
+
+// --- break screen: an adult ends the break ---
+await setUsage({ playedMs: 0, bonusMs: 0, sessionMs: 31 * 60000 });
+await ev(`__app.go('home')`);
+check("break: the break screen shows once the session is long enough", await waitFor(`!!document.querySelector('.screen-break')`, 4000));
+await holdPadlock();
+await typePin("1234");
+await openTab("time");
+check("break: the area says a break is running and offers to end it", /nghỉ mắt/.test(await ev(`document.querySelector('#t-status').textContent`)) && await ev(`getComputedStyle(document.querySelector('#t-end-break')).display !== 'none'`));
+await click("#t-end-break");
+check("break: ending it is confirmed and the button goes away", /kết thúc giờ nghỉ/i.test(await ev(`document.querySelector('#t-msg').textContent`)) && await ev(`getComputedStyle(document.querySelector('#t-end-break')).display === 'none'`));
+await leaveArea();
+check("break: the child is back on the home screen", await waitFor(`!!document.querySelector('.screen-home')`, 3000));
+
+// --- change PIN ---
+await holdPadlock();
+await typePin("1234");
+await openTab("backup");
+await click("#t-change-pin");
+await typePin("1111", ".overlay .pin-keys");
+await typePin("2222", ".overlay .pin-keys");
+check("PIN change: two different codes are refused", /chưa giống/.test(await ev(`document.querySelector('.overlay .t-err').textContent`)) && (await ev(`__app.store.data.settings.pin.hash`)) === (await ev(`import('/src/core/pin.ts').then(m => m.makePin('1234', __app.store.data.settings.pin.salt).hash)`)));
+await typePin("4321", ".overlay .pin-keys");
+await typePin("4321", ".overlay .pin-keys");
+check("PIN change: the same code twice is saved and confirmed", /Đã đổi mã PIN/.test(await ev(`document.querySelector('.t-dialog p').textContent`)) && await ev(`import('/src/core/pin.ts').then(m => m.checkPin(__app.store.data.settings.pin, '4321'))`));
+await click(".t-dialog .btn-primary");
+check("PIN change: the default-PIN warning is gone", await ev(`!document.querySelector('#t-default-pin')`));
+await leaveArea();
+await holdPadlock();
+await typePin("1234");
+check("PIN change: the old code no longer works", await atGate());
+await typePin("4321");
+check("PIN change: the new code works", await inArea());
+
+// --- the area closes by itself after a quiet half hour ---
+await ev(`sessionStorage.setItem('ttth.teacher', String(Date.now() - 31 * 60000))`);
+check("expiry: left alone for over 30 minutes, the area asks for the PIN again", await waitFor(`!!document.querySelector('.t-gate-card') && !document.querySelector('.t-panel')`, 9000));
+
+// --- too many wrong codes make the pad wait ---
+for (let i = 0; i < 5; i++) await typePin("0000");
+check("lockout: five wrong codes in a row make the pad wait", await ev(`document.querySelector('.pin-pad').classList.contains('disabled') && /Chờ \\d+ giây/.test(document.querySelector('#pin-error').textContent)`), await ev(`JSON.stringify({ err: document.querySelector('#pin-error')?.textContent, cls: document.querySelector('.pin-pad')?.className, hash: location.hash })`));
+await typePin("4321");
+check("lockout: even the right code is ignored while waiting", await atGate());
+await shot("ui-13-lockout");
+await click(".t-back .btn-round");
+await sleep(400);
+await holdPadlock();
+check("lockout: leaving and coming back does not reset the wait", await ev(`document.querySelector('.pin-pad').classList.contains('disabled')`));
+await click(".t-back .btn-round");
+await sleep(300);
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 
