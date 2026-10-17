@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5) and Cái cân (step 6).
+// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6) and Rô-bốt (step 7).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -59,7 +59,7 @@ const drag = async (fromSel, toSel) => {
 let passed = 0, failed = 0;
 let last = "start";
 const check = (name, cond, extra = "") => { last = name; if (cond) passed++; else { failed++; console.log("FAIL:", name, extra); } };
-setTimeout(() => { console.log("WATCHDOG: stuck after:", last); chrome.kill(); process.exit(2); }, 420000);
+setTimeout(() => { console.log("WATCHDOG: stuck after:", last); chrome.kill(); process.exit(2); }, 900000);
 
 await send("Page.enable"); await send("Runtime.enable");
 await viewport(1180, 820);
@@ -222,7 +222,7 @@ await click(`.kid[data-profile="${binhId}"]`);
 check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
 const chips = () => ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`);
 check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn 30 phút", await chips());
-check("home: six tiles; only the finished games are playable (4 so far)", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 2 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
+check("home: six tiles; only the finished games are playable (5 so far)", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 1 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
 check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
 check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
 await shot("ui-5-home");
@@ -281,7 +281,7 @@ const fillAnswer = async (q, { wrong = false } = {}) => {
     await typeNumber(sol[slot] + (wrong && i === 0 ? 1 : 0));
   }
 };
-const overlayKind = async () => { await waitFor(`!!document.querySelector('.overlay[data-kind]')`); return ev(`document.querySelector('.overlay').dataset.kind`); };
+const overlayKind = async () => { await waitFor(`!!document.querySelector('.overlay[data-kind]')`, 15000); return ev(`document.querySelector('.overlay').dataset.kind`); };
 const closeOverlay = async () => { await click(".overlay [data-close]"); await sleep(120); };
 const nextQuestionReady = () => waitFor(`!document.querySelector('.overlay') && !!document.querySelector('.sp .answer-box') && !document.querySelector('.answer-box.right, .answer-box.wrong')`);
 const questionIndex = () => ev(`document.querySelectorAll('.dots .done').length`);
@@ -389,7 +389,7 @@ await click(".topbar .btn-round:first-child");
 check("back button leaves the set; nothing is saved", (await ev(`!!document.querySelector('.screen-home')`)) && (await profileOf(anId)).history.length === 2 && (await profileOf(anId)).stars === 5);
 
 // --- routes ---
-await ev(`location.hash = '#/play/robot'`); await sleep(400);
+await ev(`location.hash = '#/play/compare'`); await sleep(400);
 check("a game without a screen yet goes home", await ev(`!!document.querySelector('.screen-home')`));
 await ev(`location.hash = '#/play/nonsense'`); await sleep(400);
 check("an unknown game goes home", await ev(`!!document.querySelector('.screen-home')`));
@@ -752,6 +752,145 @@ await click("#dev-solve");
 await sleep(2600);
 const dw = await scaleWeights();
 check("dev: 'Giải' balances the scale and opens the padlock", dw.L === dw.R && (await ev(`document.querySelector('.sc-lock').classList.contains('off')`)), JSON.stringify(dw));
+
+// ---------- 10. Rô-bốt (step 7) ----------
+const readRobot = () => ev(`(() => {
+  const cells = [...document.querySelectorAll('.rb-cell')];
+  return { size: Math.round(Math.sqrt(cells.length)), blocks: cells.filter(c => c.classList.contains('block')).map(c => c.dataset.rc),
+    goal: document.querySelector('.rb-cell.goal').dataset.rc, walls: [...document.querySelectorAll('.rb-wall')].map(w => w.dataset.wall),
+    start: document.querySelector('#bot').dataset.start, tier: document.querySelector('.tier-badge').textContent, slots: document.querySelectorAll('.rb-slot').length };
+})()`);
+const DELTA = { U: [-1, 0], D: [1, 0], L: [0, -1], R: [0, 1] };
+const canStep = (q, r, c, d) => {
+  const [dr, dc] = DELTA[d], nr = r + dr, nc = c + dc;
+  if (nr < 0 || nc < 0 || nr >= q.size || nc >= q.size || q.blocks.includes(`${nr},${nc}`)) return false;
+  if (d === "R" && q.walls.includes(`${r},${c},R`)) return false;
+  if (d === "L" && q.walls.includes(`${r},${c - 1},R`)) return false;
+  if (d === "D" && q.walls.includes(`${r},${c},D`)) return false;
+  if (d === "U" && q.walls.includes(`${r - 1},${c},D`)) return false;
+  return true;
+};
+/** A child's route: breadth-first search over what is drawn (blocks and walls read from the screen). */
+const routeOf = (q) => {
+  const [sr, sc] = q.start.split(",").map(Number);
+  const seen = new Map([[q.start, null]]);
+  const queue = [[sr, sc]];
+  while (queue.length) {
+    const [r, c] = queue.shift();
+    if (`${r},${c}` === q.goal) break;
+    for (const d of "UDLR") {
+      if (!canStep(q, r, c, d)) continue;
+      const k = `${r + DELTA[d][0]},${c + DELTA[d][1]}`;
+      if (seen.has(k)) continue;
+      seen.set(k, { from: `${r},${c}`, d });
+      queue.push([r + DELTA[d][0], c + DELTA[d][1]]);
+    }
+  }
+  const path = [];
+  for (let k = q.goal; k !== q.start; k = seen.get(k).from) path.unshift(seen.get(k).d);
+  return path;
+};
+const pressDirs = async (dirs) => { for (const d of dirs) await click(`.rb-pad [data-dir="${d}"]`); };
+const filledSlots = () => ev(`document.querySelectorAll('.rb-slot.on').length`);
+const botAt = () => ev(`document.querySelector('#bot').dataset.rc`);
+const robotReady = (idx) => waitFor(`!document.querySelector('.overlay') && !!document.querySelector('.rb-board') && document.querySelectorAll('.dots .done').length === ${idx} && !document.querySelector('.rb-cell.ok')`);
+
+await ev(`location.hash = '#/home'`); await sleep(400);
+check("home: the robot tile is playable", await ev(`!document.querySelector('.tile[data-game=robot]').classList.contains('soon')`));
+await click(".tile[data-game=robot]");
+await robotReady(0);
+await shot("ui-10-robot-first");
+let rq = await readRobot();
+check("robot Vòng 1: a 4×4 board with a flag, no walls, 12 empty step slots", rq.size === 4 && rq.walls.length === 0 && rq.slots === 12 && (await filledSlots()) === 0 && rq.tier === "Vòng 1");
+check("robot: the robot starts on the bottom row", Number(rq.start.split(",")[0]) === rq.size - 1);
+
+// arrow pad, keyboard, undo, limit
+await pressDirs(["U", "R"]);
+check("arrow pad adds steps to the program", (await filledSlots()) === 2);
+await click('.rb-slot[data-i="1"]');
+check("tapping the last step takes it back", (await filledSlots()) === 1);
+await click("#clear");
+await pressDirs(["U", "R", "U"]);
+await click('.rb-slot[data-i="0"]');
+check("only the LAST step can be taken back by tapping (a step in the middle stays)", (await filledSlots()) === 3);
+await click("#clear");
+await send("Input.dispatchKeyEvent", { type: "keyDown", key: "ArrowUp", code: "ArrowUp", windowsVirtualKeyCode: 38 });
+await send("Input.dispatchKeyEvent", { type: "keyDown", key: "ArrowRight", code: "ArrowRight", windowsVirtualKeyCode: 39 });
+check("keyboard arrows add steps", (await filledSlots()) === 2);
+await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Backspace", code: "Backspace", windowsVirtualKeyCode: 8 });
+check("Backspace removes the last step", (await filledSlots()) === 1);
+await click("#clear");
+for (let i = 0; i < 13; i++) await click('.rb-pad [data-dir="U"]');
+check("a program holds at most 12 steps", (await filledSlots()) === 12);
+await click("#clear");
+check("Làm lại clears the program", (await filledSlots()) === 0);
+await click("#run");
+await sleep(500);
+check("Chạy! with no steps is a nudge, not an answer", (await ev(`!document.querySelector('.overlay')`)) && (await questionIndex()) === 0);
+
+// a step into the edge: the robot bumps and goes back; it is a wrong try with its own message
+await pressDirs(["D"]);
+await click("#run");
+check("bumping into the edge: retry card says the robot was blocked", (await overlayKind()) === "retry" && /bị chặn/.test(await ev(`document.querySelector('.overlay p').textContent`)));
+check("after the bump the robot is back at the start", (await botAt()) === rq.start);
+await closeOverlay();
+check("the program is kept after a wrong try so it can be fixed", (await filledSlots()) === 1);
+await click("#clear");
+let route = routeOf(rq);
+await pressDirs(route);
+await click("#run");
+check("the whole route reaches the flag (right on the retry): praised", (await overlayKind()) === "correct");
+check("the robot is on the flag and the flag square turns green", (await botAt()) === rq.goal && (await ev(`!!document.querySelector('.rb-cell.goal.ok')`)));
+await closeOverlay();
+await robotReady(1);
+
+// --- rest of set 1: all correct ---
+const rbTiers = [rq.tier];
+for (let i = 1; i < 5; i++) {
+  rq = await readRobot();
+  rbTiers.push(rq.tier);
+  route = routeOf(rq);
+  if (i === 1) {
+    // a program that stops short: only the first step of the route (this is the first wrong try of the question)
+    await pressDirs([route[0]]);
+    await click("#run");
+    check("stopping short: retry card says the robot has not reached the flag", (await overlayKind()) === "retry" && /chưa tới/.test(await ev(`document.querySelector('.overlay p').textContent`)));
+    await closeOverlay();
+    check("the program (1 step) is kept; add the rest and run again", (await filledSlots()) === 1);
+    await pressDirs(route.slice(1));
+  } else {
+    await pressDirs(route);
+  }
+  await click("#run");
+  check(`robot set, question ${i + 1} (${rq.tier}): the route reaches the flag`, (await overlayKind()) === "correct");
+  if (i === 2) await shot("ui-10-robot-walk-done");
+  await closeOverlay();
+  if (i < 4) await robotReady(i + 1);
+}
+check("robot: starts at Vòng 1 and rises to Vòng 2 after careful answers", rbTiers[0] === "Vòng 1" && rbTiers.includes("Vòng 2"), rbTiers.join());
+check("robot: star screen, saved", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await profileOf(anId)).games.robot.sets === 1);
+await click("#back-home");
+
+// --- set 2: blocked twice → reveal shows the route ---
+await click(".tile[data-game=robot]");
+await robotReady(0);
+rq = await readRobot();
+await pressDirs(["D"]);
+await click("#run");
+await overlayKind(); await closeOverlay();
+await click("#run");
+check("blocked twice: the answer is revealed", (await overlayKind()) === "reveal");
+route = routeOf(rq);
+check("reveal shows the shortest route and the robot on the flag", (await filledSlots()) === route.length && (await botAt()) === rq.goal);
+await closeOverlay();
+await ev(`location.hash = '#/home'`); await sleep(300);
+
+// --- dev route: a Vòng 2 level with walls ---
+await ev(`__app.go('dev/robot/2/1/5')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 2')`); await sleep(300);
+const dq = await readRobot();
+check("dev: Vòng 2 level shows walls and bricks drawn from the question", dq.size === 5 && dq.walls.length >= 1 && dq.blocks.length >= 2, JSON.stringify(dq));
+await click("#dev-solve");
+check("dev: 'Giải' walks the shortest route to the flag", await waitFor(`document.querySelector('#bot').dataset.rc === '${dq.goal}' && document.querySelectorAll('.rb-slot.on').length === ${routeOf(dq).length}`, 20000));
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 

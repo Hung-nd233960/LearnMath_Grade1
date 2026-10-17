@@ -69,6 +69,7 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `screens/stars.ts` | End-of-set screen; reads `ctx.lastSet` (set by `play.ts`, cleared when you leave). |
 | `screens/dev.ts` | Dev-only `#/dev/<id>/<tier>/<step>/<seed>`: one deterministic question + a "Giải" button. |
 | `games/types.ts`, `games/index.ts` | The `GameView` contract and the `VIEWS` registry. |
+| `games/robot.ts` | The Rô-bốt screen: an animated result in `playResult` driven by `simulate()`, a program the child edits, `reveal` that fills and walks the solution, and a document-level key listener removed in `unmount`. |
 | `games/scale.ts` | The Cái cân screen: live tilt vs the padlock, fixed vs movable items, `playResult` that animates the outcome and `reset` that re-locks. |
 | `games/basket.ts`, `games/art.ts` | The Giỏ trái cây screen: the model for views that draw their own prompt (`ownPrompt`), move items with `dragTap`, and react to wrong tries / the mute switch. `art.ts` holds SVG drawings shared by several games. |
 | `games/equations.ts` | The Tính theo hình screen (second game screen; simpler than split, a good second example). |

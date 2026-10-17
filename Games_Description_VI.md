@@ -158,7 +158,7 @@ Một dạng về sau dùng **hình khối**: hình tam giác nặng 3, hình vu
 
 **Ý tưởng.** Những bước đầu của lập trình và tư duy logic. Em ra lệnh cho rô-bốt bằng một dãy mũi tên để đi tới lá cờ.
 
-**Cách chơi.** Lưới ô vuông có rô-bốt và lá cờ. Em chạm các nút mũi tên (↑ ↓ ← →) để tạo danh sách dưới mục **"Các bước của em"**. Em chạm **"Chạy!"**, rô-bốt sẽ đi lần lượt từng bước. **"Làm lại"** xóa danh sách.
+**Cách chơi.** Lưới ô vuông có rô-bốt và lá cờ. Em chạm các nút mũi tên (↑ ↓ ← →) để tạo danh sách dưới mục **"Các bước của em"**. Em chạm **"Chạy!"**, rô-bốt sẽ đi lần lượt từng bước. **"Làm lại"** xóa danh sách. Một vài hỗ trợ nhỏ: chạm vào bước **cuối cùng** để bỏ bước đó (nhầm một bước không phải làm lại từ đầu), phím mũi tên trên bàn phím cũng dùng được, và bấm "Chạy!" khi chưa có bước nào chỉ nhắc nhẹ, không tính là thử sai. Chương trình có tối đa 12 bước.
 
 **Các vòng.**
 
@@ -312,6 +312,7 @@ Màn hình vẫn gọn gàng, nhưng luôn **phản hồi** lại các em. Bốn
 | **Âm thanh hiệu ứng** | Tiếng bấm, nhặt, thả, chúc mừng và "ôi" ngắn, tách riêng với giọng đọc. |
 
 Ba chế độ nhanh: **Yên tĩnh** (tắt hết, cho các em dễ mất tập trung), **Vừa phải** (không có hình nền trôi), **Rực rỡ** (bật hết, mặc định). Nếu thiết bị bật chế độ giảm chuyển động, hoạt ảnh sẽ tắt sẵn.
+
 - Chạy trên iPad đặt ngang và trên máy tính. Trên điện thoại hoặc iPad để dọc, một thông báo sẽ nhắc em xoay ngang màn hình hoặc dùng máy tính bảng.
 
 ---

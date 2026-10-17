@@ -46,6 +46,10 @@ export const STR = {
   eqQuestion: "Câu hỏi",
 
   and: "và",
+  robotSteps: "Các bước của em",
+  run: "Chạy!",
+  clearProgram: "Làm lại",
+  dirTitle: { U: "Lên", D: "Xuống", L: "Sang trái", R: "Sang phải" },
   scaleKey: "Bảng cân",
   scaleTray: "Kéo quả vào đĩa:",
   scaleLockTip: "Cân đang được chốt: bấm Xong để thả cân",

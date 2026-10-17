@@ -72,9 +72,12 @@
 - [x] `npm run ui:check` has 178 checks (30 new): live tilt, counts and sign, fixed fruit cannot move, fruit on the heavier pan widens the gap and can be taken back, drag from the tray, padlock and level beam in Vòng 2+, a whole set, unbalanced → "Đĩa bên … còn nặng hơn", retry then praise, reveal balances the pans, dev route with the three-kind table. The global watchdog of the check was raised to 7 minutes.
 - **Done when:** the tilt direction always matches `check()`'s `leftHeavier` / `rightHeavier`. ✔ checked in a real browser (the beam rotates by the same weights `check()` compares).
 
-## 7. Rô-bốt ☐
-- [ ] `src/ui/games/robot.ts`: square grid, blocks (brick), walls (red bars), program slots (max 12), arrow pad + keyboard arrows, Làm lại / Chạy!, animate `simulate().cells`, nudge + shake on `crashAt`
-- **Done when:** every tier's generated level can be solved by entering `logic.solve(q)`.
+## 7. Rô-bốt ☑
+- [x] `src/ui/games/robot.ts` (+ `robot.css`): square board from the question (flag, bricks, red walls), arrow pad + keyboard arrows, 12 step slots, "Làm lại" / "Chạy!"; the walk is animated from `simulate()` (the same function that judges), with a bump-and-return on a blocked step, a green flag square and a hop on success; the reveal fills the slots with the shortest route and walks it; `ready: true`
+- [x] Helpers for small children: tapping the **last** step removes it (undo), Backspace too; "Chạy!" with no steps is a nudge, not a wrong try; the program is kept after a wrong try so it can be fixed
+- [x] `npm run ui:check` has 206 checks (28 new): the checks find the route themselves (breadth-first search over the walls and bricks read from the screen) and drive the pad, keyboard, undo, the 12-step limit, an empty run, a bump into the edge, stopping short, a whole set, reveal, and the dev route with walls and bricks. The overlay wait is 15 s (a walk is slow) and the global watchdog is 15 min.
+- **Done when:** every tier's generated level can be solved by entering the shortest route. ✔ checked in a real browser (route found from the drawn board).
+- **Not built (stretch, see "Later"):** the number-pattern and "collect 10" variants.
 
 ## 8. So sánh cân ☐
 - [ ] `src/ui/games/compare.ts`: mini brass scales from `weighings`, tap-one (heaviest / lightest) or order slots

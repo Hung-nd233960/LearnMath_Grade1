@@ -158,7 +158,7 @@ A later variant uses **shapes**: a triangle weighs 3, a square or rectangle weig
 
 **Idea.** The first steps of programming and logical thinking. Children give the robot a list of arrow commands to reach the flag.
 
-**How it is played.** A square grid shows the robot and a flag. The child taps arrow buttons (↑ ↓ ← →) to build a list under **"Các bước của em"** (my steps). They tap **"Chạy!"** (Run) and the robot walks the list one step at a time. **"Làm lại"** clears the list.
+**How it is played.** A square grid shows the robot and a flag. The child taps arrow buttons (↑ ↓ ← →) to build a list under **"Các bước của em"** (my steps). They tap **"Chạy!"** (Run) and the robot walks the list one step at a time. **"Làm lại"** clears the list. Small helpers: tapping the **last** step takes it back (so one slip does not mean starting over), the computer's arrow keys also work, and pressing "Chạy!" with no steps only gives a gentle nudge; it does not count as a wrong try. A program holds up to 12 steps.
 
 **Rounds.**
 
@@ -312,6 +312,7 @@ The screens stay tidy, and they **react** to the child. Four effects can each be
 | **Âm thanh hiệu ứng** (sound effects) | Short tap, pick-up, drop, success and "oops" sounds, separate from the voice. |
 
 Three presets: **Yên tĩnh** (all off, for children who are easily distracted), **Vừa phải** (no background pictures), **Rực rỡ** (everything on, the default). If the device asks for reduced motion, animation starts off.
+
 - Works on iPad in landscape and on desktop. On a phone or an upright iPad, a message asks the child to turn the screen sideways or use a tablet.
 
 ---

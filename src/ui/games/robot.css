@@ -1,0 +1,32 @@
+/* Rô-bốt. Ported from mockup/v2/robot.html (class names prefixed rb-). */
+.rb-board { position: absolute; left: 40px; top: 172px; width: 600px; height: 600px; background: #2f7a47; border-radius: 34px; box-shadow: 0 10px 0 #22603a; }
+.rb-grid { position: absolute; inset: 20px; }
+.rb-cell { position: absolute; background: #fff; border-radius: 16px; display: grid; place-items: center; transition: background 0.2s; }
+.rb-cell.goal { background: #fff3cc; }
+.rb-cell.block { background: #b9c9bd; }
+.rb-cell.ok { background: #c8f0d2; }
+.rb-cell.bad { background: #ffd0c8; }
+.rb-wall { position: absolute; background: #e8604c; border-radius: 6px; box-shadow: 0 0 0 3px #fff; z-index: 2; }
+.rb-bot { position: absolute; z-index: 3; transition: transform 0.38s cubic-bezier(0.4, 1.4, 0.6, 1); pointer-events: none; }
+.rb-bot img { width: 100%; height: 100%; }
+.rb-bot.hop { animation: rbHop 0.5s ease-out 2; }
+@keyframes rbHop { 40% { margin-top: -16px; } }
+
+.rb-side { position: absolute; left: 680px; right: 40px; top: 172px; bottom: 40px; display: flex; flex-direction: column; gap: 22px; }
+.rb-prog { padding: 18px 22px 20px; }
+.rb-prog h3 { font-size: 24px; margin-bottom: 10px; }
+.rb-slots { display: grid; grid-template-columns: repeat(6, 56px); gap: 10px; }
+.rb-slot { width: 56px; height: 56px; border-radius: 14px; border: 3px dashed #9aa5bd; display: grid; place-items: center; }
+.rb-slot.on { border: 0; background: var(--navy); color: #fff; }
+.rb-slot.run { background: #ffc53d; color: var(--navy); transform: scale(1.1); }
+.rb-slot svg { width: 30px; height: 30px; }
+.rb-pad { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(2, 100px); gap: 12px; justify-content: center; }
+.rb-pad button { background: #fff; border-radius: 24px; display: grid; place-items: center; box-shadow: 0 7px 0 rgba(30, 42, 74, 0.18); }
+.rb-pad button:active { transform: translateY(5px); box-shadow: 0 2px 0 rgba(30, 42, 74, 0.18); }
+.rb-pad button svg { width: 50px; height: 50px; }
+.rb-pad .u { grid-column: 2; grid-row: 1; }
+.rb-pad .l { grid-column: 1; grid-row: 2; }
+.rb-pad .d { grid-column: 2; grid-row: 2; }
+.rb-pad .r { grid-column: 3; grid-row: 2; }
+.rb-actions { display: flex; gap: 18px; justify-content: center; margin-top: auto; }
+.rb-actions .btn { flex: 1; justify-content: center; }
