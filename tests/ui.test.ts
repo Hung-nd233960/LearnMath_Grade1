@@ -1,6 +1,8 @@
 // Pure parts of the UI layer (no DOM needed): routing and stage geometry.
 import { describe, expect, it } from "vitest";
+import { dailyLeftNow, defaultLimits, newUsage } from "../src/core/screentime.ts";
 import { GATE_HOLD_MS } from "../src/ui/adultGate.ts";
+import { clampPage, paginate } from "../src/ui/paginate.ts";
 import { parseRoute } from "../src/ui/router.ts";
 import { computeScale, isPortrait, STAGE_H, STAGE_W } from "../src/ui/stage.ts";
 
@@ -40,5 +42,26 @@ describe("adult gate", () => {
   it("must be held for about a second", () => {
     expect(GATE_HOLD_MS).toBeGreaterThanOrEqual(1000);
     expect(GATE_HOLD_MS).toBeLessThanOrEqual(1500);
+  });
+});
+
+describe("paginate", () => {
+  it("splits into pages and never returns zero pages", () => {
+    expect(paginate([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]]);
+    expect(paginate([1, 2], 2)).toEqual([[1, 2]]);
+    expect(paginate([], 8)).toEqual([[]]);
+    expect(clampPage(5, 3)).toBe(2);
+    expect(clampPage(-1, 3)).toBe(0);
+    expect(clampPage(Infinity, 3)).toBe(2);
+  });
+});
+
+describe("daily time left (home screen)", () => {
+  const limits = defaultLimits();
+  it("counts played time and adult bonus for today only", () => {
+    const u = { ...newUsage("2026-10-17", 0), playedMs: 8 * 60000, bonusMs: 10 * 60000 };
+    expect(dailyLeftNow(u, limits, "2026-10-17")).toBe(32 * 60000);
+    expect(dailyLeftNow(u, limits, "2026-10-18")).toBe(limits.dailyMin * 60000); // stale usage = fresh day
+    expect(dailyLeftNow({ ...u, playedMs: 99 * 60000 }, limits, "2026-10-17")).toBe(0);
   });
 });

@@ -1,0 +1,19 @@
+/* "Ai đang chơi hôm nay?" */
+.screen-who .head { position: absolute; left: 60px; right: 60px; top: 40px; display: flex; align-items: center; gap: 24px; }
+.screen-who .head .meo { width: 150px; height: 150px; flex: none; }
+.screen-who .head h1 { font-size: 50px; font-weight: 800; line-height: 1.1; }
+.screen-who .head p { margin: 4px 0 0; font-size: 22px; }
+.screen-who .kids { position: absolute; left: 60px; right: 60px; top: 230px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.screen-who .kid {
+  height: 236px; border-radius: 30px; background: #fff; box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  transition: transform 0.15s;
+}
+.screen-who .kid:hover { transform: translateY(-5px) rotate(-1deg); }
+.screen-who .kid b { font: 800 30px "Baloo 2"; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.screen-who .kid.add { background: transparent; border: 5px dashed #9fb0d0; box-shadow: none; color: var(--ink-muted); }
+.screen-who .kid.add .plus { width: 130px; height: 130px; border-radius: 50%; background: #fff; display: grid; place-items: center; font: 800 70px/1 "Baloo 2"; color: #9fb0d0; padding-bottom: 8px; }
+.screen-who .pager { position: absolute; right: 60px; top: 84px; display: flex; align-items: center; gap: 14px; }
+.screen-who .pager .btn-round { width: 60px; height: 60px; }
+.screen-who .pager .btn-round:disabled { opacity: 0.35; box-shadow: none; }
+.screen-who .note { position: absolute; bottom: 30px; left: 60px; right: 60px; text-align: center; color: var(--ink-muted); font-size: 16px; }

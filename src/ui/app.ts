@@ -9,14 +9,18 @@ import type { Fx, Settings } from "../core/settings.ts";
 import type { AppContext } from "./context.ts";
 import { ensureSvgDefs } from "./svgDefs.ts";
 import { kitScreen } from "./screens/kit.ts";
-import { placeholderScreen } from "./screens/placeholder.ts";
+import { homeScreen } from "./screens/home.ts";
+import { whoScreen } from "./screens/who.ts";
 import { Router, type ScreenDef } from "./router.ts";
 import { createStage } from "./stage.ts";
 
 /** Screens by route name. Steps 2–10 of docs/BUILD_PLAN.md add: who, home, play, stars, break, locked, teacher. */
 const SCREENS: Record<string, ScreenDef> = {
-  home: placeholderScreen,
+  who: whoScreen,
+  home: homeScreen,
 };
+/** Routes that work without a chosen child (everything else sends you to "who"). */
+const OPEN_ROUTES = new Set(["who", "teacher", "kit"]);
 // Dev-only component gallery at #/kit (dead code in production builds).
 if (import.meta.env.DEV) SCREENS.kit = kitScreen;
 
@@ -64,7 +68,7 @@ export function startApp(host: HTMLElement): AppContext {
     }
   });
 
-  router = new Router(ctx, SCREENS, { home: "home" });
+  router = new Router(ctx, SCREENS, { home: "home", guard: (r) => (!store.activeProfile && !OPEN_ROUTES.has(r.name) ? "who" : null) });
   router.start();
   // Dev console: window.__app.store.update(...) to seed profiles and settings.
   if (import.meta.env.DEV) (window as unknown as { __app: AppContext }).__app = ctx;

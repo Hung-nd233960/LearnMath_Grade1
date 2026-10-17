@@ -62,7 +62,10 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `numpad.ts` | `createNumpad(container, { scope: screen, maxDigits?, onChange? })` → `{ activate(box), dispose }`. Builds 1–9, 0, xoá; `.answer-box` elements inside `scope` receive the digits (keyboard digits too). Read a box with `boxValue(box)`; set with `setBox(box, "12")`. |
 | `adultGate.ts` | `mountAdultGate(parent, onOpen)` → cleanup. The padlock: hold about a second to call `onOpen` (navigate to `teacher`); a quick tap only shows the hint. |
 | `decor.ts` | `mountDecor(screen, key)`: called by the router; you only edit the `DECOR_SETS` table for a new screen. |
-| `screens/placeholder.ts` | Temporary home screen (step 1). **Replace it in step 2.** |
+| `avatars.ts` | `avatarBadge(stem, size)`: a round picture on a soft colour; `avatarColor(stem)`. |
+| `paginate.ts` | `paginate(items, perPage)` and `clampPage` (pure, tested). |
+| `screens/who.ts`, `screens/home.ts` | The picker and the home screen (step 2). Good examples of how a screen is written: `mount({ ctx, screen })`, build with `h()`, return a cleanup. |
+| `screens/addProfile.ts` | `openAddProfile(ctx, onAdded)`: the "Thêm bạn mới" form (name + picture). Reuse it in the teacher area. |
 | `screens/kit.ts` | Dev-only gallery at `#/kit`: every component above on one screen (not in production builds). Open it to see how they look and work. |
 
 Also: `src/i18n/ui.ts` holds fixed button and notice texts as `STR` (add new ones there). `src/styles/` has `tokens.css`, `base.css`, `components.css` and `fx.css`; add per-screen CSS next to the screen (`import "./home.css"`) and use the tokens.

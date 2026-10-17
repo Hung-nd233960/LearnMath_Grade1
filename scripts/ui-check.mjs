@@ -2,7 +2,7 @@
 // (real mouse events, real layout). Needs Node 24 and Chrome/Edge.
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
-// It currently checks the step-1 foundation through the dev-only gallery at #/kit.
+// It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -44,7 +44,7 @@ const ev = async (expr) => {
 };
 const viewport = (width, height) => send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });
 const nav = async (url) => { const p = new Promise((r) => (loaded = r)); await send("Page.navigate", { url }); await p; await sleep(400); };
-const shot = async (name) => { const r = await send("Page.captureScreenshot", { format: "png" }); writeFileSync(`${SP}/${name}.png`, Buffer.from(r.result.data, "base64")); };
+const shot = async (name) => { await sleep(900); /* let pop-in animations finish */ const r = await send("Page.captureScreenshot", { format: "png" }); writeFileSync(`${SP}/${name}.png`, Buffer.from(r.result.data, "base64")); };
 const center = (sel) => ev(`(() => { const r = document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`);
 const mouse = (type, x, y) => send("Input.dispatchMouseEvent", { type, x, y, button: "left", buttons: type === "mouseReleased" ? 0 : 1, clickCount: 1 });
 const click = async (sel) => { const [x, y] = await center(sel); await mouse("mousePressed", x, y); await mouse("mouseReleased", x, y); await sleep(60); };
@@ -67,9 +67,9 @@ await viewport(1180, 820);
 await nav(URL_BASE);
 check("stage exists at 1180x820", await ev(`(() => { const r = document.querySelector('.stage').getBoundingClientRect(); return Math.round(r.width) === 1180 && Math.round(r.height) === 820; })()`));
 check("fx classes default on", await ev(`['fx-anim','fx-decor','fx-celebrate','fx-sfx'].every(c => document.documentElement.classList.contains(c))`));
-check("placeholder text shown", (await ev(`document.querySelector('.placeholder h1')?.textContent`)) === "Thám tử Toán học Tí hon");
+check("first run: no child yet, so the picker opens with the add form", await ev(`!!document.querySelector('.screen-who') && !!document.querySelector('.overlay .add-card')`));
 check("svg defs injected once", (await ev(`document.querySelectorAll('#ttth-defs').length`)) === 1);
-await shot("ui-1-placeholder");
+await shot("ui-1-first-run");
 
 // ---------- 2. scaling + portrait ----------
 await viewport(2360, 1640);
@@ -173,8 +173,88 @@ check("guide: closed callback", (await ev(`document.querySelector('#kit-status')
 
 // leaving a screen cleans up
 await ev(`location.hash = '#/home'`); await sleep(200);
-check("navigation: kit gone, listeners cleaned", await ev(`!document.querySelector('#kit-status') && document.querySelectorAll('.gate-btn, .ghost, .overlay').length === 0 && !!document.querySelector('.placeholder')`));
-await send("Input.dispatchKeyEvent", { type: "keyDown", key: "9", text: "9" });
+check("navigation: kit gone, listeners cleaned; no child chosen so the picker shows", await ev(`!document.querySelector('#kit-status') && document.querySelectorAll('.gate-btn, .ghost').length === 0 && !!document.querySelector('.screen-who')`));
+
+// ---------- 5. profiles and home (step 2) ----------
+const key = (k, extra = {}) => send("Input.dispatchKeyEvent", { type: "keyDown", key: k, ...extra });
+const typeName = async (name) => { await sleep(150); await send("Input.insertText", { text: name }); await sleep(50); };
+const names = () => ev(`Object.values(__app.store.data.profiles).map(p => p.name).join(',')`);
+const goHash = async (h) => { await ev(`location.hash = ${JSON.stringify(h)}`); await sleep(350); };
+
+check("guard: guarded route with no child goes to the picker", (await ev(`__app.store.activeProfile === null && !!document.querySelector('.screen-who')`)));
+await sleep(200);
+check("add form: OK disabled while the name is empty", await ev(`document.querySelector('.add-card .btn-primary').disabled === true`));
+await key("Enter", { code: "Enter", windowsVirtualKeyCode: 13, text: "\r" });
+check("add form: Enter with an empty name does nothing", (await names()) === "" && await ev(`!!document.querySelector('.add-card')`));
+await typeName("Bình");
+check("add form: typing enables OK", await ev(`document.querySelector('.add-card .btn-primary').disabled === false`));
+await click('.av-opt[data-avatar="strawberry"]');
+check("add form: chosen picture is marked", await ev(`document.querySelector('.av-opt.on').dataset.avatar === 'strawberry'`));
+await shot("ui-5-add-form");
+await click(".add-card .btn-primary");
+check("child 1 added (name + picture) and form closed", (await names()) === "Bình" && (await ev(`Object.values(__app.store.data.profiles)[0].avatar`)) === "strawberry" && await ev(`!document.querySelector('.overlay')`));
+check("picker shows the child and the add tile", await ev(`document.querySelectorAll('.kid[data-profile]').length === 1 && !!document.querySelector('#add-friend')`));
+
+await click("#add-friend");
+await typeName("An");
+await key("Enter", { code: "Enter", windowsVirtualKeyCode: 13, text: "\r" });
+check("child 2 added with Enter (default picture)", (await names()) === "Bình,An" && (await ev(`Object.values(__app.store.data.profiles)[1].avatar`)) === "rocket");
+await click("#add-friend");
+await sleep(150);
+await click(".add-card .btn-secondary");
+check("add form: Huỷ closes without adding", (await names()) === "Bình,An" && await ev(`!document.querySelector('.overlay')`));
+
+// seed different progress for the two children (what the play loop will do in step 3)
+await ev(`(async () => {
+  const { recordSet } = await import('/src/core/profiles.ts');
+  const d = __app.store.data, [a] = d.order, now = Date.now(), today = __app.today();
+  const sum = (score, stars) => ({ seed: {tier:1,step:0}, score, total: 5, stars, nextSeed: {tier:1,step:1}, peakTier: 2, firstTries: [] });
+  let p = recordSet(d.profiles[a], 'scale', sum(5, 3), d.settings, now, today);
+  p = recordSet(p, 'robot', sum(2, 1), d.settings, now, today);
+  __app.store.update(x => ({ ...x, profiles: { ...x.profiles, [a]: p } }));
+})()`);
+await goHash("#/who");
+await shot("ui-5-picker");
+const idOf = (name) => ev(`Object.values(__app.store.data.profiles).find(p => p.name === ${JSON.stringify(name)}).id`);
+const binhId = await idOf("Bình"), anId = await idOf("An");
+await click(`.kid[data-profile="${binhId}"]`);
+check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
+const chips = () => ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`);
+check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn 30 phút", await chips());
+check("home: six tiles, all 'Sắp ra mắt' for now", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 6 && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
+check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
+check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
+await shot("ui-5-home");
+
+await click("#who-chip");
+check("tapping the child chip goes back to the picker", (await ev(`location.hash`)) === "#/who");
+await click(`.kid[data-profile="${anId}"]`);
+check("second child sees their own stars and streak", (await chips()) === "0 sao|Chuỗi mới nào!|còn 30 phút" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí An!", await chips());
+
+await nav(URL_BASE);
+check("reload keeps the last child (home, not the picker)", (await ev(`!!document.querySelector('.screen-home') && document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí An!");
+
+// dev-only look of ready tiles
+await nav(URL_BASE + "?allready");
+check("?allready (dev): tiles playable; unplayed ones are 'Mới!'", await ev(`document.querySelectorAll('.tile.soon').length === 0 && document.querySelectorAll('.tile .new').length === 6`));
+await ev(`__app.store.setActive(${JSON.stringify(binhId)}); __app.go('home')`);
+await sleep(300);
+check("?allready (dev): played games show best stars (3 and 1)", await ev(`document.querySelector('.tile[data-game=scale] .got img:not(.dim)') !== null && document.querySelectorAll('.tile[data-game=scale] .got img:not(.dim)').length === 3 && document.querySelectorAll('.tile[data-game=robot] .got img:not(.dim)').length === 1 && document.querySelectorAll('.tile[data-game=basket] .new').length === 1`));
+await shot("ui-5-home-ready");
+
+// many children: pages of 8
+await ev(`for (let i = 3; i <= 10; i++) __app.store.addProfile('Bạn ' + i, 'kite')`);
+await goHash("#/who");
+check("picker: first page holds 8 tiles, pager shown", await ev(`document.querySelectorAll('.kid').length === 8 && !!document.querySelector('#page-next') && document.querySelector('#page-prev').disabled === true`));
+await click("#page-next");
+check("picker: second page holds the rest including the add tile", await ev(`document.querySelectorAll('.kid').length === 3 && !!document.querySelector('#add-friend') && document.querySelector('#page-next').disabled === true`));
+await shot("ui-5-picker-page2");
+
+// guard: nobody chosen → guarded routes go to the picker
+await ev(`__app.store.setActive(null)`);
+await goHash("#/home");
+check("guard: home without a chosen child goes to the picker", await ev(`!!document.querySelector('.screen-who') && !document.querySelector('.screen-home')`));
+
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 
 console.log(`browser checks: ${passed} passed, ${failed} failed`);

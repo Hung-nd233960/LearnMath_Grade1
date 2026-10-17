@@ -25,13 +25,19 @@
 - [x] `src/styles/` from `mockup/v2/shared.css` (tokens, base, components, fx)
 - [x] `src/ui/`: `stage`, `dom`, `icons`, `mascot`, `svgDefs`, `overlay`, `effects`, `fx`, `dragTap`, `numpad`, `adultGate`, `decor`, `topbar`, `router`, `context`, `app`; fixed texts in `src/i18n/ui.ts`
 - [x] `main.ts` boots `app`; a placeholder home screen; a dev-only component gallery at `#/kit`
-- [x] Tests: `tests/ui.test.ts` (routes, scaling, portrait) and `npm run ui:check` (43 real-browser checks: scaling, portrait notice, settings → page classes, mute, numpad, drag and tap-then-tap, padlock hold, feedback/guide overlays, cleanup on navigation)
+- [x] Tests: `tests/ui.test.ts` (routes, scaling, portrait) and `npm run ui:check` (65 real-browser checks incl. step 2: scaling, portrait notice, settings → page classes, mute, numpad, drag and tap-then-tap, padlock hold, feedback/guide overlays, cleanup on navigation)
 - **Done when:** `npm run dev` shows an empty stage that scales to the window, the portrait notice works, and the fx classes follow `store.data.settings.fx`. ✔ checked in a real browser. The shared pieces are documented in [UI_GUIDE.md](UI_GUIDE.md), "UI modules".
 
-## 2. Profiles and home ☐
-- [ ] `#/who`: profile picker; add a profile (name + avatar from `AVATARS`); the first tap calls `voice.unlock()`
-- [ ] `#/home` with real data (see UI_GUIDE.md, "Routes and screens"); speaker toggles `settings.muted`
-- **Done when:** you can create two profiles, switch between them, and see separate stars and streak (seed them by calling `recordSet` in the dev console).
+## 2. Profiles and home ☑
+- [x] `#/who`: profile picker, 8 tiles per page with a pager; "+ Thêm bạn" opens the add form (name + picture from `AVATARS`); the first run (no children) opens the form by itself; choosing a child calls `voice.unlock()` and goes home
+- [x] `#/home` with real data: greeting, stars / streak / time-left chips, week strip, six tiles from `GAMES` (level, best stars, "Mới!" for unplayed, "Sắp ra mắt" while `ready` is false), child chip → picker, speaker, padlock → teacher
+- [x] Route guard: no chosen child → every route except `who`, `teacher`, `kit` goes to the picker
+- [x] Tests: `dailyLeftNow`, `paginate`; `npm run ui:check` now has 65 checks (22 new: add form, two children with separate stars and streak, switching, reload keeps the last child, paging, guard)
+- **Done when:** you can create two profiles, switch between them, and see separate stars and streak. ✔ checked in a real browser.
+- **Notes for later steps:**
+  - Set `ready: true` in `src/games/index.ts` when a game's screen is built (steps 3–8). Until then its tile is locked. In dev, open `/?allready` to preview the playable look.
+  - The home screen is drawn once and not redrawn on store changes. Step 9 should update the "còn N phút" chip itself (or re-mount home) when the daily limit changes.
+  - Adding children from the picker is open to everyone for now. Step 10 adds the same form to the teacher area (reuse `openAddProfile`); decide there whether to hide "+ Thêm bạn" from the child picker once the teacher area can do it.
 
 ## 3. Play loop + Mấy và mấy ☐
 - [ ] `#/play/<id>` generic game screen: `SetRunner`, top bar, prompt + voice, feedback overlays (correct / retry / reveal), next, end

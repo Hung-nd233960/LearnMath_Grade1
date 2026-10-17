@@ -57,6 +57,12 @@ export function newUsage(day: DayKey, now: number): Usage {
 
 export const dailyCapMs = (u: Usage, l: Limits) => l.dailyMin * 60000 + u.bonusMs;
 
+/** Play time left today in ms, as shown on the home screen. A usage record from an earlier day counts as a fresh day. */
+export function dailyLeftNow(u: Usage, l: Limits, today: DayKey): number {
+  const sameDay = u.day === today;
+  return Math.max(0, l.dailyMin * 60000 + (sameDay ? u.bonusMs : 0) - (sameDay ? u.playedMs : 0));
+}
+
 /** Call on every touch / click / key press. */
 export function noteInput(u: Usage, now: number): Usage {
   return { ...u, lastInputAt: now, nudged: false, paused: false };

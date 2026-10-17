@@ -1,0 +1,47 @@
+/* Home: greeting card with stars / streak / time / week, and the six game tiles. */
+.screen-home .top { position: absolute; top: 26px; left: 40px; right: 40px; height: 76px; display: flex; align-items: center; gap: 14px; }
+.screen-home .top h1 { font-size: 36px; font-weight: 800; flex: 1; }
+.screen-home .me-chip {
+  display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 999px;
+  padding: 6px 20px 6px 8px; box-shadow: var(--shadow); font-family: "Baloo 2"; font-weight: 800; font-size: 24px;
+}
+
+.screen-home .hero { position: absolute; top: 118px; left: 40px; right: 40px; height: 200px; display: flex; align-items: center; padding: 0 40px 0 26px; gap: 22px; }
+.screen-home .hero .meo { width: 170px; height: 170px; margin-top: -10px; flex: none; cursor: pointer; }
+.screen-home .hero .words { flex: 1; min-width: 0; }
+.screen-home .hero h2 { font-size: 40px; font-weight: 800; line-height: 1.1; }
+.screen-home .hero p { font-size: 22px; margin: 6px 0 14px; }
+.screen-home .chips { display: flex; gap: 10px; }
+.screen-home .chip { white-space: nowrap; display: flex; align-items: center; gap: 8px; border-radius: 999px; padding: 5px 14px 3px 6px; font-family: "Baloo 2"; font-weight: 800; font-size: 21px; }
+.screen-home .chip.star { background: #fff4cc; }
+.screen-home .chip.fire { background: #ffe3d6; }
+.screen-home .chip.time { background: #e4efff; }
+.screen-home .week-card { margin-left: auto; text-align: center; background: var(--home-bg); border-radius: 24px; padding: 12px 16px; flex: none; }
+.screen-home .week-card b { font-family: "Baloo 2"; font-size: 18px; display: block; }
+.screen-home .week { display: flex; gap: 5px; margin-top: 8px; }
+.screen-home .week span { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: "Baloo 2"; font-weight: 800; font-size: 16px; background: #fff; color: var(--ink-muted); }
+.screen-home .week span.ok { background: #ffb547; color: #fff; }
+.screen-home .week span.is-today { box-shadow: 0 0 0 3px var(--navy); }
+.screen-home .week span.off { background: transparent; color: #a8b1c6; }
+
+.screen-home .grid { position: absolute; top: 340px; left: 40px; right: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.screen-home .tile {
+  height: 192px; border-radius: 30px; position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  box-shadow: 0 8px 0 rgba(30, 42, 74, 0.1); transition: transform 0.15s;
+}
+.screen-home .tile:hover { transform: translateY(-4px) rotate(-0.6deg); }
+.screen-home .tile:active { transform: translateY(3px); }
+.screen-home .tile h3 { font-size: 30px; font-weight: 800; }
+.screen-home .tile .art { height: 118px; display: flex; align-items: flex-end; justify-content: center; }
+.screen-home .tile .lvl { position: absolute; top: 14px; left: 16px; background: rgba(255, 255, 255, 0.8); border-radius: 999px; padding: 3px 12px 1px; font-family: "Baloo 2"; font-weight: 700; font-size: 16px; }
+.screen-home .tile .got { position: absolute; top: 12px; right: 14px; display: flex; gap: 1px; }
+.screen-home .tile .got img { width: 26px; height: 26px; }
+.screen-home .tile .got img.dim { filter: grayscale(1); opacity: 0.35; }
+.screen-home .tile .new { position: absolute; top: 12px; right: 14px; background: var(--red); color: #fff; border-radius: 999px; padding: 3px 12px 1px; font-family: "Baloo 2"; font-weight: 800; font-size: 16px; transform: rotate(6deg); }
+.screen-home .tile.soon { cursor: default; filter: saturate(0.45); opacity: 0.8; }
+.screen-home .tile.soon:hover, .screen-home .tile.soon:active { transform: none; }
+.screen-home .tile .soon-badge { position: absolute; top: 12px; right: 14px; display: flex; align-items: center; gap: 4px; background: var(--navy); color: #fff; border-radius: 999px; padding: 3px 12px 1px 8px; font-family: "Baloo 2"; font-weight: 700; font-size: 16px; }
+.screen-home .eqart { display: flex; align-items: center; gap: 2px; font-family: "Baloo 2"; font-weight: 800; font-size: 40px; }
+.screen-home .gift-b { filter: hue-rotate(200deg); }
+.screen-home .gift-g { filter: hue-rotate(110deg); }
