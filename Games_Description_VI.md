@@ -12,7 +12,7 @@
 
 - Mèo Smarty chào em bằng tên và hiện **tổng số sao** cùng **chuỗi ngày chơi**.
 - Sáu ô tranh lớn, mỗi ô là một trò chơi, xếp thành lưới 3 × 2. Trò chơi chưa sẵn sàng sẽ hiện "Sắp ra mắt".
-- Nút loa để bật/tắt âm thanh. Một liên kết nhỏ "khu vực giáo viên" dẫn tới phần dành cho giáo viên (có mã PIN).
+- Nút loa để bật/tắt âm thanh. Một **ổ khoá nhỏ** ở góc dưới bên phải (giữ khoảng 1 giây) dẫn tới khu vực giáo viên (có mã PIN).
 
 ### 1.2 Ai đang chơi?
 

@@ -107,6 +107,19 @@ export const CLIP_GROUPS = {
     guide_cmp_3: "Đọc từng cân để tìm ra manh mối.",
     guide_cmp_4: "Chạm vào hộp đúng, hoặc xếp các hộp từ nhẹ đến nặng rồi bấm Xong.",
   },
+  "Mèo làm mẫu": {
+    demo_intro: "Mèo làm mẫu cho em xem nhé!",
+    demo_your_turn: "Đến lượt em nhé!",
+    demo_robot_look: "Rô-bốt ở dưới, lá cờ ở trên. Mèo phải tránh tường đỏ và ô gạch.",
+    demo_robot_U: "Mèo chạm mũi tên đi lên.",
+    demo_robot_D: "Mèo chạm mũi tên đi xuống.",
+    demo_robot_L: "Mèo chạm mũi tên sang trái.",
+    demo_robot_R: "Mèo chạm mũi tên sang phải.",
+    demo_robot_run: "Xếp xong rồi. Mèo bấm Chạy!",
+    demo_scale_key: "Mèo xem bảng cân để biết mỗi quả nặng bao nhiêu.",
+    demo_scale_light: "Đĩa này nhẹ hơn, nên Mèo thêm quả vào đây.",
+    demo_scale_done: "Hai đĩa đã nặng bằng nhau. Mèo bấm Xong!",
+  },
 } as const;
 
 type Groups = typeof CLIP_GROUPS;

@@ -11,12 +11,26 @@ npm install
 npm run dev        # develop
 npm test           # rules + game generators
 npm run build      # static site in dist/
+npm run desktop:build   # Windows app (.exe + installer), needs Rust; see docs/BUILD_PLAN.md step 13
 ```
+
+## Publishing
+
+The game and the user guide go to **GitHub Pages**, the Windows app to a **GitHub Release**, both by GitHub Actions (`.github/workflows/`).
+
+1. Push the repository to GitHub, then turn Pages on once: **Settings > Pages > Build and deployment > Source: GitHub Actions**.
+2. Every push to `main` runs the checks (types, tests), builds the app and publishes it:
+   - the game at `https://<user>.github.io/<repo>/`
+   - the guide at `https://<user>.github.io/<repo>/guide/`
+3. For the Windows app, push a version tag (`git tag v0.1.0 && git push origin v0.1.0`). The installer and a portable `.exe` appear under **Releases**.
+
+Works on any other static host too: upload the `dist/` folder (`npm run build`), plus `docs/guide/` as `dist/guide/`. See [THIRD_PARTY.md](THIRD_PARTY.md) for the licences of the pictures and fonts.
 
 ## Documents
 
 | Document | Contents |
 | --- | --- |
+| [docs/guide/](docs/guide/README.md) | **User guide** for teachers and parents (Vietnamese and English; Markdown and HTML, with screenshots and videos) |
 | [Games_Description_VI.md](Games_Description_VI.md) / [EN](Games_Description_EN.md) | What each game does (for teachers and judges) |
 | [docs/RULES.md](docs/RULES.md) | Difficulty, stars, streak and screen-time rules |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the code is organised |

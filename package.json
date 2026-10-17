@@ -13,9 +13,11 @@
     "test:watch": "vitest",
     "audio:script": "node scripts/audio-script.ts",
     "ui:check": "node scripts/ui-check.mjs",
-    "pwa:check": "node scripts/pwa-check.mjs"
+    "pwa:check": "node scripts/pwa-check.mjs",
+    "desktop:build": "npm run build && tauri build"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.12.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.5"

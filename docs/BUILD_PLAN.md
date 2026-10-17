@@ -113,7 +113,7 @@
 - [x] Auto-show the first time a child plays a game (`seenGuide`), marked seen as soon as it opens (`markGuideSeen`); the (i) button opens it any time. Closing it, either way, makes Mèo read the question again.
 - [x] Listening counts as activity (`ctx.time.touch()` at each step), so the 20 s idle nudge does not fire during a long narration.
 - [x] `npm run ui:check`: 339 checks (18 new): first time opens by itself, four steps, marked seen per game, stays closed the second time, (i) reopens it, a child who has seen it is not interrupted, narration order and highlight with a fake voice, closing stops the voice, silent device.
-- [ ] (stretch, not done) the ghost hand performing `logic.solve()` on a sample question, as CLAUDE.md describes. The card is text + voice for now; do this in step 13 if time allows, game by game (robot and scale first: they are the hardest to explain in words).
+- [x] (stretch) **Mèo's worked example** ("Xem Mèo làm mẫu") for **Rô-bốt** and **Cái cân**: see step 13. Other games keep the voiced text card.
 
 ## 12. Installable + offline ☑
 - [x] `public/manifest.webmanifest`: name, `display: fullscreen` (standalone as the fallback), landscape, 192 and 512 icons (maskable), start page `./`. Icons are Mèo drawn by `scripts/make-icons.mjs` into `public/icons/` (run it again only if the mascot changes). Apple touch icon and title in `index.html`.
@@ -125,10 +125,14 @@
 - **Done when:** the app installs to the iPad home screen and opens offline. ✔ in desktop Chrome; **still to do by hand on the real iPad** (step 13): Safari → Share → "Thêm vào Màn hình chính", open it once online, switch Wi-Fi off, open it again. Safari ignores `display: fullscreen` and `orientation` from the manifest: the "turn sideways" screen covers portrait.
 - **Deploying a new version:** upload the whole `dist/` folder. Devices pick up the new version the next time they open the app online (the new worker takes over at once; the open page keeps working).
 
-## 13. Polish and QA ☐
-- [ ] Run through the UI_GUIDE.md quality bar on a real iPad
+## 13. Polish and QA ◐ (in progress)
+- [x] **Mèo's worked examples** for Rô-bốt and Cái cân. `ui/demo.ts` mounts its own copy of the game view in a layer over the play screen, on a fixed sample question (`ui/games/demos.ts`: robot Vòng 2 with a wall, bricks and a turn; scale Vòng 2 with two kinds of fruit and the key). A ghost hand (Fluent "backhand index pointing up", MIT) moves to each control and taps it with the same pointer events a child makes, Mèo says what she does (11 new clips, group "Mèo làm mẫu"), the view shows the real result, and nothing is scored or saved. "Dừng", "Xem lại" and "Đến lượt em!" end or repeat it; the guide card offers it through the "Xem Mèo làm mẫu" button. The sample questions are unit tested (`tests/games.test.ts`) so a generator change cannot silently break the demo. To add a game: write its script in `demos.ts`.
+- [x] **Desktop app (Tauri 2)** in `src-tauri/`: a thin Rust shell that shows `dist/` in a native window (1180×820, resizable), with the app icon. `npm run desktop:build` builds the web app, then the `.exe` (`src-tauri/target/release/tham-tu-toan-hoc.exe`, about 7 MB) and an NSIS installer (`src-tauri/target/release/bundle/nsis/`). It needs Rust (`rustup`), the Visual Studio Build Tools and WebView2 (already part of Windows 11); the first build downloads crates and takes about 6 minutes. The service worker is skipped there (the app already carries its files); data lives in the app's own WebView2 storage, so use Sao lưu to move children between the browser version and the desktop version. The exe is not committed (`src-tauri/target/` is ignored): rebuild or attach it to a release.
+- [x] **User guide** in `docs/guide/` (Vietnamese and English, Markdown and HTML, 34 screenshots and 2 videos of the worked examples): written for teachers and parents. It is generated: `node scripts/guide-shots.mjs` (needs `npm run dev`) retakes the pictures and videos by driving the real app, `node scripts/make-guide.mjs` rebuilds the pages from `scripts/guide-content.mjs`. Retake after any visible change. The videos are WebM (play in Chrome, Edge, Firefox and current Safari); the pictures are the fallback.
+- [ ] Run through the UI_GUIDE.md quality bar on a real iPad (including the Safari "Thêm vào Màn hình chính" test from step 12)
 - [ ] `npm run build`; deploy `dist/` (GitHub Pages / Netlify)
-- [ ] Record the voice: hand [AUDIO_SCRIPT.md](AUDIO_SCRIPT.md) to the teacher; drop the files into `public/audio/`
+- [ ] Record the voice: hand [AUDIO_SCRIPT.md](AUDIO_SCRIPT.md) to the teacher (now 132 clips); drop the files into `public/audio/`
+- [ ] Worked examples for the other four games, if the teachers ask (same pattern; Giỏ trái cây is next in line)
 
 ---
 

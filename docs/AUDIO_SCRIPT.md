@@ -182,4 +182,20 @@ Mẹo thu âm:
 | `guide_cmp_3.mp3` | Đọc từng cân để tìm ra manh mối. |
 | `guide_cmp_4.mp3` | Chạm vào hộp đúng, hoặc xếp các hộp từ nhẹ đến nặng rồi bấm Xong. |
 
-Tổng cộng: **121** tệp.
+## Mèo làm mẫu
+
+| Tên tệp | Câu cần đọc |
+| --- | --- |
+| `demo_intro.mp3` | Mèo làm mẫu cho em xem nhé! |
+| `demo_your_turn.mp3` | Đến lượt em nhé! |
+| `demo_robot_look.mp3` | Rô-bốt ở dưới, lá cờ ở trên. Mèo phải tránh tường đỏ và ô gạch. |
+| `demo_robot_U.mp3` | Mèo chạm mũi tên đi lên. |
+| `demo_robot_D.mp3` | Mèo chạm mũi tên đi xuống. |
+| `demo_robot_L.mp3` | Mèo chạm mũi tên sang trái. |
+| `demo_robot_R.mp3` | Mèo chạm mũi tên sang phải. |
+| `demo_robot_run.mp3` | Xếp xong rồi. Mèo bấm Chạy! |
+| `demo_scale_key.mp3` | Mèo xem bảng cân để biết mỗi quả nặng bao nhiêu. |
+| `demo_scale_light.mp3` | Đĩa này nhẹ hơn, nên Mèo thêm quả vào đây. |
+| `demo_scale_done.mp3` | Hai đĩa đã nặng bằng nhau. Mèo bấm Xong! |
+
+Tổng cộng: **132** tệp.

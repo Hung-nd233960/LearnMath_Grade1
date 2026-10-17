@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9), the teacher area (step 10) and the guide (step 11).
+// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9), the teacher area (step 10), the guide (step 11) and Mèo's worked examples (step 13).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -1377,6 +1377,45 @@ await ev(`__app.store.setActive(${JSON.stringify(anId)})`);
 await ev(`__app.go('home')`); await sleep(300);
 await ev(`__app.go('play/split')`); await sleep(600);
 check("guide: a child who has seen it is not interrupted", !(await guideOpen()) && await ev(`!!document.querySelector('.sp')`));
+await ev(`__app.go('home')`); await sleep(200);
+
+// ---------- 15. Mèo's worked examples (ghost hand) ----------
+await ev(`__app.store.setActive(${JSON.stringify(anId)})`);
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, limits: { ...d.settings.limits, dailyMin: 60, sessionMin: 30 } } }))`);
+await resetUsage(anId);
+const openDemo = async (game) => {
+  await ev(`__app.go('home')`); await sleep(300);
+  await ev(`__app.go('play/${game}')`); await sleep(600);
+  await click(".btn-round.info");
+  await sleep(300);
+  await click("#guide-demo");
+  return waitFor(`!!document.querySelector('.demo-layer')`, 3000);
+};
+check("demo: games without a worked example have no demo button", await (async () => { await ev(`__app.go('play/split')`); await sleep(600); await click(".btn-round.info"); await sleep(300); const none = await ev(`!document.querySelector('#guide-demo')`); await click(".guide-card .btn-primary"); return none; })());
+check("demo: Rô-bốt's guide offers 'Xem Mèo làm mẫu' and starts it", await openDemo("robot"));
+check("demo: the guide card closed, a ribbon and a ghost hand are shown", await ev(`!document.querySelector('.guide-card') && !!document.querySelector('.demo-ribbon') && !!document.querySelector('.demo-hand')`));
+check("demo: it has its own copy of the game; the real question is untouched underneath", (await ev(`document.querySelectorAll('.rb').length`)) === 2 && (await ev(`document.querySelectorAll('.screen-play > .topbar .dots .done').length`)) === 0);
+await sleep(8000);
+const handMoved = await ev(`getComputedStyle(document.querySelector('.demo-hand')).transform`);
+check("demo: the ghost hand moves and steps appear in the program", handMoved !== "none" && (await ev(`document.querySelectorAll('.demo-layer .rb-slot.on').length`)) >= 1);
+await shot("ui-15-demo-robot");
+check("demo: the child cannot touch the demo's own controls", await ev(`getComputedStyle(document.querySelector('.demo-layer .game-body')).pointerEvents === 'none'`));
+check("demo: Rô-bốt's demo reaches the flag and offers 'Đến lượt em!'", await waitFor(`document.querySelector('.demo-layer.finished') && !!document.querySelector('.demo-layer .rb-cell.goal.ok')`, 90000));
+check("demo: the same path as the solver's (six steps) was built", (await ev(`document.querySelectorAll('.demo-layer .rb-slot.on').length`)) === 6);
+await shot("ui-15-demo-robot-end");
+await click("#demo-again");
+check("demo: 'Xem lại' starts it again from the beginning", await waitFor(`!!document.querySelector('.demo-layer') && document.querySelectorAll('.demo-layer .rb-slot.on').length === 0 && !document.querySelector('.demo-layer.finished')`, 3000));
+await sleep(2500);
+await click("#demo-stop");
+check("demo: 'Dừng' stops it at once and leaves the real question as it was", await waitFor(`!document.querySelector('.demo-layer')`, 2000) && (await ev(`document.querySelectorAll('.rb').length`)) === 1 && (await ev(`document.querySelectorAll('.rb-slot.on').length`)) === 0);
+await sleep(1500);
+check("demo: after stopping nothing keeps running (no stray hand or console error)", await ev(`!document.querySelector('.demo-hand')`) && consoleErrors.length === 0, JSON.stringify(consoleErrors));
+check("demo: Cái cân's demo starts", await openDemo("scale"));
+await shot("ui-15-demo-scale-start");
+check("demo: Cái cân's demo ends with both pans equal", await waitFor(`document.querySelector('.demo-layer.finished')`, 90000) && (await ev(`(() => { const w = [...document.querySelectorAll('.demo-layer .sc-pan')].map(p => [...p.querySelectorAll('[data-item]')].reduce((s, i) => s + Number(i.dataset.w), 0)); return w[0] === w[1] && w[0] > 0; })()`)));
+await shot("ui-15-demo-scale-end");
+await click("#demo-ok");
+check("demo: 'Đến lượt em!' closes it and the real scale is untouched", await waitFor(`!document.querySelector('.demo-layer')`, 2000) && (await ev(`document.querySelectorAll('.sc-tray [data-item]').length`)) > 0 && (await ev(`document.querySelectorAll('.screen-play .sc-pan [data-item]:not([data-fixed])').length`)) === 0);
 await ev(`__app.go('home')`); await sleep(200);
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));

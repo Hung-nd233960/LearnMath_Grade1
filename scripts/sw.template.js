@@ -25,6 +25,7 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== location.origin) return;
+  if (url.pathname.includes("/guide/")) return; // the user guide is published beside the app, not part of it: always fresh
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const hit = await cache.match(request, { ignoreSearch: true });

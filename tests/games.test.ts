@@ -10,6 +10,7 @@ import * as basketText from "../src/games/basket/text.ts";
 import { compareLogic } from "../src/games/compare/logic.ts";
 import { countSolutions, equationsLogic, isChainSolvable } from "../src/games/equations/logic.ts";
 import { GAMES } from "../src/games/index.ts";
+import { DEMOS } from "../src/ui/games/demos.ts";
 import { robotLogic, shortestPath, simulate } from "../src/games/robot/logic.ts";
 import { scaleLogic, weightOf } from "../src/games/scale/logic.ts";
 import { splitLogic } from "../src/games/split/logic.ts";
@@ -213,5 +214,29 @@ describe("guide (i) lines", () => {
         expect(s.clips[0], g.id).toContain(`guide_`);
       }
     }
+  });
+});
+
+describe("Mèo's worked examples", () => {
+  it("the robot sample has a wall, a turn and a path of at least five steps", () => {
+    const script = DEMOS.robot!;
+    const q = robotLogic.generate(script.pos, createRng(script.seed));
+    const path = robotLogic.solve!(q);
+    expect(path.length).toBeGreaterThanOrEqual(5);
+    expect(path.some((d) => d === "L" || d === "R") && path.some((d) => d === "U" || d === "D")).toBe(true);
+    expect(q.walls.length).toBeGreaterThanOrEqual(1);
+    expect(robotLogic.check(q, path).correct).toBe(true);
+  });
+  it("the scale sample uses two kinds of fruit, shows the table and holds the scale level", () => {
+    const script = DEMOS.scale!;
+    const q = scaleLogic.generate(script.pos, createRng(script.seed));
+    const answer = scaleLogic.solve!(q);
+    expect(new Set([...answer.addedLeft, ...answer.addedRight]).size).toBe(2);
+    expect(q.key.length).toBe(2);
+    expect(q.liveTilt).toBe(false);
+    expect(scaleLogic.check(q, answer).correct).toBe(true);
+  });
+  it("only games whose view is built get a demo", () => {
+    for (const id of Object.keys(DEMOS)) expect(GAMES.some((g) => g.id === id && g.ready)).toBe(true);
   });
 });

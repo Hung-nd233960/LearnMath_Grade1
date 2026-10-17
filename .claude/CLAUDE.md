@@ -19,7 +19,7 @@ An interactive web app of math mini-games for Vietnamese **grade 1** students (6
   - [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md): folders, layers, how a set flows.
   - [docs/UI_GUIDE.md](../docs/UI_GUIDE.md): how to build screens from `mockup/v2/`.
   - [docs/RULES.md](../docs/RULES.md): every rule in plain words, with its constant in `src/core/config.ts`.
-- **Commands:** `npm run dev` · `npm test` · `npm run typecheck` · `npm run build` · `npm run audio:script` · `npm run ui:check` (real-browser checks; needs `npm run dev` running) · `npm run pwa:check` (offline/install checks on the built app; needs `npm run preview` on :4173)
+- **Commands:** `npm run dev` · `npm test` · `npm run typecheck` · `npm run build` · `npm run audio:script` · `npm run ui:check` (real-browser checks; needs `npm run dev` running) · `npm run pwa:check` (offline/install checks on the built app; needs `npm run preview` on :4173) · `npm run desktop:build` (Windows .exe + installer via Tauri in `src-tauri/`; needs Rust) · `node scripts/guide-shots.mjs` then `node scripts/make-guide.mjs` (rebuild the user guide in `docs/guide/`)
 - **Code map:**
   - `src/core/`: pure rules (difficulty, `SetRunner`, stars and streak, screen time, settings, PIN, profiles, storage)
   - `src/games/<id>/logic.ts` + `text.ts`: each game's generator, checker and Vietnamese lines
@@ -50,7 +50,7 @@ An interactive web app of math mini-games for Vietnamese **grade 1** students (6
     - robot: path length, number of turns, obstacles
   - Seeding is **per set**: the next set starts from the previous set's result. 4/5 or better moves up one step, 1/5 or worse moves down one step. Given the time caps, expect about 1 set per game per day.
 - **Wrong answers:** Mèo Smarty gives a hint and the child gets one retry. Only first tries count toward the score.
-- **Guide (i):** each game has an (i) button that plays an animated worked example by Mèo Smarty (a ghost hand solving one question, with voice). It plays automatically the first time a profile opens that game. Some games are hard for 6-year-olds, so the guide matters.
+- **Guide (i):** each game has an (i) button: a card of four spoken steps (voice reads each, the line being read is highlighted). It opens automatically the first time a profile opens that game. Rô-bốt and Cái cân also have "Xem Mèo làm mẫu", a ghost hand solving a sample question with voice (`src/ui/demo.ts`, `src/ui/games/demos.ts`); add a script there to give another game one. Some games are hard for 6-year-olds, so the guide matters.
 - **Stars:**
   - Finishing a set earns ⭐ (effort).
   - 3/5 or better earns ⭐⭐.

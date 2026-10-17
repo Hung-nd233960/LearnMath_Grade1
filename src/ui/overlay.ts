@@ -66,11 +66,13 @@ export interface GuideOptions {
   voice?: Voice;
   /** Called at the start of each step: the clock treats a listening child as active. */
   onStep?: () => void;
+  /** When given, the card offers "Xem Mèo làm mẫu": the card closes and this runs. */
+  onDemo?: () => void;
   onClose?: () => void;
 }
 
 /** The guide (i): Mèo explains how to play in a few steps, reading each aloud. */
-export function showGuide(stage: HTMLElement, steps: readonly Speech[], { voice, onStep, onClose }: GuideOptions = {}): Overlay {
+export function showGuide(stage: HTMLElement, steps: readonly Speech[], { voice, onStep, onDemo, onClose }: GuideOptions = {}): Overlay {
   const items = steps.map((s) => h("li", null, s.text));
   let run = 0;
   const narrate = async () => {
@@ -94,8 +96,9 @@ export function showGuide(stage: HTMLElement, steps: readonly Speech[], { voice,
       h("ol", null, ...items),
       h("div", { class: "guide-actions" },
         h("button", { class: "btn btn-primary", "data-close": true }, STR.guideOk),
-        voice ? h("button", { class: "btn btn-secondary guide-replay", onclick: () => void narrate() }, STR.replay) : null)));
-  const overlay = openOverlay(stage, card, () => {
+        voice ? h("button", { class: "btn btn-secondary guide-replay", onclick: () => void narrate() }, STR.replay) : null,
+        onDemo ? h("button", { class: "btn btn-secondary guide-demo", id: "guide-demo", onclick: () => { overlay.close(); onDemo(); } }, STR.demoButton) : null)));
+  const overlay: Overlay = openOverlay(stage, card, () => {
     run++; // ends the narration loop
     voice?.stop();
     onClose?.();

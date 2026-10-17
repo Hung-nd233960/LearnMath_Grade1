@@ -17,6 +17,7 @@ import { mountDecor } from "../decor.ts";
 import { VIEWS } from "../games/index.ts";
 import type { GameView } from "../games/types.ts";
 import { ICON } from "../icons.ts";
+import { hasDemo, runDemo } from "../demo.ts";
 import { showFeedback, showGuide } from "../overlay.ts";
 import type { ScreenDef } from "../router.ts";
 import { topbar } from "../topbar.ts";
@@ -43,6 +44,7 @@ export const playScreen: ScreenDef = {
     let answering = false;
     let disposed = false;
     let wrongTries = 0;
+    let stopDemo: (() => void) | null = null;
 
     const body = h("div", { class: "game-body" });
     const promptText = h("span");
@@ -66,7 +68,8 @@ export const playScreen: ScreenDef = {
       showGuide(ctx.stage.el, game.text.GUIDE_STEPS, {
         voice: ctx.voice,
         onStep: () => ctx.time.touch(),
-        onClose: () => { if (!disposed) void ctx.voice.play(promptSpeech); },
+        onDemo: hasDemo(game) ? () => { stopDemo = runDemo(ctx, game, () => { stopDemo = null; if (!disposed) void ctx.voice.play(promptSpeech); }); } : undefined,
+        onClose: () => { if (!disposed && !stopDemo) void ctx.voice.play(promptSpeech); },
       });
     };
 
@@ -148,6 +151,7 @@ export const playScreen: ScreenDef = {
 
     return () => {
       disposed = true;
+      stopDemo?.();
       view?.unmount();
       ctx.voice.stop();
     };

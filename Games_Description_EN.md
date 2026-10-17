@@ -12,7 +12,7 @@ The app runs in the browser on a landscape iPad or a computer. It needs no accou
 
 - Mèo Smarty greets the child by name and shows their **total stars** and **day streak**.
 - Six big picture tiles, one per game, in a 3 × 2 grid. A tile for a game that is not ready yet shows "Sắp ra mắt" (coming soon).
-- A speaker button turns sound on and off. A small "khu vực giáo viên" link leads to the teacher area (PIN protected).
+- A speaker button turns sound on and off. A small **padlock** in the bottom-right corner (hold it for about 1 second) leads to the teacher area (PIN protected).
 
 ### 1.2 Who is playing?
 
