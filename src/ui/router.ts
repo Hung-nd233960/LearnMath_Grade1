@@ -36,6 +36,8 @@ export interface RouterOptions {
   home: string;
   /** Return another route name to redirect (e.g. "who" when no profile is chosen), or null to allow. */
   guard?: (route: ParsedRoute) => string | null;
+  /** Called with the route that is about to be shown (after any redirect). */
+  onRoute?: (route: ParsedRoute) => void;
 }
 
 export class Router {
@@ -64,6 +66,7 @@ export class Router {
     const redirect = this.options.guard?.(route);
     if (redirect && redirect !== route.name && redirect in this.screens) route = { name: redirect, params: [] };
 
+    this.options.onRoute?.(route);
     this.cleanup?.();
     this.cleanup = undefined;
     const def = this.screens[route.name]!;

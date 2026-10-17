@@ -85,10 +85,16 @@
 - **Done when:** all three modes work; tier 3 shuffled scales still read correctly. ✔ checked in a real browser.
 - **All six games now have a screen.** The tile "Sắp ra mắt" state in `home.ts` is still used by `ready: false` games (none now), and `?allready` has no visible effect.
 
-## 9. Screen time ☐
-- [ ] Tick loop in `app.ts`, input tracking, idle nudge / pause, daily warning toast
-- [ ] Apply break / lock only between sets → `#/break`, `#/locked`
-- **Done when:** with limits set to 1 / 2 minutes in the teacher area, the break and the lock appear after a set, never during one, and idle time does not count.
+## 9. Screen time ☑
+- [x] `src/ui/timekeeper.ts`: the clock. It owns the active child's usage in memory, ticks once a second through the pure model in `core/screentime.ts`, saves into the profile about every 10 s, when the page is hidden and when the child changes, and counts only real use (home, play, star screen; not a break, the picker or the teacher area). Pure helpers `gateFor` and `formatClock` are unit tested.
+- [x] Notices (`notices.ts`): a toast after 20 s idle ("Em ơi, em có cần Mèo giúp không?"), a "Mèo chờ em nhé" overlay after 60 s idle (any touch resumes), a toast before the daily limit; each with its voice clip. Idle time is not counted.
+- [x] `#/break` (countdown, tips, Mèo asleep) and `#/locked` (night colours, stars and streak today), both with "Bạn khác chơi" (another child can take over the tablet) and the padlock.
+- [x] **Never mid-set:** a due break or lock replaces `home` and the start of a new set (router guard) and is applied on the home screen as soon as it is due; the set in progress and the star screen are never interrupted.
+- [x] Home's "còn N phút" follows the clock. The picker no longer redraws every time usage is saved.
+- [x] For step 10: `ctx.time.grantBonus(minutes)` and `ctx.time.endBreak()` exist and are tested through the lock screen; the PIN screen only has to call them.
+- [x] `npm run ui:check` has 261 checks (55 new in steps 8–9 together): idle nudge and pause, time not counted while paused, break due mid-set but not applied, star screen untouched, break screen, time not counted on a break, no new set during a break, another child can play, break ends by itself, daily warning toast, night screen, no new set when locked, extra time ends the lock, a new day resets. They use tiny limits (seconds) so the real clock is tested.
+- **A bug found by these tests:** switching children recursed forever (saving the previous child's time notified subscribers that still saw the old child). Fixed by taking over the new child first.
+- **Done when:** with limits set to 1 / 2 minutes in the teacher area, the break and the lock appear after a set, never during one, and idle time does not count. ✔ checked in a real browser (limits set directly until step 10 adds the sliders).
 
 ## 10. Teacher area ☐
 - [ ] Padlock hold → `#/teacher` PIN gate (`checkPin`; prompt to change the default 1234)

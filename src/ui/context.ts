@@ -5,6 +5,7 @@ import type { SetSummary } from "../core/session.ts";
 import type { Store } from "../core/storage.ts";
 import type { GameId } from "../core/types.ts";
 import type { Stage } from "./stage.ts";
+import type { Timekeeper } from "./timekeeper.ts";
 
 /** The set that just finished, handed from the play screen to the star screen. */
 export interface SetResult {
@@ -22,6 +23,8 @@ export interface AppContext {
   voice: Voice;
   sfx: typeof sfx;
   stage: Stage;
+  /** Screen-time clock: usage, breaks, locks, idle. */
+  time: Timekeeper;
   /** Navigate: go("home"), go("play/split"), go("teacher"). */
   go(path: string): void;
   /** Result of the last finished set; read by the star screen. */

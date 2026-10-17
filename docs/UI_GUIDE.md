@@ -69,6 +69,7 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `screens/stars.ts` | End-of-set screen; reads `ctx.lastSet` (set by `play.ts`, cleared when you leave). |
 | `screens/dev.ts` | Dev-only `#/dev/<id>/<tier>/<step>/<seed>`: one deterministic question + a "Giải" button. |
 | `games/types.ts`, `games/index.ts` | The `GameView` contract and the `VIEWS` registry. |
+| `timekeeper.ts`, `notices.ts`, `screens/break.ts`, `screens/locked.ts` | Screen time. `ctx.time` is the clock (`snapshot()`, `dailyLeftMs()`, `gate(route)`, `ensureBreak()`, `grantBonus(min)`, `endBreak()`, `subscribe(fn)`); the router guard in `app.ts` applies a due break or lock to `home` and `play`. Add a new counting screen to `COUNTING_ROUTES`. |
 | `games/compare.ts` | The So sánh cân screen: mini scales from `Weighing`s, single-pick vs order modes, a row of slots where `reset` keeps the correct prefix (uses `fb.result.data.firstWrong`). |
 | `games/robot.ts` | The Rô-bốt screen: an animated result in `playResult` driven by `simulate()`, a program the child edits, `reveal` that fills and walks the solution, and a document-level key listener removed in `unmount`. |
 | `games/scale.ts` | The Cái cân screen: live tilt vs the padlock, fixed vs movable items, `playResult` that animates the outcome and `reset` that re-locks. |

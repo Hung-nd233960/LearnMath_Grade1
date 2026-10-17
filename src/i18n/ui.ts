@@ -62,6 +62,18 @@ export const STR = {
   basketMine: "Giỏ của em",
   basketMeo: "Giỏ của Mèo",
 
+  // screen time
+  pauseTitle: "Mèo chờ em nhé",
+  pauseHint: "Chạm vào màn hình để chơi tiếp",
+  breakTitle: "Nghỉ mắt một chút nhé!",
+  breakBody: (min: number) => `Em đã chơi ${min} phút rồi. Mèo Smarty cũng đi nghỉ đây. Mình gặp lại sau nhé!`,
+  breakTipFar: "Nhìn ra xa, ngắm cây xanh",
+  breakTipStretch: "Vươn vai, chớp mắt 10 lần",
+  lockedTitle: "Hôm nay mình chơi đủ rồi!",
+  lockedBody: (min: number, stars: number) => `Em đã chơi ${min} phút và nhận được ${stars} sao hôm nay. Giỏi lắm! Hẹn gặp lại em ngày mai nhé.`,
+  starsToday: (n: number) => `+${n} sao hôm nay`,
+  otherKid: "Bạn khác chơi",
+
   // home
   changeKid: "Đổi bạn chơi",
   greeting: (name: string) => `Chào thám tử nhí ${name}!`,

@@ -1,6 +1,5 @@
 // Home: shows the active child's stars, streak, time left, this week, and the game tiles.
 import { streakToday, weekStrip } from "../../core/profiles.ts";
-import { dailyLeftNow } from "../../core/screentime.ts";
 import type { GameId } from "../../core/types.ts";
 import { GAMES } from "../../games/index.ts";
 import { say } from "../../i18n/speech.ts";
@@ -59,7 +58,7 @@ export const homeScreen: ScreenDef = {
     screen.classList.add("screen-home");
     const settings = ctx.store.data.settings;
     const today = ctx.today();
-    const minutesLeft = Math.ceil(dailyLeftNow(profile.usage, settings.limits, today) / 60000);
+    const minutesLeft = Math.ceil(ctx.time.dailyLeftMs() / 60000);
     // Dev only: "?allready" shows every tile as playable to review how ready tiles look.
     const allReady = import.meta.env.DEV && location.search.includes("allready");
 
@@ -68,6 +67,7 @@ export const homeScreen: ScreenDef = {
     meo.addEventListener("click", () => void ctx.voice.play(say("hello", "help_today")));
 
     const chip = (cls: string, icon: string, text: string) => h("span", { class: `chip ${cls}` }, emoji(icon, 34), text);
+    const timeChip = chip("time", "hourglass_not_done", STR.timeChip(minutesLeft));
     const week = weekStrip(profile, today, settings).map(({ day, status }, i) =>
       h("span", { class: [status === "star" ? "ok" : "", status === "off" ? "off" : "", day === today ? "is-today" : ""].join(" ").trim() }, STR.weekdays[i]),
     );
@@ -80,7 +80,7 @@ export const homeScreen: ScreenDef = {
         h("div", { class: "chips" },
           chip("star", "glowing_star", STR.starsChip(profile.stars)),
           chip("fire", "fire", STR.streakChip(streakToday(profile, today, settings))),
-          chip("time", "hourglass_not_done", STR.timeChip(minutesLeft)))),
+          timeChip)),
       h("div", { class: "week-card" }, h("b", null, STR.thisWeek), h("div", { class: "week" }, ...week)));
 
     const tiles = GAMES.map((g) => {
@@ -107,7 +107,13 @@ export const homeScreen: ScreenDef = {
       h("nav", { class: "grid" }, ...tiles),
     );
     const stopGate = mountAdultGate(screen, () => ctx.go("teacher"));
+    // keep "còn N phút" in step with the clock
+    const unsubscribe = ctx.time.subscribe(() => {
+      const text = STR.timeChip(Math.ceil(ctx.time.dailyLeftMs() / 60000));
+      if (timeChip.lastChild && timeChip.lastChild.textContent !== text) timeChip.lastChild.textContent = text;
+    });
     return () => {
+      unsubscribe();
       stopGate();
       ctx.voice.stop();
     };

@@ -67,9 +67,11 @@ export const whoScreen: ScreenDef = {
     render();
 
     // Redraw only when the list of children changes (not when e.g. the mute switch is toggled).
-    let seen = ctx.store.data.profiles;
-    const unsubscribe = ctx.store.subscribe((d) => {
-      if (d.profiles !== seen) { seen = d.profiles; render(); }
+    const signature = () => ctx.store.data.order.map((id) => { const p = ctx.store.data.profiles[id]!; return `${id}|${p.name}|${p.avatar}`; }).join(";");
+    let seen = signature();
+    const unsubscribe = ctx.store.subscribe(() => {
+      const now = signature();
+      if (now !== seen) { seen = now; render(); }
     });
 
     // First run: nobody exists yet, so go straight to the "add" form. Otherwise greet.

@@ -66,6 +66,7 @@ Code: [rewards.ts](../src/core/rewards.ts) and [profiles.ts](../src/core/profile
 
 Code: [screentime.ts](../src/core/screentime.ts). Defaults are in `DEFAULT_LIMITS`; teachers change them per device.
 
+- **Applied between sets.** A due break or lock replaces the home screen and the start of a new set, and is shown as soon as the child is on home. The set in progress and the star screen are never interrupted. Another child can take over from a break or lock screen ("Bạn khác chơi"); each child has their own clock.
 - **Only active time counts.** After 20 s without a touch, Mèo nudges. After 60 s the game pauses, and idle time is never counted.
 - **Session limit (15 min):** a break becomes **due** (`breakDue`). The shell starts the break only **after the current set ends**. The break lasts 5 min.
 - **Daily limit (30 min):** a warning plays 2 min before the limit. At the limit a lock becomes due (`lockDue`), applied after the current set. The app stays locked until the next day, unless an adult enters the PIN and grants extra time (`grantBonus`) or ends a break early (`endBreak`).

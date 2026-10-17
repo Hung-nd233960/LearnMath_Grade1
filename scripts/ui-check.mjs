@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7) and So sánh cân (step 8).
+// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8) and screen time (step 9).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -191,6 +191,7 @@ await typeName("Bình");
 check("add form: typing enables OK", await ev(`document.querySelector('.add-card .btn-primary').disabled === false`));
 await click('.av-opt[data-avatar="strawberry"]');
 check("add form: chosen picture is marked", await ev(`document.querySelector('.av-opt.on').dataset.avatar === 'strawberry'`));
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, limits: { ...d.settings.limits, sessionMin: 600 } } }))`);
 await shot("ui-5-add-form");
 await click(".add-card .btn-primary");
 check("child 1 added (name + picture) and form closed", (await names()) === "Bình" && (await ev(`Object.values(__app.store.data.profiles)[0].avatar`)) === "strawberry" && await ev(`!document.querySelector('.overlay')`));
@@ -220,8 +221,8 @@ const idOf = (name) => ev(`Object.values(__app.store.data.profiles).find(p => p.
 const binhId = await idOf("Bình"), anId = await idOf("An");
 await click(`.kid[data-profile="${binhId}"]`);
 check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
-const chips = () => ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`);
-check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn 30 phút", await chips());
+const chips = async () => (await ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`)).replace(/còn \d+ phút/, 'còn N phút');
+check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn N phút", await chips());
 check("home: six tiles; all six games are playable", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 0 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
 check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
 check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
@@ -230,7 +231,7 @@ await shot("ui-5-home");
 await click("#who-chip");
 check("tapping the child chip goes back to the picker", (await ev(`location.hash`)) === "#/who");
 await click(`.kid[data-profile="${anId}"]`);
-check("second child sees their own stars and streak", (await chips()) === "0 sao|Chuỗi mới nào!|còn 30 phút" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí An!", await chips());
+check("second child sees their own stars and streak", (await chips()) === "0 sao|Chuỗi mới nào!|còn N phút" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí An!", await chips());
 
 await nav(URL_BASE);
 check("reload keeps the last child (home, not the picker)", (await ev(`!!document.querySelector('.screen-home') && document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí An!");
@@ -323,7 +324,7 @@ await shot("ui-6-stars");
 const an1 = await profileOf(anId);
 check("set 1 saved: 3 stars, 1 set, seed moved up one step, history", an1.stars === 3 && an1.games.split.sets === 1 && an1.games.split.bestStars === 3 && an1.games.split.seed.tier === 1 && an1.games.split.seed.step === 1 && an1.history.length === 1 && an1.history[0].score === 5);
 await click("#back-home");
-check("back to home: the tile shows the best stars and the new total", (await ev(`!!document.querySelector('.screen-home')`)) && (await chips()) === "3 sao|1 ngày liền|còn 30 phút" && (await ev(`document.querySelectorAll('.tile[data-game=split] .got img:not(.dim)').length`)) === 3, await chips());
+check("back to home: the tile shows the best stars and the new total", (await ev(`!!document.querySelector('.screen-home')`)) && (await chips()) === "3 sao|1 ngày liền|còn N phút" && (await ev(`document.querySelectorAll('.tile[data-game=split] .got img:not(.dim)').length`)) === 3, await chips());
 
 // --- set 2: wrong then right (retry), out of tries (reveal), then correct ---
 await click(".tile[data-game=split]");
@@ -1003,6 +1004,113 @@ check("dev: Vòng 3 shows three scales (shuffled) and can still be solved from t
 await click("#dev-solve");
 await sleep(2000);
 check("dev: 'Giải' shows the answer", (await ev(`document.querySelector('#dev-status').textContent`)) === "revealed");
+
+// ---------- 12. screen time (step 9) ----------
+// Tiny limits (seconds, not minutes) let the real clock be tested end to end.
+const setLimits = (o) => ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, limits: { ...d.settings.limits, ...${JSON.stringify(o)} } } }))`);
+const resetUsage = (id) => ev(`(async () => { const { newUsage } = await import('/src/core/screentime.ts');
+  __app.store.update(d => ({ ...d, profiles: { ...d.profiles, [${JSON.stringify(id)}]: { ...d.profiles[${JSON.stringify(id)}], usage: newUsage(__app.today(), __app.now()) } } }));
+  __app.time.reload(); })()`);
+const resetStoredUsage = (id) => ev(`(async () => { const { newUsage } = await import('/src/core/screentime.ts');
+  __app.store.update(d => ({ ...d, profiles: { ...d.profiles, [${JSON.stringify(id)}]: { ...d.profiles[${JSON.stringify(id)}], usage: newUsage(__app.today(), __app.now()) } } })); })()`);
+const snap = () => ev(`(() => { const s = __app.time.snapshot(); return s && { mode: s.mode, breakDue: s.breakDue, lockDue: s.lockDue }; })()`);
+const playedMs = () => ev(`__app.time.playedMs()`);
+const onHome = () => ev(`!!document.querySelector('.screen-home')`);
+const playSplitSet = async (note) => {
+  let sawDueMidSet = false, interrupted = false;
+  for (let i = 0; i < 5; i++) {
+    await nextQuestionReady();
+    const q = await readSplit();
+    await fillAnswer(q);
+    await click("#xong");
+    await overlayKind();
+    if ((await snap()).breakDue || (await snap()).lockDue) sawDueMidSet = true;
+    await closeOverlay();
+    if (i < 4 && !(await ev(`!!document.querySelector('.sp')`))) interrupted = true;
+  }
+  return { sawDueMidSet, interrupted };
+};
+
+// --- idle: nudge, then pause; idle time is not counted ---
+await setLimits({ sessionMin: 600, dailyMin: 600, breakMin: 0.12, idleNudgeSec: 3, idlePauseSec: 7, warnBeforeMin: 2 });
+await ev(`__app.store.setActive(${JSON.stringify(anId)}); __app.go('home')`); await sleep(500);
+await resetUsage(anId);
+await click(".hero .meo");
+check("idle nudge: after a few quiet seconds Mèo offers help (a toast)", await waitFor(`!!document.querySelector('.toast')`, 8000) && /Mèo giúp/.test(await ev(`document.querySelector('.toast').textContent`)));
+await shot("ui-12-toast");
+await click(".hero h2");
+check("idle nudge: a touch dismisses it", await waitFor(`!document.querySelector('.toast')`, 3000));
+check("idle pause: still longer and the game pauses with Mèo asleep and a hint", await waitFor(`!!document.querySelector('.overlay[data-kind=pause]')`, 14000) && /Chạm vào màn hình/.test(await ev(`document.querySelector('.overlay[data-kind=pause]').textContent`)));
+await shot("ui-12-pause");
+const p1 = await playedMs();
+await sleep(2500);
+check("idle time is not counted while paused", (await playedMs()) - p1 < 1500);
+await click(".overlay[data-kind=pause]");
+check("a touch resumes play", await waitFor(`!document.querySelector('.overlay[data-kind=pause]')`, 3000) && (await waitFor(`(() => { const s = __app.time.snapshot(); return s && s.mode === 'play'; })()`, 3000)));
+
+// --- break and lock are applied between sets, never during one ---
+// a whole set takes only ~6 s here (the clicks are instant), so the limits are scaled to that pace
+await setLimits({ sessionMin: 0.05, breakMin: 0.3, dailyMin: 0.4, warnBeforeMin: 0.15, idleNudgeSec: 20, idlePauseSec: 60 });
+await resetUsage(anId);
+await resetStoredUsage(binhId); // the other child starts the test fresh too
+await ev(`window.__toasts = []; new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((n) => { if (n.classList && n.classList.contains('toast')) window.__toasts.push(n.textContent); }))).observe(document.querySelector('.stage'), { childList: true });`);
+await click(".tile[data-game=split]");
+const set1 = await playSplitSet();
+check("break: it became due during the set, but the set was not interrupted", set1.sawDueMidSet && !set1.interrupted, JSON.stringify({ set1, snap: await snap(), hash: await ev(`location.hash`), played: await playedMs() }));
+check("break: the star screen is not interrupted either", await waitFor(`!!document.querySelector('.screen-stars')`) && (await snap()).breakDue === true, JSON.stringify({ snap: await snap(), screen: await ev(`document.querySelector('.screen').className`) }));
+await click("#back-home");
+check("break: going home after the set shows the break screen", await waitFor(`!!document.querySelector('.screen-break')`, 4000));
+check("break: Mèo sleeps, a countdown runs, there are tips", (await ev(`document.querySelector('.screen-break .meo').dataset.mood`)) === "sleep" && /^\d:\d\d$/.test(await ev(`document.querySelector('#break-clock').textContent`)) && (await ev(`document.querySelectorAll('.screen-break .tips div').length`)) === 2);
+await shot("ui-12-break");
+const pb1 = await playedMs();
+await sleep(2200);
+check("break: time is not counted during a break", (await playedMs()) - pb1 < 700);
+await ev(`__app.go('play/split')`); await sleep(500);
+check("break: starting another set is not possible during the break", await ev(`!!document.querySelector('.screen-break') && !document.querySelector('.sp')`));
+// another child can take over the tablet
+await click("#other-kid");
+check("break: 'Bạn khác chơi' opens the picker", await ev(`!!document.querySelector('.screen-who')`));
+await click(`.kid[data-profile="${binhId}"]`);
+check("break: the other child is not on a break", await ev(`!!document.querySelector('.screen-home') && document.querySelector('#greeting').textContent.includes('Bình')`));
+await click("#who-chip");
+await click(`.kid[data-profile="${anId}"]`);
+check("break: back to the first child, the break is still on", await waitFor(`!!document.querySelector('.screen-break')`, 3000));
+check("break: it ends by itself and goes home", await waitFor(`!!document.querySelector('.screen-home')`, 25000));
+check("break: after it the session clock starts again (no new break)", (await snap()).breakDue === false);
+
+// --- daily limit: a warning, then a lock between sets ---
+await setLimits({ sessionMin: 600 });
+await click(".tile[data-game=split]");
+const set2 = await playSplitSet();
+check("daily limit: the set in progress is not interrupted", !set2.interrupted);
+await waitFor(`!!document.querySelector('.screen-stars')`);
+await click("#back-home");
+// keep "using" the home screen until the limit is reached; the lock then appears by itself
+for (let i = 0; i < 40 && !(await ev(`!!document.querySelector('.screen-locked')`)); i++) { try { await click(".hero h2"); } catch { /* the lock screen just replaced home */ } await sleep(1500); }
+check("daily limit: the night screen replaces home when time is up", await waitFor(`!!document.querySelector('.screen-locked')`, 8000));
+check("daily warning: Mèo warned a little before the limit (toast)", (await ev(`window.__toasts.some(t => /hết giờ chơi/.test(t))`)), JSON.stringify(await ev(`window.__toasts`)));
+
+check("daily limit: Mèo sleeps, 'Hôm nay mình chơi đủ rồi!', stars today, night colours", (await ev(`document.querySelector('.screen-locked h1').textContent`)) === "Hôm nay mình chơi đủ rồi!" && (await ev(`document.querySelector('.stage').classList.contains('night')`)) && (await ev(`document.querySelectorAll('.screen-locked .tips div').length`)) >= 1);
+await shot("ui-12-locked");
+await ev(`__app.go('play/split')`); await sleep(500);
+check("daily limit: no new set can start", await ev(`!!document.querySelector('.screen-locked') && !document.querySelector('.sp')`));
+await click("#other-kid");
+await click(`.kid[data-profile="${binhId}"]`);
+check("daily limit: another child can still play", await ev(`!!document.querySelector('.screen-home') && !document.querySelector('.stage').classList.contains('night')`));
+await click("#who-chip");
+await click(`.kid[data-profile="${anId}"]`);
+check("daily limit: the first child stays locked", await waitFor(`!!document.querySelector('.screen-locked')`, 3000));
+check("the usage is saved into the profile", (await profileOf(anId)).usage.playedMs > 15000);
+
+// an adult grants more time (the PIN screen comes in step 10; here the clock method is called directly)
+await ev(`__app.time.grantBonus(10)`);
+check("extra time from an adult ends the lock", await waitFor(`!!document.querySelector('.screen-home') && !document.querySelector('.stage').classList.contains('night')`, 4000));
+check("the home chip shows the extra time", /còn 1[01] phút/.test(await ev(`document.querySelector('.chip.time').textContent`)));
+// a new day starts fresh
+await ev(`window.__realToday = __app.today; __app.today = () => '2099-01-01'`);
+await sleep(2500);
+check("a new day resets today's usage", (await ev(`__app.time.playedMs()`)) < 3000 && (await snap()).lockDue === false);
+await ev(`__app.today = window.__realToday`);
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 

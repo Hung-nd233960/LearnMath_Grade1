@@ -43,7 +43,7 @@ export function createStage(host: HTMLElement): Stage {
   addEventListener("orientationchange", fit);
   fit();
 
-  const closeOverlays = () => el.querySelectorAll(".overlay, .confetti, .spark").forEach((n) => n.remove());
+  const closeOverlays = () => el.querySelectorAll(".overlay, .confetti, .spark, .toast").forEach((n) => n.remove());
 
   return {
     el,
