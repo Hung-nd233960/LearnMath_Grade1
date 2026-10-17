@@ -6,7 +6,7 @@
 // still opens, shows pictures and fonts, and lets a child in with the network switched off.
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, writeFileSync } from "node:fs";
 
 const SP = process.env.OUT ?? `${tmpdir()}/ttth-pwa-check`;
 const CHROME = process.env.CHROME ?? "C:/Program Files/Google/Chrome/Application/chrome.exe";
@@ -83,7 +83,8 @@ const has = (re) => cached.urls.some((u) => re.test(u));
 check("cache: the page, manifest and icons", has(/\/index\.html$/) && has(/\/manifest\.webmanifest$/) && has(/\/icons\/icon-512\.png$/), JSON.stringify(cached.urls.filter((u) => !u.includes("emoji") && !u.includes("fonts"))));
 check("cache: the script and the style", has(/\/assets\/index-.*\.js$/) && has(/\/assets\/index-.*\.css$/));
 check("cache: all the fonts", cached.urls.filter((u) => u.endsWith(".woff2")).length === 21);
-check("cache: all the pictures", cached.urls.filter((u) => u.includes("/assets/emoji/")).length >= 40, String(cached.urls.filter((u) => u.includes("/assets/emoji/")).length));
+const emojiFiles = readdirSync(new URL("../public/assets/emoji/", import.meta.url)).filter((f) => f.endsWith(".png")).length;
+check("cache: all the pictures", cached.urls.filter((u) => u.includes("/assets/emoji/")).length === emojiFiles, `${cached.urls.filter((u) => u.includes("/assets/emoji/")).length} of ${emojiFiles}`);
 const emojiOnDisk = await ev(`fetch('./assets/emoji/robot_3d.png').then(r => r.ok)`);
 check("cache: pictures load", emojiOnDisk === true);
 const installErrors = await send("Page.getInstallabilityErrors");

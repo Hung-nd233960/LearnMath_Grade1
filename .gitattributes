@@ -1,0 +1,8 @@
+# Keep every text file with LF line endings, on Windows and on the Linux build machines alike.
+* text=auto eol=lf
+*.png binary
+*.webm binary
+*.woff2 binary
+*.mp3 binary
+*.ico binary
+*.icns binary
