@@ -65,6 +65,11 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `avatars.ts` | `avatarBadge(stem, size)`: a round picture on a soft colour; `avatarColor(stem)`. |
 | `paginate.ts` | `paginate(items, perPage)` and `clampPage` (pure, tested). |
 | `screens/who.ts`, `screens/home.ts` | The picker and the home screen (step 2). Good examples of how a screen is written: `mount({ ctx, screen })`, build with `h()`, return a cleanup. |
+| `screens/play.ts` | The generic play loop (`#/play/<id>`). Read it to see how `SetRunner`, a view, `text.prompt/hint`, the feedback card and `recordSet` fit together. Don't put game rules here. |
+| `screens/stars.ts` | End-of-set screen; reads `ctx.lastSet` (set by `play.ts`, cleared when you leave). |
+| `screens/dev.ts` | Dev-only `#/dev/<id>/<tier>/<step>/<seed>`: one deterministic question + a "Giải" button. |
+| `games/types.ts`, `games/index.ts` | The `GameView` contract and the `VIEWS` registry. |
+| `games/split.ts`, `games/bond.ts`, `games/splitLayout.ts` | The first game screen (Mấy và mấy): the model for the others. `bond.ts` is the number-bond widget; `splitLayout.ts` is pure and tested. |
 | `screens/addProfile.ts` | `openAddProfile(ctx, onAdded)`: the "Thêm bạn mới" form (name + picture). Reuse it in the teacher area. |
 | `screens/kit.ts` | Dev-only gallery at `#/kit`: every component above on one screen (not in production builds). Open it to see how they look and work. |
 
@@ -78,13 +83,13 @@ Also: `src/i18n/ui.ts` holds fixed button and notice texts as `STR` (add new one
 | --- | --- | --- | --- |
 | `#/who` | profiles | profiles.html | Shown when there is no active profile. A tap sets the active profile **and calls `voice.unlock()`**. |
 | `#/home` | home | index.html | Real data: `streakToday`, `starsToday`, `weekStrip`, tiles from `GAMES` showing `Vòng {seed.tier}` and `bestStars`. Tiles with `ready: false` show "Sắp ra mắt". Padlock bottom-right. |
-| `#/play/<id>` | game | scale/robot/… .html | The generic play loop (ARCHITECTURE.md, "One set") plus the game's view. |
-| `#/stars` | end of set | — (new) | Stars earned (1–3, animated), score "4/5", Mèo happy, a "Về trang chủ" button. |
+| `#/play/<id>` | game | scale/robot/… .html | **Exists (step 3).** The generic play loop plus the game's view; a game with no view goes home. |
+| `#/stars` | end of set | — (new) | **Exists (step 3).** Stars earned (1–3, animated), score "4/5", streak, Mèo happy, a "Về trang chủ" button. |
 | `#/break` | break | break.html v=1 | Countdown from `breakLeftMs`; padlock (an adult can end the break). |
 | `#/locked` | done for today | break.html v=2 | Night style, stars today, padlock. |
 | `#/teacher` | teacher area | teacher.html | PIN gate (`checkPin`) → tabs: Hiệu ứng, Thời gian chơi, Học sinh, Sao lưu. Also: change PIN, add/rename/remove profiles, "+10/+20 phút" (`grantBonus`), end break (`endBreak`). Unlock expires after `TEACHER_UNLOCK_MINUTES`. |
 | `#/kit` | component gallery | — | Exists (step 1), dev only. |
-| `#/dev/<id>/<tier>/<step>/<seed>` | dev preview | mockbar "Xem vòng" | Renders one question deterministically for review and screenshots. **Only when `import.meta.env.DEV`.** |
+| `#/dev/<id>/<tier>/<step>/<seed>` | dev preview | mockbar "Xem vòng" | **Exists (step 3).** Renders one question deterministically for review and screenshots. Only when `import.meta.env.DEV`. |
 
 ## Game views (src/ui/games/<id>.ts)
 

@@ -1,0 +1,8 @@
+/* The play screen: a game view below, the prompt and the top bar above. */
+.screen-play .game-body { position: absolute; inset: 0; }
+.screen-play .prompt { z-index: 4; pointer-events: none; }
+.screen-play .prompt .replay { pointer-events: auto; }
+
+/* dev preview toolbar (#/dev/...) */
+.dev-bar { position: absolute; left: 14px; bottom: 10px; z-index: 30; display: flex; gap: 10px; align-items: center; background: rgba(30, 42, 74, 0.9); color: #fff; border-radius: 14px; padding: 6px 10px; font: 600 14px "Be Vietnam Pro", sans-serif; }
+.dev-bar button { background: #ffc53d; color: var(--navy); border-radius: 8px; padding: 3px 10px; font-weight: 700; }

@@ -9,7 +9,10 @@ import type { Fx, Settings } from "../core/settings.ts";
 import type { AppContext } from "./context.ts";
 import { ensureSvgDefs } from "./svgDefs.ts";
 import { kitScreen } from "./screens/kit.ts";
+import { devScreen } from "./screens/dev.ts";
 import { homeScreen } from "./screens/home.ts";
+import { playScreen } from "./screens/play.ts";
+import { starsScreen } from "./screens/stars.ts";
 import { whoScreen } from "./screens/who.ts";
 import { Router, type ScreenDef } from "./router.ts";
 import { createStage } from "./stage.ts";
@@ -18,11 +21,16 @@ import { createStage } from "./stage.ts";
 const SCREENS: Record<string, ScreenDef> = {
   who: whoScreen,
   home: homeScreen,
+  play: playScreen,
+  stars: starsScreen,
 };
 /** Routes that work without a chosen child (everything else sends you to "who"). */
-const OPEN_ROUTES = new Set(["who", "teacher", "kit"]);
+const OPEN_ROUTES = new Set(["who", "teacher", "kit", "dev"]);
 // Dev-only component gallery at #/kit (dead code in production builds).
-if (import.meta.env.DEV) SCREENS.kit = kitScreen;
+if (import.meta.env.DEV) {
+  SCREENS.kit = kitScreen;
+  SCREENS.dev = devScreen; // #/dev/<game>/<tier>/<step>/<seed>: one question, deterministic
+}
 
 export function applySettings(s: Settings, voice: Voice): void {
   const root = document.documentElement;
@@ -48,6 +56,7 @@ export function startApp(host: HTMLElement): AppContext {
     sfx,
     stage,
     go: (path) => router.go(path),
+    lastSet: null,
     now: () => Date.now(),
     today: () => dayKey(new Date()),
   };

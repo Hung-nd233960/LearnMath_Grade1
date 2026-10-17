@@ -72,7 +72,7 @@ solve?(q): A               // a correct answer: guide demo, "reveal", tests
 
 Text, already done: `GameText<Q>` gives `prompt(q, pos)`, `hint(result, q)` and `GUIDE_STEPS`.
 
-View, to build in the UI step: see [UI_GUIDE.md](UI_GUIDE.md), "Game views". In short:
+View: implemented in `src/ui/games/` (contract in `types.ts`; Mấy và mấy is the working example). See [UI_GUIDE.md](UI_GUIDE.md), "Game views". In short:
 
 ```ts
 interface GameView<Q, A> {

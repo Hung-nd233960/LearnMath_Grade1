@@ -39,12 +39,19 @@
   - The home screen is drawn once and not redrawn on store changes. Step 9 should update the "còn N phút" chip itself (or re-mount home) when the daily limit changes.
   - Adding children from the picker is open to everyone for now. Step 10 adds the same form to the teacher area (reuse `openAddProfile`); decide there whether to hide "+ Thêm bạn" from the child picker once the teacher area can do it.
 
-## 3. Play loop + Mấy và mấy ☐
-- [ ] `#/play/<id>` generic game screen: `SetRunner`, top bar, prompt + voice, feedback overlays (correct / retry / reveal), next, end
-- [ ] `#/stars` end-of-set screen; `recordSet` + save; set `ready: true` for `split` in `GAMES`
-- [ ] `src/ui/games/split.ts`: vase or basket picture with tap-to-mark, sentence from `text.sentence(q)`, number bond (tier 2 mirrors the typed numbers), numpad
-- [ ] `#/dev/<id>/<tier>/<step>/<seed>` preview route (dev only)
-- **Done when:** a full set of 5 plays end to end; the star count matches `starsForSet`; reloading shows the new seed tier on the home tile.
+## 3. Play loop + Mấy và mấy ☑
+- [x] `#/play/<id>` (`screens/play.ts`): runs one set with `SetRunner`: top bar with live "Vòng N" and dots, prompt + voice + replay, feedback cards (correct / retry / reveal), guide (i), next, finish → `recordSet` + save → `#/stars`. It knows nothing about any particular game.
+- [x] The view contract (`ui/games/types.ts`: `mount / playResult / reveal / reset / unmount`) and the registry `ui/games/index.ts` (`VIEWS`)
+- [x] `#/stars` (`screens/stars.ts`): Mèo, stars popping in one by one with a chime, score, streak chip, confetti, "Về trang chủ"
+- [x] `ui/games/split.ts` + `bond.ts` + `splitLayout.ts`: vase or basket picture with tap-to-count, sentence with answer boxes, number bond (mirrors typed numbers in Vòng 2, big in Vòng 3), numpad; `ready: true` for `split`
+- [x] Dev route `#/dev/<id>/<tier>/<step>/<seed>` (`screens/dev.ts`): one deterministic question, a "Giải" button to show the solution, and the judged result; nothing is saved
+- [x] Tests: `tests/splitLayout.test.ts` (no overlaps, inside the panel, for every count); `npm run ui:check` now has 99 checks, including whole sets played through the UI (all correct; wrong then right; out of tries → reveal), saving, leaving early, routes and the dev route
+- **Done when:** a full set of 5 plays end to end; the star count matches `starsForSet`; reloading shows the new seed tier on the home tile. ✔ checked in a real browser (set 1: 5/5 → 3 stars, seed moves up; set 2: retries and a revealed answer do not count → 3/5 → 2 stars).
+- **How to add the next game's screen (steps 4–8):**
+  1. Write `src/ui/games/<id>.ts` exporting `create<Id>View(): GameView<Q, A>` and its CSS (copy the split view's structure). Draw into the `el` you get in `mount`; call `api.submit(answer)` from "Xong" / "Chạy!".
+  2. Register it in `src/ui/games/index.ts` and set `ready: true` for the game in `src/games/index.ts`.
+  3. Review it at every tier with `#/dev/<id>/<tier>/<step>/<seed>`, then add play-through checks to `scripts/ui-check.mjs` (read the question from the DOM, answer like a child would, as the Mấy và mấy checks do).
+- **Known gaps (later steps):** the guide (i) opens from the button but does not yet auto-open on first play or speak the steps (step 11); no break or lock between sets (step 9); the picture-panel and Mèo-bubble prompt that the basket game wants are added in step 5 (the generic prompt bar is used until then).
 
 ## 4. Tính theo hình ☐
 - [ ] `src/ui/games/equations.ts`: Bảng số, Manh mối rows, question row with answer box, numpad

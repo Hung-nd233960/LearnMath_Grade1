@@ -1,0 +1,15 @@
+/* End-of-set screen: stars earned, score, streak. */
+.screen-stars .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; }
+.screen-stars .meo { width: 230px; height: 230px; }
+.fx-anim .screen-stars .meo svg { animation: jump 0.55s ease-out 3, bob 3.2s ease-in-out 1.7s infinite; }
+.screen-stars h1 { font-size: 60px; font-weight: 800; }
+.screen-stars .star-row { display: flex; gap: 18px; margin: 6px 0 2px; }
+.screen-stars .star-row img { width: 112px; height: 112px; }
+.screen-stars .star-row img.dim { filter: grayscale(1); opacity: 0.25; }
+.fx-anim .screen-stars .star-row img:not(.dim) { animation: starPop 0.6s cubic-bezier(0.3, 1.8, 0.5, 1) backwards; animation-delay: calc(var(--i) * 0.38s + 0.2s); }
+@keyframes starPop { from { transform: scale(0) rotate(-120deg); opacity: 0; } }
+.screen-stars .score { font: 700 30px "Baloo 2"; margin: 0; }
+.screen-stars .chips { display: flex; gap: 12px; justify-content: center; margin-bottom: 14px; }
+.screen-stars .chip { display: flex; align-items: center; gap: 8px; border-radius: 999px; padding: 5px 16px 3px 8px; font: 800 22px "Baloo 2"; }
+.screen-stars .chip.fire { background: #ffe3d6; }
+.screen-stars .chip.star { background: #fff4cc; }

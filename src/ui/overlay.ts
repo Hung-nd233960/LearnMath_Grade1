@@ -54,7 +54,9 @@ export function showFeedback(stage: HTMLElement, o: FeedbackOptions): Overlay {
       stars,
       o.message ? h("p", null, o.message) : null,
       h("button", { class: `btn ${o.kind === "retry" ? "btn-secondary" : "btn-primary"}`, "data-close": true }, label)));
-  return openOverlay(stage, card, o.onClose);
+  const overlay = openOverlay(stage, card, o.onClose);
+  overlay.el.dataset.kind = o.kind; // lets tests and styles tell the three kinds apart
+  return overlay;
 }
 
 /** The guide (i): Mèo explains how to play in a few steps. Voice is added by the caller. */

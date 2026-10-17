@@ -41,6 +41,9 @@ export function html(markup: string): HTMLElement {
 export const $ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document): T | null => root.querySelector<T>(sel);
 export const $$ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document): T[] => [...root.querySelectorAll<T>(sel)];
 
+/** Resolve after `ms` milliseconds (used for short pauses in animations). */
+export const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
 export function clear(el: Element): void {
   el.replaceChildren();
 }
