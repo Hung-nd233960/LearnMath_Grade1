@@ -112,7 +112,7 @@ describe("screen time", () => {
   it("idle time is not counted; nudge then pause fire once", () => {
     let u = newUsage(day, 0);
     const events: string[] = [];
-    for (let t = 0; t <= 90000; t += 1000) { const r = tick(u, t, L, day); u = r.usage; events.push(...r.events); }
+    for (let t = 0; t <= (L.idlePauseSec + 30) * 1000; t += 1000) { const r = tick(u, t, L, day); u = r.usage; events.push(...r.events); }
     expect(events.filter((e) => e === "idleNudge")).toHaveLength(1);
     expect(events.filter((e) => e === "idlePause")).toHaveLength(1);
     expect(u.playedMs).toBe((L.idlePauseSec - 1) * 1000); // the tick that reaches the pause limit is not counted

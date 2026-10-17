@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9), the teacher area (step 10), the guide (step 11) Mèo's worked examples and voice packs (step 13).
+// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9), the teacher area (step 10), the guide (step 11) Mèo's worked examples, voice packs, sound mixer and music (step 13).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -67,7 +67,7 @@ await viewport(1180, 820);
 // ---------- 1. empty stage ----------
 await nav(URL_BASE);
 check("stage exists at 1180x820", await ev(`(() => { const r = document.querySelector('.stage').getBoundingClientRect(); return Math.round(r.width) === 1180 && Math.round(r.height) === 820; })()`));
-check("fx classes default on", await ev(`['fx-anim','fx-decor','fx-celebrate','fx-sfx'].every(c => document.documentElement.classList.contains(c))`));
+check("fx classes default on", await ev(`['fx-anim','fx-decor','fx-celebrate','fx-sfx','fx-music'].every(c => document.documentElement.classList.contains(c))`));
 check("first run: no child yet, so the picker opens with the add form", await ev(`!!document.querySelector('.screen-who') && !!document.querySelector('.overlay .add-card')`));
 check("svg defs injected once", (await ev(`document.querySelectorAll('#ttth-defs').length`)) === 1);
 await shot("ui-1-first-run");
@@ -92,10 +92,10 @@ check("portrait notice off again", await ev(`!document.body.classList.contains('
 
 // ---------- 3. settings drive the page ----------
 const setFx = (o) => ev(`__app.store.update(d => ({...d, settings: {...d.settings, fx: ${JSON.stringify(o)}}}))`);
-await setFx({ anim: false, decor: false, celebrate: false, sfx: false });
-check("calm: all fx classes removed", await ev(`['fx-anim','fx-decor','fx-celebrate','fx-sfx'].every(c => !document.documentElement.classList.contains(c))`));
+await setFx({ anim: false, decor: false, celebrate: false, sfx: false, music: false });
+check("calm: all fx classes removed", await ev(`['fx-anim','fx-decor','fx-celebrate','fx-sfx','fx-music'].every(c => !document.documentElement.classList.contains(c))`));
 check("calm: decoration hidden", await ev(`getComputedStyle(document.querySelector('.decor')).display === 'none'`));
-await setFx({ anim: true, decor: true, celebrate: true, sfx: true });
+await setFx({ anim: true, decor: true, celebrate: true, sfx: true, music: true });
 check("all: decoration visible", await ev(`getComputedStyle(document.querySelector('.decor')).display === 'block'`));
 check("settings saved to localStorage", await ev(`JSON.parse(localStorage.getItem('ttth.data')).settings.fx.decor === true`));
 
@@ -160,7 +160,7 @@ await shot("ui-4-feedback");
 await click(".overlay [data-close]");
 check("feedback: closes, callback ran", (await ev(`document.querySelectorAll('.overlay').length`)) === 0 && (await ev(`document.querySelector('#kit-status').textContent`)) === "feedback ok closed");
 await sleep(2600); // let the previous confetti finish falling
-await setFx({ anim: true, decor: true, celebrate: false, sfx: true });
+await setFx({ anim: true, decor: true, celebrate: false, sfx: true, music: true });
 await click("#kit-fb-retry");
 check("feedback retry: no confetti; secondary button", (await ev(`document.querySelectorAll('.confetti').length`)) === 0 && (await ev(`!!document.querySelector('.overlay .btn-secondary')`)));
 await click(".overlay [data-close]");
@@ -1133,7 +1133,7 @@ const setInputFile = async (selector, path) => {
 await send("Browser.setDownloadBehavior", { behavior: "deny" });
 
 await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, limits: { ...d.settings.limits, sessionMin: 30, breakMin: 5, dailyMin: 60, warnBeforeMin: 2, idleNudgeSec: 20, idlePauseSec: 60 } } }))`);
-await setFx({ anim: true, decor: true, celebrate: true, sfx: true });
+await setFx({ anim: true, decor: true, celebrate: true, sfx: true, music: true });
 // earlier sections added many children for the pager: keep just the two this section uses
 await ev(`Object.values(__app.store.data.profiles).filter(p => p.id !== ${JSON.stringify(binhId)} && p.id !== ${JSON.stringify(anId)}).forEach(p => __app.store.removeProfile(p.id))`);
 await ev(`__app.store.setActive(${JSON.stringify(anId)})`);
@@ -1155,17 +1155,17 @@ check("area: five tabs", (await ev(`document.querySelectorAll('.t-nav button').l
 check("area: the default PIN warning is shown", await ev(`!!document.querySelector('#t-default-pin')`));
 
 // --- Hiệu ứng: presets and switches change the page at once ---
-const fxClasses = () => ev(`['anim','decor','celebrate','sfx'].map(k => document.documentElement.classList.contains('fx-' + k) ? 1 : 0).join('')`);
-check("fx: opens on the Hiệu ứng tab with 'Rực rỡ' highlighted", (await fxClasses()) === "1111" && await ev(`document.querySelector('[data-preset=all]').classList.contains('on')`));
+const fxClasses = () => ev(`['anim','decor','celebrate','sfx','music'].map(k => document.documentElement.classList.contains('fx-' + k) ? 1 : 0).join('')`);
+check("fx: opens on the Hiệu ứng tab with 'Rực rỡ' highlighted", (await fxClasses()) === "11111" && await ev(`document.querySelector('[data-preset=all]').classList.contains('on')`));
 await shot("ui-13-fx");
 await click("[data-preset=calm]");
-check("fx: 'Yên tĩnh' turns everything off at once", (await fxClasses()) === "0000" && await ev(`document.querySelector('[data-preset=calm]').classList.contains('on') && [...document.querySelectorAll('[data-fx]')].every(i => !i.checked)`));
+check("fx: 'Yên tĩnh' turns everything off at once", (await fxClasses()) === "00000" && await ev(`document.querySelector('[data-preset=calm]').classList.contains('on') && [...document.querySelectorAll('[data-fx]')].every(i => !i.checked)`));
 await click(".sw:has([data-fx=decor])");
-check("fx: one switch changes just that effect, and no preset stays highlighted", (await fxClasses()) === "0100" && (await ev(`document.querySelectorAll('.presets .on').length`)) === 0);
+check("fx: one switch changes just that effect, and no preset stays highlighted", (await fxClasses()) === "01000" && (await ev(`document.querySelectorAll('.presets .on').length`)) === 0);
 await click("[data-preset=mid]");
-check("fx: 'Vừa phải' = no decoration", (await fxClasses()) === "1011");
+check("fx: 'Vừa phải' = no decoration", (await fxClasses()) === "10111");
 await click("[data-preset=all]");
-check("fx: 'Rực rỡ' = everything", (await fxClasses()) === "1111" && (await ev(`JSON.parse(localStorage.getItem('ttth.data')).settings.fx.decor`)) === true);
+check("fx: 'Rực rỡ' = everything", (await fxClasses()) === "11111" && (await ev(`JSON.parse(localStorage.getItem('ttth.data')).settings.fx.decor`)) === true);
 
 // --- Thời gian chơi ---
 await openTab("time");
@@ -1227,13 +1227,13 @@ const backupFile = `${SP}/backup-check.json`;
 writeFileSync(backupFile, backupText);
 // change things, then restore them from the file
 await ev(`__app.store.removeProfile(${JSON.stringify(binhId)})`);
-await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, fx: { anim: false, decor: false, celebrate: false, sfx: false }, limits: { ...d.settings.limits, dailyMin: 25 } } }))`);
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, fx: { anim: false, decor: false, celebrate: false, sfx: false, music: false }, limits: { ...d.settings.limits, dailyMin: 25 } } }))`);
 await setInputFile("#t-import", backupFile);
 check("backup: importing asks first and says how many children", /2 bạn/.test(await ev(`document.querySelector('.t-dialog p').textContent`)));
 await click(".t-dialog .btn-primary");
 await sleep(400);
 check("backup: after import both children are back", (await names()) === "Bình,An" && (await profileOf(anId)).stars === anStars);
-check("backup: after import the settings are back too", (await fxClasses()) === "1111" && (await ev(`__app.store.data.settings.limits.dailyMin`)) === 10);
+check("backup: after import the settings are back too", (await fxClasses()) === "11111" && (await ev(`__app.store.data.settings.limits.dailyMin`)) === 10);
 check("backup: nobody is playing after an import (the picker comes next)", (await ev(`__app.store.data.activeId`)) === null);
 check("backup: a confirmation is shown", /Đã nhập/.test(await ev(`document.querySelector('.t-dialog p').textContent`)));
 await click(".t-dialog .btn-primary");
@@ -1448,6 +1448,91 @@ if (readyPack) {
 await shot("ui-16-voice");
 check("voice: a pack that is no longer shipped quietly falls back to the default", await (async () => { await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, voicePack: 'vanished' } }))`); const ok = (await ev(`__app.voice.currentPack`)) !== "vanished"; await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, voicePack: null } }))`); return ok; })());
 await leaveArea();
+
+// ---------- 17. teacher: time buttons; the sound mixer and the background music ----------
+await ev(`__app.store.setActive(${JSON.stringify(anId)})`);
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, muted: false, voicePack: 'device', fx: { anim: true, decor: true, celebrate: true, sfx: true, music: true }, mix: { master: 1, music: 0.6, sfx: 0.8, voice: 1, musicOn: true, sfxOn: true, voiceOn: true }, limits: { ...d.settings.limits, dailyMin: 60, sessionMin: 30 } } }))`);
+await resetUsage(anId);
+await goHash("#/home"); await sleep(400);
+
+// --- the speaker: a tap mutes, holding it opens the mixer ---
+const holdSpeaker = async (ms = 900) => { const [x, y] = await center(".speaker"); await mouse("mousePressed", x, y); await sleep(ms); await mouse("mouseReleased", x, y); await sleep(450); };
+await holdSpeaker();
+check("sound: holding the speaker opens the sound mixer", await ev(`!!document.querySelector('.snd-card')`));
+check("sound: holding does NOT also mute (the tap after a hold is ignored)", (await ev(`__app.store.data.settings.muted`)) === false);
+check("sound: the mixer has master, music, effects and Mèo's voice", (await ev(`[...document.querySelectorAll('.snd-row')].map(r => r.dataset.row).join(',')`)) === "master,music,sfx,voice");
+await shot("ui-17-sound");
+await ev(`(() => { const s = document.querySelector('[data-vol=voice]'); s.value = 40; s.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+check("sound: the voice slider sets the voice volume at once", (await ev(`__app.store.data.settings.mix.voice`)) === 0.4 && Math.abs((await ev(`__app.voice.volume`)) - 0.4) < 1e-9);
+await ev(`(() => { const s = document.querySelector('[data-vol=master]'); s.value = 50; s.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+check("sound: the master volume scales the other channels", Math.abs((await ev(`__app.voice.volume`)) - 0.2) < 1e-9 && Math.abs((await ev(`__app.sfx.volume`)) - 0.4) < 1e-9);
+await click("[data-row=music] .sw");
+check("sound: the music switch turns the music off and keeps its volume", (await ev(`__app.store.data.settings.mix.musicOn`)) === false && (await ev(`__app.store.data.settings.mix.music`)) === 0.6 && (await ev(`__app.bgm.state.volume`)) === 0 && (await ev(`__app.bgm.playing`)) === null);
+await click("[data-row=music] .sw");
+check("sound: and on again", (await ev(`__app.store.data.settings.mix.musicOn`)) === true && (await ev(`__app.bgm.state.volume`)) > 0);
+await click("[data-row=master] .sw");
+check("sound: the master switch is the same mute as a tap on the speaker", (await ev(`__app.store.data.settings.muted`)) === true && (await ev(`document.documentElement.classList.contains('is-muted')`)) && (await ev(`__app.bgm.playing`)) === null);
+await click("[data-row=master] .sw");
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, fx: { ...d.settings.fx, music: false } } }))`);
+check("sound: what the teacher switched off shows as off and cannot be turned on here", await ev(`(() => { const r = document.querySelector('[data-row=music]'); return r.querySelector('input[type=checkbox]').disabled && /Thầy cô đã tắt/.test(r.textContent); })()`) && (await ev(`__app.bgm.playing`)) === null);
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, fx: { ...d.settings.fx, music: true }, mix: { ...d.settings.mix, master: 1, voice: 1 } } }))`);
+await click("#snd-done");
+check("sound: 'Xong' closes the mixer", await ev(`!document.querySelector('.snd-card')`));
+await click(".speaker");
+check("sound: a plain tap on the speaker still mutes, and a second tap unmutes", (await ev(`__app.store.data.settings.muted`)) === true);
+await click(".speaker");
+check("sound: ...and a second tap unmutes", (await ev(`__app.store.data.settings.muted`)) === false);
+
+// --- the music follows the screen ---
+check("music: the lobby tune plays on the home screen", (await ev(`__app.bgm.playing`)) === "lobby");
+await ev(`__app.go('play/robot')`); await sleep(600);
+check("music: each game has its own tune (Rô-bốt)", (await ev(`__app.bgm.playing`)) === "robot");
+await ev(`document.querySelector('.guide-card .btn-primary')?.click()`);
+await ev(`__app.go('play/basket')`); await sleep(500);
+await ev(`document.querySelector('.guide-card .btn-primary')?.click()`);
+check("music: and another for Giỏ trái cây", (await ev(`__app.bgm.playing`)) === "basket");
+await ev(`__app.go('home')`); await sleep(400);
+check("music: back to the lobby tune at home", (await ev(`__app.bgm.playing`)) === "lobby");
+await ev(`__app.go('teacher')`); await sleep(400);
+check("music: the teacher area is quiet", (await ev(`__app.bgm.playing`)) === null);
+await ev(`__app.go('home')`); await sleep(400);
+check("music: it ducks while Mèo speaks and comes back", await ev(`(() => { const v = __app.voice; v.onSpeaking(true); const low = __app.bgm.state.ducked; v.onSpeaking(false); return low && !__app.bgm.state.ducked; })()`));
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, fx: { anim: false, decor: false, celebrate: false, sfx: false, music: false } } }))`);
+check("music: the 'Yên tĩnh' setup has no music", (await ev(`__app.bgm.playing`)) === null);
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, fx: { anim: true, decor: true, celebrate: true, sfx: true, music: true } } }))`);
+check("music: and it returns with the full setup", (await ev(`__app.bgm.playing`)) === "lobby");
+
+// --- the time tab: take time back, end the day early ---
+await holdPadlock();
+await typePin(await ev(`import('/src/core/pin.ts').then(m => m.checkPin(__app.store.data.settings.pin, '4321') ? '4321' : '1234')`));
+await openTab("time");
+const leftText = () => ev(`document.querySelector('#t-status').textContent`);
+const leftMin = async () => Number((await leftText()).match(/còn (\d+) phút/)?.[1]);
+check("time: four buttons to change the time (−20, −10, +10, +20)", (await ev(`[...document.querySelectorAll('[data-bonus]')].map(b => b.dataset.bonus).join(',')`)) === "-20,-10,10,20" && (await ev(`[...document.querySelectorAll('[data-bonus]')].map(b => b.textContent).join('|')`)) === "−20 phút|−10 phút|+10 phút|+20 phút");
+const minutesBefore = await leftMin();
+await click("[data-bonus='10']");
+check("time: +10 adds ten minutes", (await leftMin()) === minutesBefore + 10 && /Đã thêm 10/.test(await ev(`document.querySelector('#t-msg').textContent`)));
+await click("[data-bonus='-10']");
+check("time: −10 takes them back (a misclick can be undone)", (await leftMin()) === minutesBefore && /Đã bớt 10/.test(await ev(`document.querySelector('#t-msg').textContent`)));
+await click("[data-bonus='-20']");
+check("time: −20 takes away real time", (await leftMin()) === minutesBefore - 20);
+await click("[data-bonus='20']");
+check("time: and +20 restores it", (await leftMin()) === minutesBefore);
+check("time: the early-stop button names the child", (await ev(`document.querySelector('#t-lock-early').textContent`)) === "Cho bé An nghỉ sớm");
+await shot("ui-17-time-buttons");
+await click("#t-lock-early");
+check("time: 'Cho bé An nghỉ sớm' stops today's play", /nghỉ sớm/.test(await leftText()) && await ev(`document.querySelector('#t-lock-early').hidden`) && (await ev(`__app.time.snapshot().lockDue`)) === true);
+check("time: taking time away does not undo it, and there is nothing left to take", await ev(`[...document.querySelectorAll('[data-bonus^="-"]')].every(b => b.disabled)`));
+await leaveArea();
+check("time: the child then sees 'Hôm nay mình chơi đủ rồi!'", await waitFor(`!!document.querySelector('.screen-locked')`, 4000));
+await holdPadlock();
+await typePin(await ev(`import('/src/core/pin.ts').then(m => m.checkPin(__app.store.data.settings.pin, '4321') ? '4321' : '1234')`));
+await openTab("time");
+await click("[data-bonus='10']");
+check("time: +10 lets the child play again", !(await ev(`document.querySelector('#t-lock-early').hidden`)) && (await ev(`__app.time.snapshot().lockDue`)) === false);
+await leaveArea();
+check("time: and the child is back on the home screen", await waitFor(`!!document.querySelector('.screen-home')`, 3000));
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, voicePack: null } }))`);
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 

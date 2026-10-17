@@ -15,12 +15,12 @@ export const LIMIT_RANGES: Record<"sessionMin" | "breakMin" | "dailyMin" | "idle
   sessionMin: { min: 5, max: 30, step: 5 },
   breakMin: { min: 2, max: 10, step: 1 },
   dailyMin: { min: 10, max: 60, step: 5 },
-  idleNudgeSec: { min: 10, max: 60, step: 5 },
+  idleNudgeSec: { min: 10, max: 120, step: 5 },
 };
 
 export type LimitKey = keyof typeof LIMIT_RANGES;
 
-/** The game pauses this many times later than Mèo's first nudge (20 s → 60 s by default). */
+/** The game pauses this many times later than Mèo's first nudge (60 s → 180 s by default). */
 export const PAUSE_AFTER_NUDGE = 3;
 
 function clampToRange(r: Range, value: number): number {

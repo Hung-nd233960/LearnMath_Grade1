@@ -7,6 +7,6 @@
 | **Be Vietnam Pro** (body text) | `public/fonts/` | SIL Open Font License 1.1, © The Be Vietnam Pro Project Authors |
 | **Tauri** and its Rust crates (Windows app only) | `src-tauri/` | MIT / Apache-2.0 |
 
-Mèo Smarty, the scale, the vase and the other drawings are custom and belong to the project.
+Mèo Smarty, the scale, the vase and the other drawings are custom and belong to the project. The **background music** is composed by the code in `src/audio/music.ts`: no recordings, no third-party tracks, nothing to attribute.
 
 **To check:** whether the competition's rules allow third-party art. The Fluent Emoji licence itself allows it with the notice kept.

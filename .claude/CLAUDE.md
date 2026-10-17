@@ -60,7 +60,7 @@ An interactive web app of math mini-games for Vietnamese **grade 1** students (6
 - **Screen time** (per profile, set in the teacher area, unlocked with a PIN):
   - session cap, e.g. 15 min, followed by a break screen
   - daily hard cap, e.g. 30 min, with a warning at 2 minutes left
-  - inactivity: Mèo Smarty nudges at about 20 s and pauses at about 60 s; idle time does not count toward the caps
+  - inactivity: Mèo Smarty nudges at about 1 minute and pauses at about 3 minutes; idle time does not count toward the caps
   - never cut a child off mid-set
 - **Voice:** a recording script made of reusable pieces (numbers 0–20, operators, prompts, praise, warnings), recorded by the teacher. Text-to-speech placeholder clips are allowed during development and use the same file names. No voice generation at runtime.
 
@@ -69,13 +69,14 @@ An interactive web app of math mini-games for Vietnamese **grade 1** students (6
 The teachers' feedback: keep the mockups' layout and colours, but make everything **more playful and cartoony**, because the current icons are too plain.
 - Use one consistent open-licence cartoon icon set, proposed: Microsoft Fluent Emoji, MIT licence. Check the competition's rules on third-party art.
 - Mèo Smarty and the scale stay custom drawn.
-- **Eye candy, switchable:** four effects, each a class on `<html>`:
+- **Eye candy, switchable:** five effects, each a class on `<html>`:
   - `fx-anim`: motion
   - `fx-decor`: drifting background pictures
   - `fx-celebrate`: confetti and sparkles
   - `fx-sfx`: Web Audio sound effects, separate from the voice
+  - `fx-music`: light background music (a lobby tune and one per game, composed by rules in `src/audio/music.ts`)
 - **Presets:** Yên tĩnh (all off), Vừa phải (no decor), Rực rỡ (all on, the default). `prefers-reduced-motion` turns animation off.
-- **All settings (effects, time limits) live only in the PIN-protected teacher area**, never on a child's screen, so children can't tamper with them. The PIN keeps children out; it is not real security.
+- **All settings (effects, time limits) live only in the PIN-protected teacher area**, never on a child's screen, so children can't tamper with them. The PIN keeps children out; it is not real security. **The one exception is the sound mixer:** tapping the speaker mutes, holding it opens master, music, effects and voice volumes, which a child may change (anything the teacher switched off stays off).
 - **Entry:** a small padlock in the bottom-right corner (homepage, break screens); hold about 1 s to open (`[data-adult-gate]`, `adultGate()` in `shared.js`), then PIN. No text links to the teacher area on children's screens.
 - Children see fruit, baskets, vases and plates. **No animals** (no cages, no aquariums).
 

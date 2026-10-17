@@ -4,8 +4,9 @@
 // screen — the teacher area therefore offers export/import of this same document.
 import { dayKey } from "./dates.ts";
 import { createProfile, repairProfile, type Profile } from "./profiles.ts";
-import { defaultSettings, type Settings } from "./settings.ts";
-import { defaultLimits } from "./screentime.ts";
+import { defaultSettings, sanitizeMix, type Settings } from "./settings.ts";
+import { DEFAULT_LIMITS } from "./config.ts";
+import { defaultLimits, type Limits } from "./screentime.ts";
 
 export const STORAGE_KEY = "ttth.data";
 export const SCHEMA = 1;
@@ -48,6 +49,11 @@ export function emptyData(reducedMotion = false): AppData {
   return { schema: SCHEMA, profiles: {}, order: [], activeId: null, settings: defaultSettings(reducedMotion) };
 }
 
+/** The first release nudged after 20 s and paused after 60 s: too quick for 6-year-olds. A save still holding exactly those values gets the new defaults (1 and 3 minutes). */
+function upgradeIdle(l: Limits): Limits {
+  return l.idleNudgeSec === 20 && l.idlePauseSec === 60 ? { ...l, idleNudgeSec: DEFAULT_LIMITS.idleNudgeSec, idlePauseSec: DEFAULT_LIMITS.idlePauseSec } : l;
+}
+
 /** Turn anything parsed from storage or an import file into valid AppData (or null). */
 export function migrate(raw: unknown, now = Date.now()): AppData | null {
   if (!raw || typeof raw !== "object") return null;
@@ -70,8 +76,10 @@ export function migrate(raw: unknown, now = Date.now()): AppData | null {
     settings: {
       ...base.settings,
       ...s,
-      fx: { ...base.settings.fx, ...s.fx },
-      limits: { ...defaultLimits(), ...s.limits },
+      // a save from before the music existed has no `music`: it follows the sound-effects switch, so "Yên tĩnh" stays quiet
+      fx: { ...base.settings.fx, music: s.fx?.sfx ?? base.settings.fx.music, ...s.fx },
+      mix: sanitizeMix(s.mix),
+      limits: upgradeIdle({ ...defaultLimits(), ...s.limits }),
       pin: s.pin && typeof s.pin.hash === "string" ? s.pin : base.settings.pin,
       // added after the first release: older saves have none, which means "the best available"
       voicePack: typeof s.voicePack === "string" ? s.voicePack : null,

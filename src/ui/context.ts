@@ -1,5 +1,6 @@
 import type { sfx } from "../audio/sfx.ts";
 import type { VoicePack } from "../audio/packs.ts";
+import type { Bgm } from "../audio/bgm.ts";
 import type { Voice } from "../audio/voice.ts";
 import type { DayKey } from "../core/dates.ts";
 import type { SetSummary } from "../core/session.ts";
@@ -22,6 +23,8 @@ export interface SetResult {
 export interface AppContext {
   store: Store;
   voice: Voice;
+  /** Background music: `play(track)` follows the screen (app.ts); `hold`/`duck` fade it. */
+  bgm: Bgm;
   /** Voice packs shipped with this build (empty until audio/packs.json has loaded, and when there are none). */
   voicePacks: VoicePack[];
   sfx: typeof sfx;

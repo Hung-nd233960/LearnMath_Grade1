@@ -260,20 +260,31 @@ export const teacherScreen: ScreenDef = {
         const status = h("p", { class: "t-status", id: "t-status" });
         const msg = h("p", { class: "t-msg", id: "t-msg" });
         const endBtn = h("button", { class: "btn btn-secondary", id: "t-end-break", onclick: () => { ctx.time.endBreak(); msg.textContent = T.endBreakDone; draw(); } }, T.endBreak);
+        const lockBtn = h("button", { class: "btn btn-warn", id: "t-lock-early", onclick: () => { ctx.time.lockForToday(); msg.textContent = T.lockEarlyDone(profile.name); draw(); } }, T.lockEarly(profile.name));
+        const less: HTMLButtonElement[] = [];
         const draw = () => {
           const snap = ctx.time.snapshot();
           const played = Math.round(ctx.time.playedMs() / 60000);
           const left = Math.ceil(ctx.time.dailyLeftMs() / 60000);
           const onBreak = snap?.mode === "break";
-          status.textContent = snap?.lockDue ? T.nowLocked : onBreak ? T.nowBreak : T.nowStatus(played, left);
+          status.textContent = snap?.usage.lockedEarly ? T.nowLockedEarly : snap?.lockDue ? T.nowLocked : onBreak ? T.nowBreak : T.nowStatus(played, left);
           endBtn.hidden = !onBreak;
+          lockBtn.hidden = !!snap?.lockDue; // already stopped: "+10 phút" gives the time back
+          less.forEach((b) => (b.disabled = left <= 0)); // nothing left to take away
         };
-        const bonus = (n: number) => h("button", { class: "btn btn-primary", "data-bonus": n, onclick: () => { ctx.time.grantBonus(n); msg.textContent = T.bonusDone(n); draw(); } }, T.bonus(n));
+        // +10 / +20 give time (and end an early stop); -10 / -20 take it back, in case of a misclick
+        const bonus = (n: number) => {
+          const b = h("button", { class: n > 0 ? "btn btn-primary" : "btn btn-secondary", "data-bonus": n, onclick: () => { ctx.time.grantBonus(n); msg.textContent = n > 0 ? T.bonusDone(n) : T.bonusLess(-n); draw(); } }, T.bonus(n));
+          if (n < 0) less.push(b);
+          return b;
+        };
+        const buttons = [bonus(-20), bonus(-10), bonus(10), bonus(20)];
         draw();
         return h("div", { class: "t-today" },
           h("h3", null, avatarBadge(profile.avatar, 40), T.nowTitle(profile.name)),
           status,
-          h("div", { class: "actions" }, bonus(10), bonus(20), endBtn),
+          h("div", { class: "actions" }, ...buttons),
+          h("div", { class: "actions" }, lockBtn, endBtn),
           msg);
       };
 

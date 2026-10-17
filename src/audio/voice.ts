@@ -7,6 +7,11 @@ import { DEVICE_PACK } from "./packs.ts";
 
 export class Voice {
   muted = false;
+  /** 0..1, from the sound mixer (master × voice). */
+  volume = 1;
+  /** Called with true when speech starts and false when it ends or is cut off: the music ducks meanwhile. */
+  onSpeaking: ((speaking: boolean) => void) | null = null;
+  private speaking = false;
   private readonly root: string;
   /** Folder of the chosen pack, or null for the device voice. */
   private pack: string = DEVICE_PACK;
@@ -39,8 +44,15 @@ export class Voice {
     if ("speechSynthesis" in globalThis) speechSynthesis.getVoices();
   }
 
+  private setSpeaking(on: boolean): void {
+    if (on === this.speaking) return;
+    this.speaking = on;
+    this.onSpeaking?.(on);
+  }
+
   stop(): void {
     this.token++;
+    this.setSpeaking(false);
     if (this.current) { this.current.pause(); this.current = null; }
     if ("speechSynthesis" in globalThis) speechSynthesis.cancel();
   }
@@ -52,22 +64,29 @@ export class Voice {
    */
   async play(s: Speech, pack: string = this.pack, force = false): Promise<void> {
     this.stop();
-    if ((this.muted && !force) || !s.clips.length) return;
+    if (((this.muted || this.volume <= 0) && !force) || !s.clips.length) return;
     const my = this.token;
-    if (pack === DEVICE_PACK) return this.tts(s.text);
-    const url = (clip: string) => `${this.root}${pack}/${clip}.mp3`;
-    if (s.clips.some((c) => this.missing.has(url(c)))) return this.tts(s.text);
-    for (const clip of s.clips) {
-      if (my !== this.token) return;
-      const r = await this.playClip(url(clip));
-      if (r === "blocked") return; // autoplay not unlocked yet: stay silent, text is on screen
-      if (r === "missing") { this.missing.add(url(clip)); if (my === this.token) await this.tts(s.text); return; }
+    const vol = force ? 1 : this.volume;
+    this.setSpeaking(true);
+    try {
+      if (pack === DEVICE_PACK) return await this.tts(s.text, vol);
+      const url = (clip: string) => `${this.root}${pack}/${clip}.mp3`;
+      if (s.clips.some((c) => this.missing.has(url(c)))) return await this.tts(s.text, vol);
+      for (const clip of s.clips) {
+        if (my !== this.token) return;
+        const r = await this.playClip(url(clip), vol);
+        if (r === "blocked") return; // autoplay not unlocked yet: stay silent, text is on screen
+        if (r === "missing") { this.missing.add(url(clip)); if (my === this.token) await this.tts(s.text, vol); return; }
+      }
+    } finally {
+      if (my === this.token) this.setSpeaking(false);
     }
   }
 
-  private playClip(src: string): Promise<"ok" | "missing" | "blocked"> {
+  private playClip(src: string, volume: number): Promise<"ok" | "missing" | "blocked"> {
     return new Promise((resolve) => {
       const a = new Audio(src);
+      a.volume = volume;
       this.current = a;
       a.onended = () => resolve("ok");
       a.onerror = () => resolve("missing"); // file not found / not decodable
@@ -78,7 +97,7 @@ export class Voice {
     });
   }
 
-  private tts(text: string): Promise<void> {
+  private tts(text: string, volume: number): Promise<void> {
     return new Promise((resolve) => {
       if (!("speechSynthesis" in globalThis)) return resolve();
       const vi = speechSynthesis.getVoices().find((v) => v.lang?.toLowerCase().startsWith("vi"));
@@ -87,6 +106,7 @@ export class Voice {
       u.voice = vi;
       u.lang = vi.lang;
       u.rate = 0.9;
+      u.volume = volume;
       u.onend = () => resolve();
       u.onerror = () => resolve();
       speechSynthesis.speak(u);

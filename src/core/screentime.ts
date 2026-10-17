@@ -16,8 +16,10 @@ export interface Usage {
   playedMs: number;
   /** Counted play time since the last break. */
   sessionMs: number;
-  /** Extra time an adult granted today (PIN). */
+  /** Extra time an adult granted today (PIN); negative when an adult took time away. */
   bonusMs: number;
+  /** An adult ended today's play early ("Cho bé nghỉ sớm"). Cleared by granting time or by a new day. */
+  lockedEarly?: boolean;
   /** While set, a break is running until this time (epoch ms). */
   breakUntil: number | null;
   lastTickAt: number | null;
@@ -52,7 +54,7 @@ export function defaultLimits(): Limits {
 }
 
 export function newUsage(day: DayKey, now: number): Usage {
-  return { day, playedMs: 0, sessionMs: 0, bonusMs: 0, breakUntil: null, lastTickAt: null, lastInputAt: now, nudged: false, paused: false, warned: false };
+  return { day, playedMs: 0, sessionMs: 0, bonusMs: 0, lockedEarly: false, breakUntil: null, lastTickAt: null, lastInputAt: now, nudged: false, paused: false, warned: false };
 }
 
 export const dailyCapMs = (u: Usage, l: Limits) => l.dailyMin * 60000 + u.bonusMs;
@@ -60,6 +62,7 @@ export const dailyCapMs = (u: Usage, l: Limits) => l.dailyMin * 60000 + u.bonusM
 /** Play time left today in ms, as shown on the home screen. A usage record from an earlier day counts as a fresh day. */
 export function dailyLeftNow(u: Usage, l: Limits, today: DayKey): number {
   const sameDay = u.day === today;
+  if (sameDay && u.lockedEarly) return 0;
   return Math.max(0, l.dailyMin * 60000 + (sameDay ? u.bonusMs : 0) - (sameDay ? u.playedMs : 0));
 }
 
@@ -74,7 +77,24 @@ export function startBreak(u: Usage, now: number, l: Limits): Usage {
 
 /** An adult unlocked more time with the PIN. */
 export function grantBonus(u: Usage, minutes: number): Usage {
-  return { ...u, bonusMs: u.bonusMs + minutes * 60000, warned: false };
+  return { ...u, bonusMs: u.bonusMs + minutes * 60000, warned: false, lockedEarly: false };
+}
+
+/** The most extra time an adult can add for one day. */
+export const MAX_BONUS_MIN = 240;
+
+/**
+ * An adult adds time (positive) or takes it away (negative, to undo a misclick): today's limit moves, but never
+ * below zero minutes in total nor above MAX_BONUS_MIN extra. Adding time also ends an early stop.
+ */
+export function changeBonus(u: Usage, minutes: number, l: Limits): Usage {
+  const bonusMs = Math.min(MAX_BONUS_MIN * 60000, Math.max(-l.dailyMin * 60000, u.bonusMs + minutes * 60000));
+  return { ...u, bonusMs, warned: false, lockedEarly: minutes > 0 ? false : u.lockedEarly };
+}
+
+/** An adult ends today's play now ("Cho bé nghỉ sớm"): the "done for today" screen shows after the current set. */
+export function lockEarly(u: Usage): Usage {
+  return { ...u, lockedEarly: true };
 }
 
 /** An adult ended the break early with the PIN. */
@@ -117,12 +137,12 @@ export function tick(prev: Usage, now: number, l: Limits, today: DayKey): TickRe
   }
 
   const cap = dailyCapMs(u, l);
-  const dailyLeftMs = Math.max(0, cap - u.playedMs);
+  const dailyLeftMs = u.lockedEarly ? 0 : Math.max(0, cap - u.playedMs);
   if (!u.warned && dailyLeftMs > 0 && dailyLeftMs <= l.warnBeforeMin * 60000) {
     u.warned = true;
     events.push("warnDaily");
   }
-  const lockDue = u.playedMs >= cap;
+  const lockDue = u.lockedEarly === true || u.playedMs >= cap;
   if (lockDue && mode !== "break") mode = "locked";
 
   return {

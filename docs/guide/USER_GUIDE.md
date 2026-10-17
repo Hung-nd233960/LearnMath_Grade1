@@ -21,10 +21,11 @@
 - [7. The (i) guide and "Mèo's worked example"](#7-the-i-guide-and-mèos-worked-example)
 - [8. The three Vòng and adaptive difficulty](#8-the-three-vòng-and-adaptive-difficulty)
 - [9. Stars and the daily streak](#9-stars-and-the-daily-streak)
-- [10. Healthy screen time](#10-healthy-screen-time)
-- [11. The Teacher area](#11-the-teacher-area)
-- [12. Mèo's voice (recording)](#12-mèos-voice-recording)
-- [13. Troubleshooting](#13-troubleshooting)
+- [10. Sound and music](#10-sound-and-music)
+- [11. Healthy screen time](#11-healthy-screen-time)
+- [12. The Teacher area](#12-the-teacher-area)
+- [13. Mèo's voice (recording)](#13-mèos-voice-recording)
+- [14. Troubleshooting](#14-troubleshooting)
 
 ## 1. What is this app?
 
@@ -78,7 +79,7 @@ On the very first run the **"Add a friend"** form opens by itself: type a name a
 - The child's **total stars**, **streak** of consecutive days and **time left** today.
 - **This week**: the days with stars, today, and the days to come.
 - **Six picture tiles**: tap one to start a case. Each tile shows the child's current **Vòng**; a "Mới!" label marks a game not played yet, and played games show the **best stars** earned.
-- **Speaker button**: sound on or off. It is the **only setting** a child can change.
+- **Speaker button**: **tap** to switch all sound on or off; **hold** it for about half a second to open the sound mixer (see "Sound and music"). It is the **only setting** a child can change.
 - The small **padlock** in the bottom-right corner is for adults: **hold it for about 1 second** to enter the Teacher area (a PIN is asked).
 
 ![The padlock (circled in red) in the bottom-right corner: hold it for about 1 second. A quick tap only shows a hint.](img/04-padlock.png)
@@ -262,7 +263,19 @@ Inside each Vòng are **hidden small steps** (for example numbers up to 5, then 
 ![At the end of a set: stars, score and streak.](img/23-stars.png)
 *At the end of a set: stars, score and streak.*
 
-## 10. Healthy screen time
+## 10. Sound and music
+
+Mèo Smarty **reads everything aloud**, and there is **light background music**: a cheerful tune for the home screen and **a different one for each game** (7 in all). The music gets quieter while Mèo speaks, and is silent in the Teacher area, on the eye-break screen and on the done-for-today screen.
+
+- **Tap** the speaker button: all sound off or on.
+- **Hold** the speaker button for about half a second (a ring of light fills around it): the **sound mixer** opens with four rows, each with a switch and a volume slider: **Tất cả âm thanh** (all sound), **Nhạc nền** (music), **Tiếng hiệu ứng** (sound effects) and **Giọng Mèo** (Mèo's voice).
+- A switch remembers the volume: turning the music off and on again keeps its level.
+- If a teacher switched **Nhạc nền** or **Âm thanh hiệu ứng** off in the Teacher area (for example the **Yên tĩnh** preset), that row is greyed out and says "Thầy cô đã tắt" (a teacher turned it off); the children cannot turn it back on.
+
+![The sound mixer: hold the speaker button to open it.](img/05-sound-mixer.png)
+*The sound mixer: hold the speaker button to open it.*
+
+## 11. Healthy screen time
 
 Time is counted **separately for each child**. Adults set the limits in the Teacher area (defaults below).
 
@@ -270,7 +283,7 @@ Time is counted **separately for each child**. Adults set the limits in the Teac
 | --- | --- |
 | **Each round** 15 minutes | An **eye break** screen (default 5 minutes) with a countdown; Mèo sleeps. When the break ends the app goes home by itself. |
 | **Each day** 30 minutes | A warning **2 minutes** before. At the limit a **"Hôm nay mình chơi đủ rồi!"** (we have played enough today) screen stays until tomorrow. |
-| **No touching** | After about **20 seconds** Mèo asks "Do you need Mèo's help?". After about **60 seconds** the game **pauses**; a touch resumes. Idle time is **not counted**. |
+| **No touching** | After about **1 minute** Mèo asks "Do you need Mèo's help?". After about **3 minutes** the game **pauses** and the music fades out; a touch resumes. Idle time is **not counted**. |
 | **Never mid-set** | If the time runs out half way, the child may **finish that set**; the break or lock only appears when the child goes home or starts a new set. |
 
 <img src="img/24-break.png" alt="" width="49%"> <img src="img/25-locked.png" alt="" width="49%">
@@ -279,7 +292,7 @@ Time is counted **separately for each child**. Adults set the limits in the Teac
 
 Both screens have a **"Bạn khác chơi"** (another friend plays) button: another child can carry on on the same device (each child has their own clock).
 
-## 11. The Teacher area
+## 12. The Teacher area
 
 **Every setting** (effects, time, which children use the device, backups, the PIN) lives **only here**, never on a child's screen. The PIN keeps children out. **It is not real security:** a computer-savvy adult can still edit the data in the browser.
 
@@ -295,10 +308,10 @@ Both screens have a **"Bạn khác chơi"** (another friend plays) button: anoth
 
 #### The "Hiệu ứng" (effects) tab
 
-Three presets: **Yên tĩnh** (quiet: everything off, for easily distracted children), **Vừa phải** (moderate: no background decoration) and **Rực rỡ** (bright: everything on, the default). Or switch separately: **Animation**, **Background decoration**, **Confetti**, **Sound effects**. Changes apply **immediately**. A device set to "reduce motion" turns animation off by itself.
+Three presets: **Yên tĩnh** (quiet: everything off, for easily distracted children), **Vừa phải** (moderate: no background decoration) and **Rực rỡ** (bright: everything on, the default). Or switch separately: **Animation**, **Background decoration**, **Confetti**, **Sound effects**, **Background music**. Changes apply **immediately**. A device set to "reduce motion" turns animation off by itself.
 
-![Effects: three presets and four switches.](img/31-teacher-fx.png)
-*Effects: three presets and four switches.*
+![Effects: three presets and five switches.](img/31-teacher-fx.png)
+*Effects: three presets and five switches.*
 
 #### The "Giọng nói" (voice) tab
 
@@ -314,8 +327,8 @@ Choose Mèo's **speaking voice** for every question, praise and reminder. Each v
 
 #### The "Thời gian chơi" (play time) tab
 
-- **Today of (the child who is playing):** time played and time left; the **+10 minutes** and **+20 minutes** buttons (they end a lock when a child has run out) and **"Kết thúc nghỉ mắt"** (end the break) while a child is on a break.
-- Sliders: **each round** (5–30 min), **eye-break length** (2–10 min), **maximum per day** (10–60 min), **Mèo nudges when the screen is not touched** (10–60 s; the game pauses at three times that).
+- **Today of (the child who is playing):** time played and time left; the **+10 minutes** and **+20 minutes** buttons (they end a lock when a child has run out), **−10 minutes** and **−20 minutes** (to take time back after a misclick), **"Cho bé [name] nghỉ sớm"** (let [name] stop early: ends today's play at once, the child sees "Hôm nay mình chơi đủ rồi!" on going home, and **+10 minutes** reopens it) and **"Kết thúc nghỉ mắt"** (end the break) while a child is on a break.
+- Sliders: **each round** (5–30 min), **eye-break length** (2–10 min), **maximum per day** (10–60 min), **Mèo nudges when the screen is not touched** (10–120 s, default 1 minute; the game pauses at three times that).
 - The switch **Weekends do not break the streak**.
 
 ![Play time: extra time for the child who is playing, and the sliders.](img/32-teacher-time.png)
@@ -342,14 +355,14 @@ Choose Mèo's **speaking voice** for every question, praise and reminder. Each v
 
 > ⚠️ The data lives **only on this device**; there is no server. **Download a backup every week**, and before clearing browser data, changing device or removing a child.
 
-## 12. Mèo's voice (recording)
+## 13. Mèo's voice (recording)
 
 The voice is assembled from **short reusable clips** (numbers 0–20, operators, praise, reminders, the guide steps...) **recorded by a teacher** so it is familiar and has the right Vietnamese tones. The full list, with the exact words to read, is in **`docs/AUDIO_SCRIPT.md`**.
 
 1. Record each clip in the script and save it as `<id>.mp3` (for example `n7.mp3`) in the **`public/audio/teacher/`** folder.
 2. Rebuild and upload the app (or rebuild the Windows version). In the Teacher area, **Giọng nói** tab, choose **Giọng giáo viên** (or leave the default: once all 132 clips exist the teacher's voice is used automatically). Any clip not yet recorded is read by **the device's Vietnamese voice** (if it has one), or stays silent and the text is shown.
 
-## 13. Troubleshooting
+## 14. Troubleshooting
 
 | Problem | What to do |
 | --- | --- |

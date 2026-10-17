@@ -110,6 +110,11 @@ await shot("03-home");
 await css(".dev-bar { display: none !important; } .gate-btn { outline: 6px solid #e8453c; outline-offset: 7px; opacity: 1 !important; } .gate-tip { opacity: 1 !important; }");
 await shot("04-padlock", 300);
 await css(".dev-bar { display: none !important; }");
+// the sound mixer: hold the speaker button
+{ const [x, y] = await center(".speaker"); await mouse("mousePressed", x, y); await sleep(900); await mouse("mouseReleased", x, y); await sleep(400); }
+await shot("05-sound-mixer", 700);
+await ev(`document.querySelector('#snd-done').click()`);
+await sleep(300);
 
 // ---------------------------------------------------------------- 3. every game, Vòng 1 and Vòng 3
 const GAME_SHOTS = [
@@ -161,6 +166,10 @@ await shot("24-break", 1200);
 await ev(`(() => { __app.time.endBreak(); const id = __app.store.data.activeId; __app.store.update(d => ({ ...d, profiles: { ...d.profiles, [id]: { ...d.profiles[id], usage: { ...d.profiles[id].usage, playedMs: 31 * 60000 } } } })); __app.time.reload(); __app.go('home'); })()`);
 await waitFor(`!!document.querySelector('.screen-locked')`);
 await shot("25-locked", 1200);
+// back to a normal day for the teacher-area pictures (the time tab then shows every button)
+await ev(`(() => { const id = __app.store.data.activeId; __app.store.update(d => ({ ...d, profiles: { ...d.profiles, [id]: { ...d.profiles[id], usage: { ...d.profiles[id].usage, playedMs: 12 * 60000, sessionMs: 0, bonusMs: 0, lockedEarly: false } } } })); __app.time.reload(); __app.go('home'); })()`);
+await waitFor(`!!document.querySelector('.screen-home')`);
+await sleep(500);
 
 // ---------------------------------------------------------------- 7. teacher area
 const holdPadlock = async () => { const [x, y] = await center(".gate-btn"); await mouse("mousePressed", x, y); await sleep(1500); await mouse("mouseReleased", x, y); await sleep(500); };

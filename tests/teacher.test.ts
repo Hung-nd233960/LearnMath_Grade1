@@ -15,11 +15,11 @@ describe("teacher limits", () => {
   });
 
   it("the pause always comes later than the nudge", () => {
-    for (const sec of [10, 20, 35, 60]) {
+    for (const sec of [10, 20, 35, 60, 120]) {
       const l = setLimit(defaultLimits(), "idleNudgeSec", sec);
       expect(l.idlePauseSec).toBeGreaterThan(l.idleNudgeSec);
     }
-    expect(setLimit(defaultLimits(), "idleNudgeSec", 20).idlePauseSec).toBe(60); // the defaults agree
+    expect(setLimit(defaultLimits(), "idleNudgeSec", 60).idlePauseSec).toBe(180); // the defaults agree (nudge after 1 minute, pause after 3)
   });
 
   it("the warning never comes before the day starts", () => {
@@ -81,7 +81,7 @@ describe("store: teacher operations", () => {
     a.update((d) => ({
       ...d,
       profiles: { ...d.profiles, [p.id]: { ...d.profiles[p.id]!, stars: 7 } },
-      settings: { ...d.settings, skipWeekends: false, fx: { anim: false, decor: false, celebrate: true, sfx: false }, limits: { ...d.settings.limits, dailyMin: 45 }, pin: makePin("9876") },
+      settings: { ...d.settings, skipWeekends: false, fx: { anim: false, decor: false, celebrate: true, sfx: false, music: false }, limits: { ...d.settings.limits, dailyMin: 45 }, pin: makePin("9876") },
     }));
     const b = new Store(memoryKV());
     b.replace({ ...importJSON(exportJSON(a.data)), activeId: null });

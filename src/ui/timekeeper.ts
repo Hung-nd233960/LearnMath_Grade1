@@ -6,7 +6,7 @@
 //  - only real use is counted: home, play and the star screen; not a break, the teacher area or the picker;
 //  - a due break or lock is applied only BETWEEN sets: when the child goes home or starts a new set;
 //    a set in progress and the star screen are never interrupted.
-import { dailyLeftNow, grantBonus, noteInput, startBreak, endBreak, tick, type Limits, type TickResult, type TimeEvent, type Usage } from "../core/screentime.ts";
+import { changeBonus, dailyLeftNow, lockEarly, noteInput, startBreak, endBreak, tick, type Limits, type TickResult, type TimeEvent, type Usage } from "../core/screentime.ts";
 import type { DayKey } from "../core/dates.ts";
 import type { Store } from "../core/storage.ts";
 
@@ -119,10 +119,18 @@ export class Timekeeper {
     return true;
   }
 
-  /** An adult grants more play time today (PIN-protected in the teacher area). */
+  /** An adult adds (positive) or takes away (negative) play time today (PIN-protected in the teacher area). */
   grantBonus(minutes: number): void {
     if (!this.usage) return;
-    this.usage = grantBonus(this.usage, minutes);
+    this.usage = changeBonus(this.usage, minutes, this.limits);
+    this.flush();
+    this.step();
+  }
+
+  /** An adult ends today's play early: the child sees the "done for today" screen once the current set is over. */
+  lockForToday(): void {
+    if (!this.usage) return;
+    this.usage = lockEarly(this.usage);
     this.flush();
     this.step();
   }

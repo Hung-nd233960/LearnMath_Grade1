@@ -67,7 +67,7 @@ Code: [rewards.ts](../src/core/rewards.ts) and [profiles.ts](../src/core/profile
 Code: [screentime.ts](../src/core/screentime.ts). Defaults are in `DEFAULT_LIMITS`; teachers change them per device.
 
 - **Applied between sets.** A due break or lock replaces the home screen and the start of a new set, and is shown as soon as the child is on home. The set in progress and the star screen are never interrupted. Another child can take over from a break or lock screen ("Bạn khác chơi"); each child has their own clock.
-- **Only active time counts.** After 20 s without a touch, Mèo nudges. After 60 s the game pauses, and idle time is never counted.
+- **Only active time counts.** After **1 minute** without a touch, Mèo nudges. After **3 minutes** the game pauses and the music fades out, and idle time is never counted. (A save still holding the first release's 20 s / 60 s is moved to these on load.)
 - **Session limit (15 min):** a break becomes **due** (`breakDue`). The shell starts the break only **after the current set ends**. The break lasts 5 min.
 - **Daily limit (30 min):** a warning plays 2 min before the limit. At the limit a lock becomes due (`lockDue`), applied after the current set. The app stays locked until the next day, unless an adult enters the PIN and grants extra time (`grantBonus`) or ends a break early (`endBreak`).
 
@@ -78,11 +78,11 @@ Code: [screentime.ts](../src/core/screentime.ts). Defaults are in `DEFAULT_LIMIT
 - **Default PIN:** `1234` (`DEFAULT_PIN`). The teacher area shows a bar asking for it to be changed until it is. It is not shown anywhere on a child's screen; if it is forgotten, clearing the site data resets it (and the progress, so export first).
 - **Staying open:** after the PIN the area stays open while it is used, and closes after `TEACHER_UNLOCK_MINUTES` (30) without a touch. Leaving it (back button, "Khoá lại") locks it at once.
 - **Guessing:** 5 wrong codes in a row make the pad wait 30 s (`PIN_TRIES`, `PIN_WAIT_MS` in [teacher.ts](../src/core/teacher.ts)).
-- **Extra time:** an adult can add 10 or 20 minutes for the child who is playing (ends a lock) or end a break early; both only in the teacher area.
-- **Sliders:** session 5–30 min, break 2–10 min, daily 10–60 min, idle nudge 10–60 s (the pause is 3× the nudge).
+- **Changing today's time:** in the teacher area an adult can add 10 or 20 minutes for the child who is playing (this also ends a lock or an early stop), **take 10 or 20 minutes away** (to undo a misclick; the limit never goes below zero, and never more than 240 extra minutes), end a break early, or press **"Cho bé [tên] nghỉ sớm"**, which ends the day for that child at once: the "done for today" screen shows when the child next goes home or starts a set (never in the middle of one), and it lasts until tomorrow unless an adult adds time. Code: `changeBonus`, `lockEarly` in [screentime.ts](../src/core/screentime.ts).
+- **Sliders:** session 5–30 min, break 2–10 min, daily 10–60 min, idle nudge 10–120 s, default 60 (the pause is 3× the nudge).
 - **What the PIN is:** it keeps children out. It is not real security: everything is stored in the browser.
 - **Voice:** the teacher chooses the voice pack (the device's own voice, the teacher's recordings, or another pack folder). With no choice the first *complete* pack is used; a missing clip falls back to the device voice for that sentence.
-- **Effects:** four switches (`Fx` in [settings.ts](../src/core/settings.ts)):
+- **Effects:** five switches (`Fx` in [settings.ts](../src/core/settings.ts)):
 
   | Switch | Controls |
   | --- | --- |
@@ -90,9 +90,11 @@ Code: [screentime.ts](../src/core/screentime.ts). Defaults are in `DEFAULT_LIMIT
   | `decor` | background pictures |
   | `celebrate` | confetti and sparkles |
   | `sfx` | sound effects |
+  | `music` | background music |
 
-  There are three presets: **Yên tĩnh** (all off), **Vừa phải** (no background pictures) and **Rực rỡ** (all on, the default). If the device asks for reduced motion, the first run starts with `anim` off.
-- **Speaker button:** it only toggles `muted`, which mutes voice and sound effects. It is the one setting children may change.
+  There are three presets: **Yên tĩnh** (all off, so no music either), **Vừa phải** (no background pictures) and **Rực rỡ** (all on, the default). If the device asks for reduced motion, the first run starts with `anim` off.
+- **Speaker button:** a **tap** toggles `muted`, which silences the voice, the sound effects and the music. **Holding** it (about 0.6 s) opens the **sound mixer**: master, background music, sound effects and Mèo's voice, each with an on/off switch and a volume (`settings.mix`; `channelVolume()` in [settings.ts](../src/core/settings.ts) combines master × channel × switch). These are the only settings children may change. What the teacher switched off in the Effects tab (music, sound effects) stays off and shows greyed out in the mixer.
+- **Music:** one bright, light tune in the lobby (home, who, stars) and one for each of the six games; none in the teacher area, on the break screen or the "done for today" screen. It ducks to 30% while Mèo speaks and fades out when the game pauses for inactivity. The tunes are composed by rules, not recorded ([music.ts](../src/audio/music.ts)), so there are no files and no licences.
 
 ## Game rules
 

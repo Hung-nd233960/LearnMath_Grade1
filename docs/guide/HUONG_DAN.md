@@ -21,10 +21,11 @@
 - [7. Nút hướng dẫn (i) và "Mèo làm mẫu"](#7-nút-hướng-dẫn-i-và-mèo-làm-mẫu)
 - [8. Ba Vòng và độ khó tự điều chỉnh](#8-ba-vòng-và-độ-khó-tự-điều-chỉnh)
 - [9. Sao và chuỗi ngày](#9-sao-và-chuỗi-ngày)
-- [10. Thời gian chơi lành mạnh](#10-thời-gian-chơi-lành-mạnh)
-- [11. Khu vực giáo viên](#11-khu-vực-giáo-viên)
-- [12. Giọng nói của Mèo (thu âm)](#12-giọng-nói-của-mèo-thu-âm)
-- [13. Gặp sự cố?](#13-gặp-sự-cố)
+- [10. Âm thanh và nhạc nền](#10-âm-thanh-và-nhạc-nền)
+- [11. Thời gian chơi lành mạnh](#11-thời-gian-chơi-lành-mạnh)
+- [12. Khu vực giáo viên](#12-khu-vực-giáo-viên)
+- [13. Giọng nói của Mèo (thu âm)](#13-giọng-nói-của-mèo-thu-âm)
+- [14. Gặp sự cố?](#14-gặp-sự-cố)
 
 ## 1. Ứng dụng này là gì?
 
@@ -78,7 +79,7 @@ Lần đầu mở, ứng dụng mở sẵn mẫu **"Thêm bạn mới"**: gõ t�
 - **Tổng số sao** em đã được, **chuỗi ngày** chơi liền nhau, và **thời gian còn lại** hôm nay.
 - **Tuần này**: những ngày em đã có sao, hôm nay và những ngày còn lại.
 - **Sáu ô tranh**: chạm vào một ô để bắt đầu một vụ án. Mỗi ô ghi **Vòng** em đang ở; ô có chữ "Mới!" là trò em chưa chơi, ô đã chơi hiện **số sao tốt nhất**.
-- **Nút loa** (góc trên): bật hoặc tắt tiếng. Đây là **cài đặt duy nhất** em có thể tự đổi.
+- **Nút loa** (góc trên): **chạm** để bật hoặc tắt toàn bộ âm thanh; **giữ** khoảng nửa giây để mở bảng chỉnh âm thanh (xem phần "Âm thanh và nhạc nền"). Đây là **cài đặt duy nhất** em có thể tự đổi.
 - **Ổ khoá nhỏ** ở góc dưới bên phải dành cho người lớn: **giữ khoảng 1 giây** để vào Khu vực giáo viên (cần mã PIN).
 
 ![Ổ khoá (khoanh đỏ) ở góc dưới bên phải: giữ khoảng 1 giây. Chạm nhanh chỉ hiện lời nhắc.](img/04-padlock.png)
@@ -262,7 +263,19 @@ Trong mỗi Vòng còn có **các bậc nhỏ ẩn** (ví dụ số đến 5, r�
 ![Cuối lượt chơi: sao, điểm và chuỗi ngày.](img/23-stars.png)
 *Cuối lượt chơi: sao, điểm và chuỗi ngày.*
 
-## 10. Thời gian chơi lành mạnh
+## 10. Âm thanh và nhạc nền
+
+Mèo Smarty **đọc to** mọi câu hỏi, và có **nhạc nền nhẹ**: một bản nhạc vui cho trang chủ và **một bản riêng cho mỗi trò chơi** (tổng cộng 7). Nhạc nhỏ đi khi Mèo nói, và tắt ở khu vực giáo viên, màn hình nghỉ mắt và màn hình hết giờ.
+
+- **Chạm** vào nút loa: tắt hoặc bật **toàn bộ** âm thanh.
+- **Giữ** nút loa khoảng nửa giây (một vòng sáng chạy quanh nút): mở **bảng âm thanh** gồm bốn hàng, mỗi hàng có công tắc và thanh âm lượng: **Tất cả âm thanh**, **Nhạc nền**, **Tiếng hiệu ứng** và **Giọng Mèo**.
+- Công tắc nhớ âm lượng: tắt nhạc rồi bật lại thì âm lượng vẫn như cũ.
+- Nếu giáo viên đã tắt **Nhạc nền** hoặc **Âm thanh hiệu ứng** trong Khu vực giáo viên (ví dụ chế độ **Yên tĩnh**), hàng đó mờ đi và ghi "Thầy cô đã tắt"; các em không bật lại được.
+
+![Bảng âm thanh: giữ nút loa để mở.](img/05-sound-mixer.png)
+*Bảng âm thanh: giữ nút loa để mở.*
+
+## 11. Thời gian chơi lành mạnh
 
 Thời gian được tính **riêng cho từng em**. Giới hạn do người lớn cài trong Khu vực giáo viên (mặc định như bảng dưới).
 
@@ -270,7 +283,7 @@ Thời gian được tính **riêng cho từng em**. Giới hạn do người l�
 | --- | --- |
 | **Mỗi lượt** 15 phút | Màn hình **nghỉ mắt** (mặc định 5 phút) có đồng hồ đếm ngược; Mèo ngủ. Hết giờ nghỉ, tự quay về trang chủ. |
 | **Mỗi ngày** 30 phút | Báo trước **2 phút**. Hết giờ, hiện màn hình **"Hôm nay mình chơi đủ rồi!"** cho đến ngày mai. |
-| **Không chạm màn hình** | Sau khoảng **20 giây** Mèo hỏi "Em có cần Mèo giúp không?". Sau khoảng **60 giây** trò chơi **tạm dừng**; chạm vào để chơi tiếp. Thời gian không chạm **không bị tính**. |
+| **Không chạm màn hình** | Sau khoảng **1 phút** Mèo hỏi "Em có cần Mèo giúp không?". Sau khoảng **3 phút** trò chơi **tạm dừng** và nhạc nhỏ dần; chạm vào để chơi tiếp. Thời gian không chạm **không bị tính**. |
 | **Không ngắt giữa chừng** | Nếu hết giờ khi đang làm dở, em được làm **nốt lượt đó**; nghỉ mắt hay khoá chỉ hiện khi em về trang chủ hoặc bắt đầu lượt mới. |
 
 <img src="img/24-break.png" alt="" width="49%"> <img src="img/25-locked.png" alt="" width="49%">
@@ -279,7 +292,7 @@ Thời gian được tính **riêng cho từng em**. Giới hạn do người l�
 
 Trên cả hai màn hình có nút **"Bạn khác chơi"**: một em khác có thể tiếp tục trên cùng thiết bị (mỗi em có đồng hồ riêng).
 
-## 11. Khu vực giáo viên
+## 12. Khu vực giáo viên
 
 **Mọi cài đặt** (hiệu ứng, thời gian, bạn nào dùng máy, sao lưu, mã PIN) nằm **chỉ ở đây**, không bao giờ trên màn hình của các em. Mã PIN giúp các em không tự đổi cài đặt. **Đây không phải bảo mật thật:** người lớn rành máy tính vẫn có thể sửa dữ liệu trên trình duyệt.
 
@@ -295,10 +308,10 @@ Trên cả hai màn hình có nút **"Bạn khác chơi"**: một em khác có t
 
 #### Tab "Hiệu ứng"
 
-Ba mức có sẵn: **Yên tĩnh** (tắt hết, cho các em dễ mất tập trung), **Vừa phải** (không có trang trí nền) và **Rực rỡ** (bật hết, mặc định). Hoặc bật tắt riêng: **Hoạt ảnh**, **Trang trí nền**, **Pháo hoa**, **Âm thanh hiệu ứng**. Thay đổi có hiệu lực **ngay**. Máy đặt chế độ "giảm chuyển động" sẽ tự tắt hoạt ảnh.
+Ba mức có sẵn: **Yên tĩnh** (tắt hết, kể cả nhạc, cho các em dễ mất tập trung), **Vừa phải** (không có trang trí nền) và **Rực rỡ** (bật hết, mặc định). Hoặc bật tắt riêng: **Hoạt ảnh**, **Trang trí nền**, **Pháo hoa**, **Âm thanh hiệu ứng**, **Nhạc nền**. Thay đổi có hiệu lực **ngay**. Máy đặt chế độ "giảm chuyển động" sẽ tự tắt hoạt ảnh.
 
-![Hiệu ứng: ba mức và bốn công tắc.](img/31-teacher-fx.png)
-*Hiệu ứng: ba mức và bốn công tắc.*
+![Hiệu ứng: ba mức và năm công tắc.](img/31-teacher-fx.png)
+*Hiệu ứng: ba mức và năm công tắc.*
 
 #### Tab "Giọng nói"
 
@@ -314,8 +327,8 @@ Chọn **giọng đọc** của Mèo cho mọi câu hỏi, lời khen và lời 
 
 #### Tab "Thời gian chơi"
 
-- **Hôm nay của (tên em đang chơi):** thời gian đã chơi, còn lại; nút **+10 phút** và **+20 phút** (mở khoá khi em đã hết giờ), và **"Kết thúc nghỉ mắt"** khi em đang nghỉ.
-- Thanh trượt: **mỗi lượt chơi** (5–30 phút), **thời gian nghỉ mắt** (2–10 phút), **tối đa mỗi ngày** (10–60 phút), **Mèo nhắc khi không chạm màn hình** (10–60 giây; trò tạm dừng sau gấp 3 lần).
+- **Hôm nay của (tên em đang chơi):** thời gian đã chơi, còn lại; nút **+10 phút** và **+20 phút** (mở khoá khi em đã hết giờ), **−10 phút** và **−20 phút** (lấy lại nếu bấm nhầm), **"Cho bé [tên] nghỉ sớm"** (kết thúc buổi chơi hôm nay ngay: bé thấy màn hình "Hôm nay mình chơi đủ rồi!" khi về trang chủ, bấm **+10 phút** để mở lại) và **"Kết thúc nghỉ mắt"** khi em đang nghỉ.
+- Thanh trượt: **mỗi lượt chơi** (5–30 phút), **thời gian nghỉ mắt** (2–10 phút), **tối đa mỗi ngày** (10–60 phút), **Mèo nhắc khi không chạm màn hình** (10–120 giây, mặc định 1 phút; trò tạm dừng sau gấp 3 lần).
 - Công tắc **Cuối tuần không làm đứt chuỗi ngày**.
 
 ![Thời gian chơi: thêm giờ cho em đang chơi và các thanh trượt.](img/32-teacher-time.png)
@@ -342,14 +355,14 @@ Chọn **giọng đọc** của Mèo cho mọi câu hỏi, lời khen và lời 
 
 > ⚠️ Dữ liệu chỉ nằm trên **thiết bị này**; không có máy chủ. Hãy **tải bản sao lưu mỗi tuần** hoặc trước khi xoá dữ liệu trình duyệt, đổi thiết bị hay xoá một bạn.
 
-## 12. Giọng nói của Mèo (thu âm)
+## 13. Giọng nói của Mèo (thu âm)
 
 Giọng đọc được ghép từ các **đoạn thu ngắn dùng lại được** (số 0–20, phép tính, lời khen, lời nhắc, các bước hướng dẫn...), do **giáo viên thu âm** để giọng quen thuộc và đúng dấu thanh. Danh sách đầy đủ, với đúng lời cần đọc, ở tệp **`docs/AUDIO_SCRIPT.md`**.
 
 1. Thu từng đoạn trong kịch bản, lưu thành `<mã>.mp3` (ví dụ `n7.mp3`) vào thư mục **`public/audio/teacher/`**.
 2. Build lại ứng dụng và đưa lên (hoặc chạy lại bản Windows). Trong Khu vực giáo viên, tab **Giọng nói**, chọn **Giọng giáo viên** (hoặc để mặc định: khi đủ 132 đoạn, giọng giáo viên được dùng tự động). Đoạn nào chưa thu thì ứng dụng **đọc bằng giọng tiếng Việt của thiết bị** (nếu có), hoặc im lặng và chỉ hiện chữ.
 
-## 13. Gặp sự cố?
+## 14. Gặp sự cố?
 
 | Hiện tượng | Cách xử lý |
 | --- | --- |

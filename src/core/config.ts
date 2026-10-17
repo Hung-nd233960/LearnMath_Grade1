@@ -58,9 +58,9 @@ export const DEFAULT_LIMITS = {
   /** Warn this many minutes before the daily limit. */
   warnBeforeMin: 2,
   /** Seconds without touching the screen before Mèo nudges. */
-  idleNudgeSec: 20,
+  idleNudgeSec: 60,
   /** Seconds without touching the screen before the game pauses (idle time is never counted). */
-  idlePauseSec: 60,
+  idlePauseSec: 180,
 } as const;
 
 /** Default PIN for the teacher area until a teacher changes it. */

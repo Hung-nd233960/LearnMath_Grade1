@@ -17,10 +17,12 @@ export type SfxName = keyof typeof SOUNDS;
 class Sfx {
   enabled = true;
   muted = false;
+  /** 0..1, from the sound mixer (master × sound effects). */
+  volume = 1;
   private ctx: AudioContext | null = null;
 
   play(name: SfxName): void {
-    if (!this.enabled || this.muted) return;
+    if (!this.enabled || this.muted || this.volume <= 0) return;
     const t: Tone = SOUNDS[name];
     try {
       const Ctx = globalThis.AudioContext ?? (globalThis as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -35,7 +37,7 @@ class Sfx {
         o.type = type;
         o.frequency.setValueAtTime(f, at);
         g.gain.setValueAtTime(0.0001, at);
-        g.gain.exponentialRampToValueAtTime(vol, at + 0.012);
+        g.gain.exponentialRampToValueAtTime(Math.max(vol * this.volume, 0.0002), at + 0.012);
         g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
         o.connect(g).connect(ctx.destination);
         o.start(at);

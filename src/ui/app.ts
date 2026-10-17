@@ -2,14 +2,17 @@
 // Settings are the single source of truth: the effect switches and the mute flag become classes on
 // <html> and flags on the audio objects, and update whenever the store changes.
 import { sfx } from "../audio/sfx.ts";
+import { Bgm } from "../audio/bgm.ts";
+import { trackForRoute } from "../audio/music.ts";
 import { choosePack, loadPacks, type VoicePack } from "../audio/packs.ts";
 import { Voice } from "../audio/voice.ts";
 import { dayKey } from "../core/dates.ts";
 import { browserKV, Store } from "../core/storage.ts";
-import type { Fx, Settings } from "../core/settings.ts";
+import { channelVolume, type Fx, type Settings } from "../core/settings.ts";
 import { say } from "../i18n/speech.ts";
 import type { AppContext } from "./context.ts";
 import { showPause, showToast } from "./notices.ts";
+import { openSoundPanel } from "./soundPanel.ts";
 import { COUNTING_ROUTES, Timekeeper } from "./timekeeper.ts";
 import { ensureSvgDefs } from "./svgDefs.ts";
 import { kitScreen } from "./screens/kit.ts";
@@ -42,13 +45,17 @@ if (import.meta.env.DEV) {
   SCREENS.dev = devScreen; // #/dev/<game>/<tier>/<step>/<seed>: one question, deterministic
 }
 
-export function applySettings(s: Settings, voice: Voice, packs: readonly VoicePack[] = []): void {
+export function applySettings(s: Settings, voice: Voice, packs: readonly VoicePack[] = [], bgm?: Bgm): void {
   const root = document.documentElement;
   for (const key of Object.keys(s.fx) as (keyof Fx)[]) root.classList.toggle(`fx-${key}`, s.fx[key]);
   root.classList.toggle("is-muted", s.muted);
   sfx.enabled = s.fx.sfx;
   sfx.muted = s.muted;
   voice.muted = s.muted;
+  // the sound mixer: each channel's volume already includes the master volume, the mute and the on/off switches
+  sfx.volume = channelVolume(s, "sfx");
+  voice.volume = channelVolume(s, "voice");
+  bgm?.setVolume(channelVolume(s, "music"));
   voice.setPack(choosePack(s.voicePack, packs));
   if (s.muted) voice.stop();
 }
@@ -56,6 +63,8 @@ export function applySettings(s: Settings, voice: Voice, packs: readonly VoicePa
 export function startApp(host: HTMLElement): AppContext {
   const store = new Store(browserKV(), matchMedia("(prefers-reduced-motion: reduce)").matches);
   const voice = new Voice(`${import.meta.env.BASE_URL}audio/`);
+  const bgm = new Bgm();
+  voice.onSpeaking = (on) => bgm.duck(on); // the music drops while Mèo speaks
   /** The voice packs this build ships; filled in a moment after start (see below). */
   const voicePacks: VoicePack[] = [];
   const stage = createStage(host);
@@ -68,6 +77,7 @@ export function startApp(host: HTMLElement): AppContext {
     store,
     voice,
     voicePacks,
+    bgm,
     sfx,
     stage,
     time,
@@ -77,20 +87,49 @@ export function startApp(host: HTMLElement): AppContext {
     today: () => dayKey(new Date()),
   };
 
-  applySettings(store.data.settings, voice);
-  store.subscribe((d) => applySettings(d.settings, voice, voicePacks));
+  applySettings(store.data.settings, voice, [], bgm);
+  store.subscribe((d) => applySettings(d.settings, voice, voicePacks, bgm));
   void loadPacks(`${import.meta.env.BASE_URL}audio/packs.json`).then((list) => {
     voicePacks.splice(0, voicePacks.length, ...list);
-    applySettings(store.data.settings, voice, voicePacks);
+    applySettings(store.data.settings, voice, voicePacks, bgm);
   });
 
-  // Browsers block audio until the first touch: unlock it on the very first gesture.
+  // Browsers block audio until the first touch: unlock it on the very first gesture (the music needs it too).
   addEventListener("pointerdown", () => voice.unlock(), { once: true, capture: true });
+  addEventListener("pointerdown", () => { bgm.unlock(); bgm.hold(false); }, { capture: true }); // also ends the fade-out of an idle pause
 
-  // The speaker is the one setting children may change.
+  // The speaker button: a TAP mutes or unmutes everything; HOLDING it opens the sound mixer.
+  const SPEAKER_HOLD_MS = 600;
+  let holdTimer = 0, holdFrame = 0, speakerHeld = false;
+  const speakers = () => document.querySelectorAll<HTMLElement>("[data-speaker]");
+  addEventListener("pointerdown", (e) => {
+    const button = (e.target as Element).closest<HTMLElement>("[data-speaker]");
+    if (!button) return;
+    speakerHeld = false;
+    const began = performance.now();
+    const ring = () => { button.style.setProperty("--p", String(Math.min(1, (performance.now() - began) / SPEAKER_HOLD_MS))); holdFrame = requestAnimationFrame(ring); };
+    holdFrame = requestAnimationFrame(ring);
+    holdTimer = window.setTimeout(() => {
+      speakerHeld = true;
+      cancelAnimationFrame(holdFrame);
+      speakers().forEach((b) => b.style.setProperty("--p", "0"));
+      openSoundPanel(ctx);
+    }, SPEAKER_HOLD_MS);
+  }, { capture: true });
+  const endHold = () => {
+    clearTimeout(holdTimer);
+    cancelAnimationFrame(holdFrame);
+    speakers().forEach((b) => b.style.setProperty("--p", "0"));
+    // the click that follows a hold must not also toggle the mute (it may land on the panel, so forget the hold a moment later)
+    if (speakerHeld) setTimeout(() => (speakerHeld = false), 350);
+  };
+  addEventListener("pointerup", endHold, { capture: true });
+  addEventListener("pointercancel", endHold, { capture: true });
+  addEventListener("contextmenu", (e) => { if ((e.target as Element).closest?.("[data-speaker]")) e.preventDefault(); });
   document.addEventListener("click", (e) => {
     const target = e.target as Element;
     if (target.closest("[data-speaker]")) {
+      if (speakerHeld) return;
       store.update((d) => ({ ...d, settings: { ...d.settings, muted: !d.settings.muted } }));
     } else if (target.closest("button, a") && !target.closest("[data-close]")) {
       sfx.play("tap");
@@ -107,6 +146,7 @@ export function startApp(host: HTMLElement): AppContext {
     },
     onRoute: (r) => {
       route = r.name;
+      bgm.play(trackForRoute(r.name, r.params));
       time.setRoute(r.name);
     },
   });
@@ -117,6 +157,7 @@ export function startApp(host: HTMLElement): AppContext {
         showToast(stage.el, say("idle_nudge").text, "normal");
         void voice.play(say("idle_nudge"));
       } else if (e === "idlePause" && counting) {
+        bgm.hold(true);
         showPause(stage.el);
         void voice.play(say("idle_pause"));
       } else if (e === "warnDaily" && counting) {

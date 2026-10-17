@@ -84,14 +84,20 @@ export function runDemo(ctx: AppContext, game: GameMeta, onClose: () => void): C
       const { x, y, cx, cy } = centerOf(el);
       moveHand(x, y);
       await pause(MOVE_MS);
-      hand.classList.add("press");
+      // a soft glow on the control and a ripple under the fingertip show the tap (no flicking hand)
+      el.classList.add("demo-hit");
+      const ripple = h("div", { class: "demo-ripple" });
+      ripple.style.left = `${x}px`;
+      ripple.style.top = `${y}px`;
+      layer.append(ripple);
+      setTimeout(() => ripple.remove(), 800);
       const opts = { bubbles: true, cancelable: true, clientX: cx, clientY: cy, pointerId: 77, isPrimary: true, button: 0 };
       el.dispatchEvent(new PointerEvent("pointerdown", opts));
       await pause(140);
       el.dispatchEvent(new PointerEvent("pointerup", opts));
       el.dispatchEvent(new MouseEvent("click", opts));
-      await pause(220);
-      hand.classList.remove("press");
+      await pause(380);
+      el.classList.remove("demo-hit");
       ctx.time.touch();
     },
     pause,
