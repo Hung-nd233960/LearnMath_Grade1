@@ -19,7 +19,7 @@ An interactive web app of math mini-games for Vietnamese **grade 1** students (6
   - [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md): folders, layers, how a set flows.
   - [docs/UI_GUIDE.md](../docs/UI_GUIDE.md): how to build screens from `mockup/v2/`.
   - [docs/RULES.md](../docs/RULES.md): every rule in plain words, with its constant in `src/core/config.ts`.
-- **Commands:** `npm run dev` · `npm test` · `npm run typecheck` · `npm run build` · `npm run audio:script` · `npm run ui:check` (real-browser checks; needs `npm run dev` running)
+- **Commands:** `npm run dev` · `npm test` · `npm run typecheck` · `npm run build` · `npm run audio:script` · `npm run ui:check` (real-browser checks; needs `npm run dev` running) · `npm run pwa:check` (offline/install checks on the built app; needs `npm run preview` on :4173)
 - **Code map:**
   - `src/core/`: pure rules (difficulty, `SetRunner`, stars and streak, screen time, settings, PIN, profiles, storage)
   - `src/games/<id>/logic.ts` + `text.ts`: each game's generator, checker and Vietnamese lines

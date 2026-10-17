@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "audio:script": "node scripts/audio-script.ts",
-    "ui:check": "node scripts/ui-check.mjs"
+    "ui:check": "node scripts/ui-check.mjs",
+    "pwa:check": "node scripts/pwa-check.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",

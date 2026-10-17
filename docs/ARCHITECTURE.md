@@ -131,3 +131,4 @@ interface GameView<Q, A> {
 | `npm run build` | typecheck, then build static files to `dist/` |
 | `npm run audio:script` | regenerate docs/AUDIO_SCRIPT.md |
 | `npm run ui:check` | real-browser UI checks (needs `npm run dev` running; see UI_GUIDE.md) |
+| `npm run pwa:check` | real-browser offline/install checks on the production build (needs `npm run build`, then `npm run preview -- --port 4173 --strictPort` running) |

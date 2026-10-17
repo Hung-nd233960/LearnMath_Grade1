@@ -115,10 +115,15 @@
 - [x] `npm run ui:check`: 339 checks (18 new): first time opens by itself, four steps, marked seen per game, stays closed the second time, (i) reopens it, a child who has seen it is not interrupted, narration order and highlight with a fake voice, closing stops the voice, silent device.
 - [ ] (stretch, not done) the ghost hand performing `logic.solve()` on a sample question, as CLAUDE.md describes. The card is text + voice for now; do this in step 13 if time allows, game by game (robot and scale first: they are the hardest to explain in words).
 
-## 12. Installable + offline ☐
-- [ ] `public/manifest.webmanifest` (name, icons, `display: fullscreen`, `orientation: landscape`)
-- [ ] Small service worker caching the built files, emoji and audio (no extra dependencies needed); register it in `main.ts` (production only)
-- **Done when:** the app installs to the iPad home screen and opens offline.
+## 12. Installable + offline ☑
+- [x] `public/manifest.webmanifest`: name, `display: fullscreen` (standalone as the fallback), landscape, 192 and 512 icons (maskable), start page `./`. Icons are Mèo drawn by `scripts/make-icons.mjs` into `public/icons/` (run it again only if the mascot changes). Apple touch icon and title in `index.html`.
+- [x] `vite.config.ts` has a small plugin that writes `dist/sw.js` from `scripts/sw.template.js`: it lists every built file and every file in `public/` (pictures, fonts, voice clips) and keeps them all in one cache named for the build. Cache first; a missing file (a 404, e.g. a voice clip not recorded yet) is passed through and never cached, so the app still falls back to the browser voice; opening a page offline always gets the app. A new build replaces the old cache. No dependency added.
+- [x] Registered in `main.ts` in production only (the dev server is never cached).
+- [x] **Fonts are self-hosted** (`public/fonts/`, `src/styles/fonts.css`; Baloo 2 and Be Vietnam Pro, SIL Open Font Licence, Vietnamese + Latin subsets, 448 KB). Without this the app would lose its fonts offline, and it no longer calls Google.
+- [x] `npm run pwa:check` (build, `npm run preview -- --port 4173 --strictPort`, then the check): 27 checks in real Chrome on the production build — manifest valid, Chrome reports nothing in the way of installing, the worker is active and controls the page, the cache holds the page / script / style / 21 fonts / all pictures, then with the network **switched off** and the page reloaded: the app opens, the saved child is there, pictures and both fonts are shown, a child reaches home and opens a game (with its guide), and a deep link still opens.
+- **Bug found by the first run:** the template's own comment contained the placeholder text, so the build filled the comment and left the real placeholder in; the worker failed to start. The comment no longer names the placeholders.
+- **Done when:** the app installs to the iPad home screen and opens offline. ✔ in desktop Chrome; **still to do by hand on the real iPad** (step 13): Safari → Share → "Thêm vào Màn hình chính", open it once online, switch Wi-Fi off, open it again. Safari ignores `display: fullscreen` and `orientation` from the manifest: the "turn sideways" screen covers portrait.
+- **Deploying a new version:** upload the whole `dist/` folder. Devices pick up the new version the next time they open the app online (the new worker takes over at once; the open page keeps working).
 
 ## 13. Polish and QA ☐
 - [ ] Run through the UI_GUIDE.md quality bar on a real iPad
