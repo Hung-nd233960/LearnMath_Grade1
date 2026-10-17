@@ -8,3 +8,7 @@ coverage/
 .ui-check/
 src-tauri/target/
 src-tauri/gen/
+audio-pilot/
+public/audio/*/
+!public/audio/teacher/
+.tts-venv/

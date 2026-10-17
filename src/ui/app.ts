@@ -2,6 +2,7 @@
 // Settings are the single source of truth: the effect switches and the mute flag become classes on
 // <html> and flags on the audio objects, and update whenever the store changes.
 import { sfx } from "../audio/sfx.ts";
+import { choosePack, loadPacks, type VoicePack } from "../audio/packs.ts";
 import { Voice } from "../audio/voice.ts";
 import { dayKey } from "../core/dates.ts";
 import { browserKV, Store } from "../core/storage.ts";
@@ -41,19 +42,22 @@ if (import.meta.env.DEV) {
   SCREENS.dev = devScreen; // #/dev/<game>/<tier>/<step>/<seed>: one question, deterministic
 }
 
-export function applySettings(s: Settings, voice: Voice): void {
+export function applySettings(s: Settings, voice: Voice, packs: readonly VoicePack[] = []): void {
   const root = document.documentElement;
   for (const key of Object.keys(s.fx) as (keyof Fx)[]) root.classList.toggle(`fx-${key}`, s.fx[key]);
   root.classList.toggle("is-muted", s.muted);
   sfx.enabled = s.fx.sfx;
   sfx.muted = s.muted;
   voice.muted = s.muted;
+  voice.setPack(choosePack(s.voicePack, packs));
   if (s.muted) voice.stop();
 }
 
 export function startApp(host: HTMLElement): AppContext {
   const store = new Store(browserKV(), matchMedia("(prefers-reduced-motion: reduce)").matches);
   const voice = new Voice(`${import.meta.env.BASE_URL}audio/`);
+  /** The voice packs this build ships; filled in a moment after start (see below). */
+  const voicePacks: VoicePack[] = [];
   const stage = createStage(host);
   ensureSvgDefs();
 
@@ -63,6 +67,7 @@ export function startApp(host: HTMLElement): AppContext {
   const ctx: AppContext = {
     store,
     voice,
+    voicePacks,
     sfx,
     stage,
     time,
@@ -73,7 +78,11 @@ export function startApp(host: HTMLElement): AppContext {
   };
 
   applySettings(store.data.settings, voice);
-  store.subscribe((d) => applySettings(d.settings, voice));
+  store.subscribe((d) => applySettings(d.settings, voice, voicePacks));
+  void loadPacks(`${import.meta.env.BASE_URL}audio/packs.json`).then((list) => {
+    voicePacks.splice(0, voicePacks.length, ...list);
+    applySettings(store.data.settings, voice, voicePacks);
+  });
 
   // Browsers block audio until the first touch: unlock it on the very first gesture.
   addEventListener("pointerdown", () => voice.unlock(), { once: true, capture: true });

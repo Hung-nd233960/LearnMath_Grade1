@@ -1,6 +1,7 @@
 // The teacher area (#/teacher): PIN gate, then four tabs — Hiệu ứng, Thời gian chơi, Học sinh, Sao lưu.
 // Everything an adult can change lives here and nowhere on a child's screen. The PIN keeps children
 // out; it is not real security (docs/RULES.md).
+import { choosePack, coverage, DEVICE_PACK } from "../../audio/packs.ts";
 import { FX_PRESETS, matchingPreset, type Fx, type FxPreset } from "../../core/settings.ts";
 import { streakToday } from "../../core/profiles.ts";
 import { checkPin, makePin } from "../../core/pin.ts";
@@ -9,6 +10,7 @@ import {
 } from "../../core/teacher.ts";
 import { exportJSON, importJSON } from "../../core/storage.ts";
 import { GAMES } from "../../games/index.ts";
+import { say } from "../../i18n/speech.ts";
 import { STR } from "../../i18n/ui.ts";
 import { avatarBadge } from "../avatars.ts";
 import type { AppContext } from "../context.ts";
@@ -26,9 +28,10 @@ const T = STR.teacher;
 /** Wrong PINs are counted across visits, so leaving and re-entering does not start the count again. */
 let attempts = NO_ATTEMPTS;
 
-type Tab = "fx" | "time" | "kids" | "backup";
+type Tab = "fx" | "voice" | "time" | "kids" | "backup";
 const TABS: { id: Tab; icon: string }[] = [
   { id: "fx", icon: "sparkles" },
+  { id: "voice", icon: "studio_microphone" },
   { id: "time", icon: "hourglass_not_done" },
   { id: "kids", icon: "glowing_star" },
   { id: "backup", icon: "package" },
@@ -156,7 +159,7 @@ export const teacherScreen: ScreenDef = {
 
       const renderTab = () => {
         nav.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.tab === tab));
-        const body = { fx: fxTab, time: timeTab, kids: kidsTab, backup: backupTab }[tab]();
+        const body = { fx: fxTab, voice: voiceTab, time: timeTab, kids: kidsTab, backup: backupTab }[tab]();
         const settings = ctx.store.data.settings;
         panel.replaceChildren(body);
         if (isDefaultPin(settings.pin)) {
@@ -184,6 +187,43 @@ export const teacherScreen: ScreenDef = {
         };
         sync();
         return h("div", { class: "settings" }, h("h2", null, T.fxTitle), h("p", { class: "sub" }, T.fxSub), presets, ...rows, h("p", { class: "note" }, T.fxNote));
+      };
+
+      // ---- Giọng nói: the voice pack
+      const voiceTab = (): HTMLElement => {
+        const packs = [...ctx.voicePacks].sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+        const chosen = () => choosePack(ctx.store.data.settings.voicePack, packs);
+        const sample = say("hello", "give_meo", 13, "fruit_cam");
+        const cards = [
+          { id: DEVICE_PACK, name: T.deviceName, note: T.deviceNote, have: null as number | null, total: 0 },
+          ...packs.map((p) => ({ id: p.id, name: p.name, note: p.note, ...(() => { const c = coverage(p); return { have: c.have as number | null, total: c.total }; })() })),
+        ];
+        const radios: HTMLInputElement[] = [];
+        const rows = cards.map((c) => {
+          const empty = c.have === 0;
+          const radio = h("input", { type: "radio", name: "voicepack", value: c.id, "data-pack": c.id });
+          radio.disabled = empty;
+          radio.addEventListener("change", () => { ctx.store.update((d) => ({ ...d, settings: { ...d.settings, voicePack: c.id } })); sync(); });
+          radios.push(radio);
+          const stat = c.have === null ? null
+            : empty ? h("span", { class: "t-pack-stat warn" }, T.packEmpty)
+            : h("span", { class: `t-pack-stat${c.have < c.total ? " warn" : ""}` }, T.packCoverage(c.have, c.total), c.have < c.total ? ` · ${T.packMissing(c.total - c.have)}` : "");
+          const listen = h("button", { class: "t-mini", "data-listen": c.id, onclick: (e: Event) => { e.preventDefault(); void ctx.voice.play(sample, c.id, true); } }, T.packListen);
+          listen.disabled = empty;
+          return h("label", { class: `t-pack${empty ? " off" : ""}`, "data-pack-card": c.id }, radio, h("i"),
+            h("span", { class: "t-pack-body" }, h("b", null, c.name), h("small", null, c.note), stat), listen);
+        });
+        const now = h("span", { id: "t-pack-now" });
+        const reset = h("button", { class: "t-mini", id: "t-pack-reset", onclick: () => { ctx.store.update((d) => ({ ...d, settings: { ...d.settings, voicePack: null } })); sync(); } }, T.packReset);
+        const sync = () => {
+          const id = chosen();
+          radios.forEach((r) => (r.checked = r.value === id));
+          const name = cards.find((c) => c.id === id)?.name ?? id;
+          now.textContent = `${T.packNow}: ${name}. ${T.packDefaultNote}`;
+          reset.hidden = ctx.store.data.settings.voicePack === null;
+        };
+        sync();
+        return h("div", { class: "t-voice" }, h("h2", null, T.voiceTitle), h("p", { class: "sub" }, T.voiceSub), h("div", { class: "t-pack-now" }, now, reset), ...rows, h("p", { class: "note" }, T.packFolder));
       };
 
       // ---- Thời gian chơi

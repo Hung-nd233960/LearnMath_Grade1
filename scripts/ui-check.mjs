@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9), the teacher area (step 10), the guide (step 11) and Mèo's worked examples (step 13).
+// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9), the teacher area (step 10), the guide (step 11) Mèo's worked examples and voice packs (step 13).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -1151,7 +1151,7 @@ check("PIN: a wrong code is refused with a message", await atGate() && /chưa đ
 check("PIN: the dots are emptied after a wrong code", (await ev(`document.querySelectorAll('.pin-dots .f').length`)) === 0);
 await typePin("1234");
 check("PIN: the right code opens the area", await inArea());
-check("area: four tabs", (await ev(`document.querySelectorAll('.t-nav button').length`)) === 4);
+check("area: five tabs", (await ev(`document.querySelectorAll('.t-nav button').length`)) === 5);
 check("area: the default PIN warning is shown", await ev(`!!document.querySelector('#t-default-pin')`));
 
 // --- Hiệu ứng: presets and switches change the page at once ---
@@ -1395,12 +1395,12 @@ check("demo: games without a worked example have no demo button", await (async (
 check("demo: Rô-bốt's guide offers 'Xem Mèo làm mẫu' and starts it", await openDemo("robot"));
 check("demo: the guide card closed, a ribbon and a ghost hand are shown", await ev(`!document.querySelector('.guide-card') && !!document.querySelector('.demo-ribbon') && !!document.querySelector('.demo-hand')`));
 check("demo: it has its own copy of the game; the real question is untouched underneath", (await ev(`document.querySelectorAll('.rb').length`)) === 2 && (await ev(`document.querySelectorAll('.screen-play > .topbar .dots .done').length`)) === 0);
-await sleep(8000);
+await waitFor(`document.querySelectorAll('.demo-layer .rb-slot.on').length >= 1`, 40000);
 const handMoved = await ev(`getComputedStyle(document.querySelector('.demo-hand')).transform`);
 check("demo: the ghost hand moves and steps appear in the program", handMoved !== "none" && (await ev(`document.querySelectorAll('.demo-layer .rb-slot.on').length`)) >= 1);
 await shot("ui-15-demo-robot");
 check("demo: the child cannot touch the demo's own controls", await ev(`getComputedStyle(document.querySelector('.demo-layer .game-body')).pointerEvents === 'none'`));
-check("demo: Rô-bốt's demo reaches the flag and offers 'Đến lượt em!'", await waitFor(`document.querySelector('.demo-layer.finished') && !!document.querySelector('.demo-layer .rb-cell.goal.ok')`, 90000));
+check("demo: Rô-bốt's demo reaches the flag and offers 'Đến lượt em!'", await waitFor(`document.querySelector('.demo-layer.finished') && !!document.querySelector('.demo-layer .rb-cell.goal.ok')`, 180000));
 check("demo: the same path as the solver's (six steps) was built", (await ev(`document.querySelectorAll('.demo-layer .rb-slot.on').length`)) === 6);
 await shot("ui-15-demo-robot-end");
 await click("#demo-again");
@@ -1412,11 +1412,42 @@ await sleep(1500);
 check("demo: after stopping nothing keeps running (no stray hand or console error)", await ev(`!document.querySelector('.demo-hand')`) && consoleErrors.length === 0, JSON.stringify(consoleErrors));
 check("demo: Cái cân's demo starts", await openDemo("scale"));
 await shot("ui-15-demo-scale-start");
-check("demo: Cái cân's demo ends with both pans equal", await waitFor(`document.querySelector('.demo-layer.finished')`, 90000) && (await ev(`(() => { const w = [...document.querySelectorAll('.demo-layer .sc-pan')].map(p => [...p.querySelectorAll('[data-item]')].reduce((s, i) => s + Number(i.dataset.w), 0)); return w[0] === w[1] && w[0] > 0; })()`)));
+check("demo: Cái cân's demo ends with both pans equal", await waitFor(`document.querySelector('.demo-layer.finished')`, 180000) && (await ev(`(() => { const w = [...document.querySelectorAll('.demo-layer .sc-pan')].map(p => [...p.querySelectorAll('[data-item]')].reduce((s, i) => s + Number(i.dataset.w), 0)); return w[0] === w[1] && w[0] > 0; })()`)));
 await shot("ui-15-demo-scale-end");
 await click("#demo-ok");
 check("demo: 'Đến lượt em!' closes it and the real scale is untouched", await waitFor(`!document.querySelector('.demo-layer')`, 2000) && (await ev(`document.querySelectorAll('.sc-tray [data-item]').length`)) > 0 && (await ev(`document.querySelectorAll('.screen-play .sc-pan [data-item]:not([data-fixed])').length`)) === 0);
 await ev(`__app.go('home')`); await sleep(200);
+
+// ---------- 16. voice packs (teacher area, tab "Giọng nói") ----------
+await ev(`__app.store.setActive(${JSON.stringify(anId)})`);
+await ev(`__app.go('home')`); await sleep(300);
+await holdPadlock();
+await typePin(await ev(`import('/src/core/pin.ts').then(m => m.checkPin(__app.store.data.settings.pin, '4321') ? '4321' : '1234')`));
+await openTab("voice");
+check("voice: the tab lists the device voice first, then the packs the build found", (await ev(`document.querySelector('.t-pack').dataset.packCard`)) === "device" && (await ev(`document.querySelectorAll('.t-pack').length`)) === 1 + (await ev(`__app.voicePacks.length`)));
+check("voice: the teacher's pack is listed, and disabled until there are recordings", await ev(`(() => { const c = document.querySelector('[data-pack-card=teacher]'); return !!c && (__app.voicePacks.find(p => p.id === 'teacher').clips.length > 0) === !c.querySelector('input').disabled; })()`));
+check("voice: exactly one pack is marked as in use, and the screen says which", (await ev(`document.querySelectorAll('.t-pack input:checked').length`)) === 1 && /Đang dùng/.test(await ev(`document.querySelector('#t-pack-now').textContent`)));
+check("voice: nothing chosen yet means 'the best available' (null) and the voice follows it", (await ev(`__app.store.data.settings.voicePack`)) === null && (await ev(`document.querySelector('#t-pack-reset').hidden`)));
+await click("[data-pack-card=device]");
+check("voice: choosing 'Giọng của máy' is saved and the voice switches at once", (await ev(`__app.store.data.settings.voicePack`)) === "device" && (await ev(`__app.voice.currentPack`)) === "device");
+check("voice: a way back to the default appears", await ev(`!document.querySelector('#t-pack-reset').hidden`));
+await click("#t-pack-reset");
+check("voice: 'Dùng bộ mặc định' clears the choice", (await ev(`__app.store.data.settings.voicePack`)) === null && await ev(`document.querySelector('#t-pack-reset').hidden`));
+// a ready-made pack (only when this machine has some: they are placeholders git does not keep)
+const readyPack = await ev(`(() => { const p = __app.voicePacks.find(p => p.id !== 'teacher' && p.clips.length > 100); return p ? p.id : null; })()`);
+if (readyPack) {
+  await click(`[data-pack-card="${readyPack}"]`);
+  check("voice: choosing a pack makes the app play from its folder", (await ev(`__app.voice.currentPack`)) === readyPack && (await ev(`fetch('./audio/${readyPack}/n7.mp3').then(r => r.ok && r.headers.get('content-type').includes('audio'))`)));
+  await ev(`(() => { window.__played = []; const voice = __app.voice; voice.__p = voice.play.bind(voice); voice.play = (s, pack, force) => { window.__played.push([s.clips[0], pack, force]); return Promise.resolve(); }; })()`);
+  await click(`[data-listen="${readyPack}"]`);
+  check("voice: 'Nghe thử' plays a sample from THAT pack, even if the children's sound is off", (await ev(`JSON.stringify(window.__played.at(-1))`)) === JSON.stringify(["hello", readyPack, true]));
+  await ev(`__app.voice.play = __app.voice.__p`);
+  await click("[data-pack-card=device]");
+  await click("#t-pack-reset");
+}
+await shot("ui-16-voice");
+check("voice: a pack that is no longer shipped quietly falls back to the default", await (async () => { await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, voicePack: 'vanished' } }))`); const ok = (await ev(`__app.voice.currentPack`)) !== "vanished"; await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, voicePack: null } }))`); return ok; })());
+await leaveArea();
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 

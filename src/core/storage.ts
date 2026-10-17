@@ -73,6 +73,8 @@ export function migrate(raw: unknown, now = Date.now()): AppData | null {
       fx: { ...base.settings.fx, ...s.fx },
       limits: { ...defaultLimits(), ...s.limits },
       pin: s.pin && typeof s.pin.hash === "string" ? s.pin : base.settings.pin,
+      // added after the first release: older saves have none, which means "the best available"
+      voicePack: typeof s.voicePack === "string" ? s.voicePack : null,
     },
   };
 }

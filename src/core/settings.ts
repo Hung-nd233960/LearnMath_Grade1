@@ -26,6 +26,8 @@ export interface Settings {
   skipWeekends: boolean;
   /** Master sound switch (voice + effects). Children may toggle this one with the speaker button. */
   muted: boolean;
+  /** Voice pack chosen in the teacher area (a folder in public/audio, or "device"); null = the best available. */
+  voicePack: string | null;
   pin: PinRecord;
 }
 
@@ -36,6 +38,7 @@ export function defaultSettings(reducedMotion = false): Settings {
     limits: defaultLimits(),
     skipWeekends: true,
     muted: false,
+    voicePack: null,
     pin: makePin(DEFAULT_PIN, "default"),
   };
 }

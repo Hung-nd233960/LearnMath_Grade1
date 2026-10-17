@@ -169,6 +169,8 @@ await holdPadlock();
 await shot("30-teacher-gate", 500);
 await pin("1234");
 await shot("31-teacher-fx", 800);
+await click(`.t-nav [data-tab=voice]`); await sleep(500);
+await shot("35-teacher-voice", 500);
 await click(`.t-nav [data-tab=time]`); await sleep(400);
 await shot("32-teacher-time", 500);
 await click(`.t-nav [data-tab=kids]`); await sleep(400);
@@ -235,11 +237,13 @@ for (const game of ["robot", "scale"]) {
   await recordVideo(`demo-${game}`, async () => {
     await click("#guide-demo");
     await waitFor(`!!document.querySelector('.demo-layer')`, 3000);
-    await sleep(6500);
+    // wait for the demo to reach each stage (it is slower when Mèo speaks aloud) rather than for a fixed time
+    const progress = game === "robot" ? `document.querySelectorAll('.demo-layer .rb-slot.on').length` : `document.querySelectorAll('.demo-layer .sc-pan [data-item]:not([data-fixed])').length`;
+    await waitFor(`${progress} >= ${game === "robot" ? 2 : 1}`, 90000);
     await shot(`demo-${game}-1`, 0);
-    await sleep(7000);
+    await waitFor(`${progress} >= ${game === "robot" ? 5 : 2}`, 90000);
     await shot(`demo-${game}-2`, 0);
-    await waitFor(`!!document.querySelector('.demo-layer.finished')`, 90000);
+    await waitFor(`!!document.querySelector('.demo-layer.finished')`, 180000);
     await sleep(900);
     await shot(`demo-${game}-3`, 0);
   });

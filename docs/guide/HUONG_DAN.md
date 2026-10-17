@@ -300,6 +300,18 @@ Ba mức có sẵn: **Yên tĩnh** (tắt hết, cho các em dễ mất tập tr
 ![Hiệu ứng: ba mức và bốn công tắc.](img/31-teacher-fx.png)
 *Hiệu ứng: ba mức và bốn công tắc.*
 
+#### Tab "Giọng nói"
+
+Chọn **giọng đọc** của Mèo cho mọi câu hỏi, lời khen và lời nhắc. Mỗi bộ giọng là một thẻ; chạm vào thẻ để chọn (áp dụng ngay cho mọi bạn), hoặc bấm **"Nghe thử"** để nghe một câu mẫu mà **không đổi** giọng đang dùng (nghe được cả khi các em đã tắt loa).
+
+- **Giọng của máy:** dùng giọng tiếng Việt có sẵn trong thiết bị (nếu có). Không cần tệp âm thanh; chất lượng tuỳ máy.
+- **Giọng giáo viên:** các bản thu âm của giáo viên. Thẻ này mờ cho đến khi có bản thu (xem phần "Giọng nói của Mèo (thu âm)").
+- **Các bộ giọng máy tạo** (nếu người cài đặt có thêm), ví dụ "Hoài My", "Nam Minh": giọng tổng hợp, dùng tạm cho đến khi có bản thu của giáo viên. Thẻ cho biết có bao nhiêu trên 132 đoạn; đoạn nào thiếu sẽ được đọc bằng giọng của máy.
+- Nếu chưa chọn gì, ứng dụng tự dùng bộ giọng **đầy đủ** đầu tiên, nên giọng giáo viên sẽ tự thay thế khi đã thu xong. "Dùng bộ mặc định" quay lại cách này.
+
+![Chọn giọng nói: mỗi bộ giọng một thẻ, "Nghe thử" để nghe mẫu.](img/35-teacher-voice.png)
+*Chọn giọng nói: mỗi bộ giọng một thẻ, "Nghe thử" để nghe mẫu.*
+
 #### Tab "Thời gian chơi"
 
 - **Hôm nay của (tên em đang chơi):** thời gian đã chơi, còn lại; nút **+10 phút** và **+20 phút** (mở khoá khi em đã hết giờ), và **"Kết thúc nghỉ mắt"** khi em đang nghỉ.
@@ -334,8 +346,8 @@ Ba mức có sẵn: **Yên tĩnh** (tắt hết, cho các em dễ mất tập tr
 
 Giọng đọc được ghép từ các **đoạn thu ngắn dùng lại được** (số 0–20, phép tính, lời khen, lời nhắc, các bước hướng dẫn...), do **giáo viên thu âm** để giọng quen thuộc và đúng dấu thanh. Danh sách đầy đủ, với đúng lời cần đọc, ở tệp **`docs/AUDIO_SCRIPT.md`**.
 
-1. Thu từng đoạn trong kịch bản, lưu thành `<mã>.mp3` (ví dụ `n7.mp3`) vào thư mục **`public/audio/`**.
-2. Build lại ứng dụng và đưa lên (hoặc chạy lại bản Windows). Đoạn nào chưa thu thì ứng dụng **đọc bằng giọng tiếng Việt của thiết bị** (nếu có), hoặc im lặng và chỉ hiện chữ.
+1. Thu từng đoạn trong kịch bản, lưu thành `<mã>.mp3` (ví dụ `n7.mp3`) vào thư mục **`public/audio/teacher/`**.
+2. Build lại ứng dụng và đưa lên (hoặc chạy lại bản Windows). Trong Khu vực giáo viên, tab **Giọng nói**, chọn **Giọng giáo viên** (hoặc để mặc định: khi đủ 132 đoạn, giọng giáo viên được dùng tự động). Đoạn nào chưa thu thì ứng dụng **đọc bằng giọng tiếng Việt của thiết bị** (nếu có), hoặc im lặng và chỉ hiện chữ.
 
 ## 13. Gặp sự cố?
 

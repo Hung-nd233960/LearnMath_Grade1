@@ -84,12 +84,12 @@ check("cache: the page, manifest and icons", has(/\/index\.html$/) && has(/\/man
 check("cache: the script and the style", has(/\/assets\/index-.*\.js$/) && has(/\/assets\/index-.*\.css$/));
 check("cache: all the fonts", cached.urls.filter((u) => u.endsWith(".woff2")).length === 21);
 const emojiFiles = readdirSync(new URL("../public/assets/emoji/", import.meta.url)).filter((f) => f.endsWith(".png")).length;
-check("cache: all the pictures", cached.urls.filter((u) => u.includes("/assets/emoji/")).length === emojiFiles, `${cached.urls.filter((u) => u.includes("/assets/emoji/")).length} of ${emojiFiles}`);
+check("cache: all the pictures", cached.urls.filter((u) => u.includes("/assets/emoji/") && u.endsWith(".png")).length === emojiFiles, `${cached.urls.filter((u) => u.includes("/assets/emoji/") && u.endsWith(".png")).length} of ${emojiFiles}`);
 const emojiOnDisk = await ev(`fetch('./assets/emoji/robot_3d.png').then(r => r.ok)`);
 check("cache: pictures load", emojiOnDisk === true);
 const installErrors = await send("Page.getInstallabilityErrors");
 check("install: Chrome finds nothing in the way of installing", (installErrors.result.installabilityErrors ?? []).length === 0, JSON.stringify(installErrors.result.installabilityErrors));
-check("a missing voice clip is not cached as if it existed", await ev(`fetch('./audio/n3.mp3').then(r => r.status).then(async (st) => { const keys = await caches.keys(); const c = await caches.open(keys[0]); return st !== 200 ? !(await c.match('./audio/n3.mp3')) : true; })`));
+check("a missing voice clip is not cached as if it existed", await ev(`fetch('./audio/teacher/n3.mp3').then(r => r.status).then(async (st) => { const keys = await caches.keys(); const c = await caches.open(keys[0]); return st !== 200 ? !(await c.match('./audio/teacher/n3.mp3')) : true; })`));
 // let the page be controlled by the worker, then add a child while online
 await nav(URL_BASE);
 check("service worker: controls the page after a reload", await ev(`!!navigator.serviceWorker.controller`));

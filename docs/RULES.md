@@ -81,6 +81,7 @@ Code: [screentime.ts](../src/core/screentime.ts). Defaults are in `DEFAULT_LIMIT
 - **Extra time:** an adult can add 10 or 20 minutes for the child who is playing (ends a lock) or end a break early; both only in the teacher area.
 - **Sliders:** session 5–30 min, break 2–10 min, daily 10–60 min, idle nudge 10–60 s (the pause is 3× the nudge).
 - **What the PIN is:** it keeps children out. It is not real security: everything is stored in the browser.
+- **Voice:** the teacher chooses the voice pack (the device's own voice, the teacher's recordings, or another pack folder). With no choice the first *complete* pack is used; a missing clip falls back to the device voice for that sentence.
 - **Effects:** four switches (`Fx` in [settings.ts](../src/core/settings.ts)):
 
   | Switch | Controls |

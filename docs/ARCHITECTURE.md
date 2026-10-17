@@ -117,6 +117,7 @@ interface GameView<Q, A> {
 ## Audio
 
 - **Voice clips:** `src/audio/manifest.ts` lists every clip and its exact words. `npm run audio:script` regenerates [AUDIO_SCRIPT.md](AUDIO_SCRIPT.md) for the teacher to record.
+- **Voice packs:** clips live in `public/audio/<pack>/<clipId>.mp3`; the teacher picks the pack in the teacher area (`settings.voicePack`, see [TTS_PILOT.md](TTS_PILOT.md)). `audio/packs.json` is written by the build (and the dev server) from the folders present.
 - **Playback:** `Voice.play(speech)` plays the clips in order. If a clip file is missing, it reads the whole sentence with the browser's Vietnamese voice; if the device has none, it stays silent, since the text is on screen anyway.
 - **Unlocking:** call `voice.unlock()` in the first tap handler, because browsers block audio until the user interacts.
 - **Sound effects:** `sfx.play("tap" | "pick" | "drop" | "win" | "oops" | "star")`. Set `sfx.enabled` from `settings.fx.sfx`, and `sfx.muted` and `voice.muted` from `settings.muted`.

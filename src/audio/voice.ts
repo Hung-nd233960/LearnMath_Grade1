@@ -1,18 +1,32 @@
-// Plays a Speech: the teacher's recorded clips in order (public/audio/<clip>.mp3).
-// If any clip of a sentence has no recording yet, the whole sentence is read by the
-// browser's Vietnamese voice instead (if the device has one), so nothing is half-spoken.
+// Plays a Speech: the clips of the chosen voice pack in order (public/audio/<pack>/<clip>.mp3).
+// If any clip of a sentence is missing from the pack (or the pack is "device"), the whole sentence is
+// read by the browser's Vietnamese voice instead (if the device has one), so nothing is half-spoken.
 // Browsers block audio until the first tap: call voice.unlock() from a tap handler.
 import type { Speech } from "../i18n/speech.ts";
+import { DEVICE_PACK } from "./packs.ts";
 
 export class Voice {
   muted = false;
-  private readonly base: string;
+  private readonly root: string;
+  /** Folder of the chosen pack, or null for the device voice. */
+  private pack: string = DEVICE_PACK;
   private missing = new Set<string>();
   private current: HTMLAudioElement | null = null;
   private token = 0;
 
-  constructor(base = "audio/") {
-    this.base = base;
+  /** `root` is the folder holding the pack folders, e.g. "audio/". */
+  constructor(root = "audio/") {
+    this.root = root;
+  }
+
+  /** Choose which pack plays ("device" = the device's own voice). */
+  setPack(id: string): void {
+    if (id !== this.pack) this.stop();
+    this.pack = id;
+  }
+
+  get currentPack(): string {
+    return this.pack;
   }
 
   /** Call once inside the first user gesture (e.g. the profile tap). */
@@ -31,23 +45,29 @@ export class Voice {
     if ("speechSynthesis" in globalThis) speechSynthesis.cancel();
   }
 
-  /** Resolves when finished (or immediately when muted / impossible). Never rejects. */
-  async play(s: Speech): Promise<void> {
+  /**
+   * Resolves when finished (or immediately when muted / impossible). Never rejects.
+   * `pack` plays this once from another pack (the teacher's "listen" button) without changing the choice;
+   * `force` plays even while the children's sound is switched off.
+   */
+  async play(s: Speech, pack: string = this.pack, force = false): Promise<void> {
     this.stop();
-    if (this.muted || !s.clips.length) return;
+    if ((this.muted && !force) || !s.clips.length) return;
     const my = this.token;
-    if (s.clips.some((c) => this.missing.has(c))) return this.tts(s.text);
+    if (pack === DEVICE_PACK) return this.tts(s.text);
+    const url = (clip: string) => `${this.root}${pack}/${clip}.mp3`;
+    if (s.clips.some((c) => this.missing.has(url(c)))) return this.tts(s.text);
     for (const clip of s.clips) {
       if (my !== this.token) return;
-      const r = await this.playClip(clip);
+      const r = await this.playClip(url(clip));
       if (r === "blocked") return; // autoplay not unlocked yet: stay silent, text is on screen
-      if (r === "missing") { this.missing.add(clip); if (my === this.token) await this.tts(s.text); return; }
+      if (r === "missing") { this.missing.add(url(clip)); if (my === this.token) await this.tts(s.text); return; }
     }
   }
 
-  private playClip(clip: string): Promise<"ok" | "missing" | "blocked"> {
+  private playClip(src: string): Promise<"ok" | "missing" | "blocked"> {
     return new Promise((resolve) => {
-      const a = new Audio(this.base + clip + ".mp3");
+      const a = new Audio(src);
       this.current = a;
       a.onended = () => resolve("ok");
       a.onerror = () => resolve("missing"); // file not found / not decodable

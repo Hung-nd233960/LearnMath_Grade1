@@ -300,6 +300,18 @@ Three presets: **Yên tĩnh** (quiet: everything off, for easily distracted chil
 ![Effects: three presets and four switches.](img/31-teacher-fx.png)
 *Effects: three presets and four switches.*
 
+#### The "Giọng nói" (voice) tab
+
+Choose Mèo's **speaking voice** for every question, praise and reminder. Each voice is a card; tap a card to choose it (it applies to every child at once), or press **"Nghe thử"** (listen) to hear a sample sentence **without changing** the voice in use (it plays even if the children have switched the speaker off).
+
+- **Giọng của máy** (the device's own voice): uses the device's Vietnamese voice, if it has one. No audio files; quality depends on the device.
+- **Giọng giáo viên** (the teacher's voice): the teacher's recordings. This card stays greyed out until there are recordings (see "Mèo's voice (recording)").
+- **Machine-made voices** (if whoever installs the app added them), for example "Hoài My", "Nam Minh": synthetic voices used until the teacher's recordings exist. The card shows how many of the 132 clips it has; any clip it lacks is read by the device voice.
+- If nothing has been chosen, the app uses the first **complete** voice, so the teacher's voice takes over by itself once everything is recorded. "Dùng bộ mặc định" returns to this.
+
+![Choosing the voice: one card per voice, "Nghe thử" for a sample.](img/35-teacher-voice.png)
+*Choosing the voice: one card per voice, "Nghe thử" for a sample.*
+
 #### The "Thời gian chơi" (play time) tab
 
 - **Today of (the child who is playing):** time played and time left; the **+10 minutes** and **+20 minutes** buttons (they end a lock when a child has run out) and **"Kết thúc nghỉ mắt"** (end the break) while a child is on a break.
@@ -334,8 +346,8 @@ Three presets: **Yên tĩnh** (quiet: everything off, for easily distracted chil
 
 The voice is assembled from **short reusable clips** (numbers 0–20, operators, praise, reminders, the guide steps...) **recorded by a teacher** so it is familiar and has the right Vietnamese tones. The full list, with the exact words to read, is in **`docs/AUDIO_SCRIPT.md`**.
 
-1. Record each clip in the script and save it as `<id>.mp3` (for example `n7.mp3`) in the **`public/audio/`** folder.
-2. Rebuild and upload the app (or rebuild the Windows version). Any clip not yet recorded is read by **the device's Vietnamese voice** (if it has one), or stays silent and the text is shown.
+1. Record each clip in the script and save it as `<id>.mp3` (for example `n7.mp3`) in the **`public/audio/teacher/`** folder.
+2. Rebuild and upload the app (or rebuild the Windows version). In the Teacher area, **Giọng nói** tab, choose **Giọng giáo viên** (or leave the default: once all 132 clips exist the teacher's voice is used automatically). Any clip not yet recorded is read by **the device's Vietnamese voice** (if it has one), or stays silent and the text is shown.
 
 ## 13. Troubleshooting
 
