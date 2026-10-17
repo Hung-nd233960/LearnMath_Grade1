@@ -3,11 +3,13 @@
 import type { GameId } from "../../core/types.ts";
 import { createBasketView } from "./basket.ts";
 import { createEquationsView } from "./equations.ts";
+import { createScaleView } from "./scale.ts";
 import { createSplitView } from "./split.ts";
 import type { ViewFactory } from "./types.ts";
 
 export const VIEWS: Partial<Record<GameId, ViewFactory>> = {
   basket: createBasketView,
+  scale: createScaleView,
   equations: createEquationsView,
   split: createSplitView,
 };

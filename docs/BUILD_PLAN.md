@@ -67,9 +67,10 @@
 - **Done when:** tier 2 shows all three phrasings; a chục can only be made with a bag. ✔ checked in a real browser.
 - **Decision to confirm:** the picture panel appears after the **first** wrong try (or whenever sound is off), not after two. A child gets one retry, so "after 2 wrong tries" would only be the reveal, too late to help. Change `syncPanel` in `basket.ts` if the teachers disagree.
 
-## 6. Cái cân ☐
-- [ ] `src/ui/games/scale.ts`: brass scale, live tilt (tier 1) / padlock until Xong (tier 2+), counts + `compareSign` (tier 1), weight key, tray drag
-- **Done when:** the tilt direction always matches `check()`'s `leftHeavier` / `rightHeavier`.
+## 6. Cái cân ☑
+- [x] `src/ui/games/scale.ts` (+ `scale.css`): the brass scale (beam, chains, pans, stand), weight table (Vòng 2+), tray, fixed fruit on the pans, the child's own fruit movable between the pans and the tray (drag or tap-then-tap); Vòng 1 tips live with counts and the >, <, = sign; from Vòng 2 a padlock holds the beam level until "Xong", then it tips to show the result and levels again on a retry; the reveal puts the right fruit on the pans; `ready: true`
+- [x] `npm run ui:check` has 178 checks (30 new): live tilt, counts and sign, fixed fruit cannot move, fruit on the heavier pan widens the gap and can be taken back, drag from the tray, padlock and level beam in Vòng 2+, a whole set, unbalanced → "Đĩa bên … còn nặng hơn", retry then praise, reveal balances the pans, dev route with the three-kind table. The global watchdog of the check was raised to 7 minutes.
+- **Done when:** the tilt direction always matches `check()`'s `leftHeavier` / `rightHeavier`. ✔ checked in a real browser (the beam rotates by the same weights `check()` compares).
 
 ## 7. Rô-bốt ☐
 - [ ] `src/ui/games/robot.ts`: square grid, blocks (brick), walls (red bars), program slots (max 12), arrow pad + keyboard arrows, Làm lại / Chạy!, animate `simulate().cells`, nudge + shake on `crashAt`

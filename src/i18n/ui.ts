@@ -46,6 +46,9 @@ export const STR = {
   eqQuestion: "Câu hỏi",
 
   and: "và",
+  scaleKey: "Bảng cân",
+  scaleTray: "Kéo quả vào đĩa:",
+  scaleLockTip: "Cân đang được chốt: bấm Xong để thả cân",
   basketMine: "Giỏ của em",
   basketMeo: "Giỏ của Mèo",
 

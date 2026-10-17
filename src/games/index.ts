@@ -30,7 +30,7 @@ export interface GameMeta {
 }
 
 export const GAMES: GameMeta[] = [
-  { id: "scale", title: "Cái cân", bgVar: "--scale-bg", tileVar: "--scale-tile", art: ["balance_scale"], logic: scaleLogic, text: scaleText, ready: false },
+  { id: "scale", title: "Cái cân", bgVar: "--scale-bg", tileVar: "--scale-tile", art: ["balance_scale"], logic: scaleLogic, text: scaleText, ready: true },
   { id: "robot", title: "Rô-bốt", bgVar: "--robot-bg", tileVar: "--robot-tile", art: ["robot", "triangular_flag"], logic: robotLogic, text: robotText, ready: false },
   { id: "basket", title: "Giỏ trái cây", bgVar: "--basket-bg", tileVar: "--basket-tile", art: ["basket", "tangerine"], logic: basketLogic, text: basketText, ready: true },
   { id: "equations", title: "Tính theo hình", bgVar: "--eq-bg", tileVar: "--eq-tile", art: ["red_apple", "pear"], logic: equationsLogic, text: equationsText, ready: true },

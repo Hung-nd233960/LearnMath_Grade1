@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4) and Giỏ trái cây (step 5).
+// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5) and Cái cân (step 6).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -59,7 +59,7 @@ const drag = async (fromSel, toSel) => {
 let passed = 0, failed = 0;
 let last = "start";
 const check = (name, cond, extra = "") => { last = name; if (cond) passed++; else { failed++; console.log("FAIL:", name, extra); } };
-setTimeout(() => { console.log("WATCHDOG: stuck after:", last); chrome.kill(); process.exit(2); }, 100000);
+setTimeout(() => { console.log("WATCHDOG: stuck after:", last); chrome.kill(); process.exit(2); }, 420000);
 
 await send("Page.enable"); await send("Runtime.enable");
 await viewport(1180, 820);
@@ -222,7 +222,7 @@ await click(`.kid[data-profile="${binhId}"]`);
 check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
 const chips = () => ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`);
 check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn 30 phút", await chips());
-check("home: six tiles; only the finished games are playable (3 so far)", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 3 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
+check("home: six tiles; only the finished games are playable (4 so far)", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 2 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
 check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
 check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
 await shot("ui-5-home");
@@ -641,6 +641,117 @@ await click(".speaker");
 check("Vòng 2 panel: the number, and the bags with the ones underneath", (await ev(`!!document.querySelector('.bk-panel.show .row.sub .bk-minibag')`)) && /^\d+$/.test(await ev(`document.querySelector('.bk-panel .num').textContent`)));
 await shot("ui-8-basket-panel-t2");
 await click(".speaker");
+
+// ---------- 9. Cái cân (step 6) ----------
+const readScale = () => ev(`(() => {
+  const w = (sel) => [...document.querySelectorAll(sel)].map(i => Number(i.dataset.w));
+  return { tier: document.querySelector('.tier-badge').textContent, left: w('.sc-pan.L [data-fixed]'), right: w('.sc-pan.R [data-fixed]'),
+    tray: [...document.querySelectorAll('.sc-tray .sc-fruit')].map(i => ({ k: i.dataset.k, w: Number(i.dataset.w) })), keyRows: document.querySelectorAll('.sc-key .row').length };
+})()`);
+const scaleWeights = () => ev(`(() => { const sum = (s) => [...document.querySelectorAll('.sc-pan.' + s + ' [data-item]')].reduce((a, i) => a + Number(i.dataset.w), 0); return { L: sum('L'), R: sum('R') }; })()`);
+const beamAngle = async () => parseFloat(((await ev(`document.querySelector('.sc-beam').style.transform`)).match(/-?[\d.]+/) || ["0"])[0]);
+/** The way a child does it: find fruit from the tray that makes up the difference and put it on the lighter pan. */
+const solveScale = (q) => {
+  const L = q.left.reduce((a, b) => a + b, 0), R = q.right.reduce((a, b) => a + b, 0), need = Math.abs(L - R);
+  for (let mask = 1; mask < 1 << q.tray.length; mask++) {
+    let w = 0; const pick = [];
+    q.tray.forEach((t, i) => { if (mask & (1 << i)) { w += t.w; pick.push(t.k); } });
+    if (w === need) return { side: L < R ? "L" : "R", heavier: L < R ? "R" : "L", pick };
+  }
+  return null;
+};
+const putOn = async (kinds, side) => { for (const k of kinds) { await click(`.sc-tray .sc-fruit[data-k="${k}"]`); await click(`.sc-pan.${side}`); } };
+const scaleReady = (idx) => waitFor(`!document.querySelector('.overlay') && !!document.querySelector('.sc-beam') && document.querySelectorAll('.dots .done').length === ${idx}`);
+
+await ev(`location.hash = '#/home'`); await sleep(400);
+check("home: the scale tile is playable", await ev(`!document.querySelector('.tile[data-game=scale]').classList.contains('soon')`));
+await click(".tile[data-game=scale]");
+await scaleReady(0);
+await shot("ui-9-scale-first");
+let sq = await readScale();
+check("scale Vòng 1: apples only, no weight table, scale tipped, sign and counts shown", sq.tier === "Vòng 1" && sq.keyRows === 0 && (await beamAngle()) !== 0 && /^[<>]$/.test(await ev(`document.querySelector('.sc-sign').textContent`)) && (await ev(`document.querySelectorAll('.sc-count').length`)) === 2);
+check("scale Vòng 1: the padlock is not shown (it tips live)", await ev(`document.querySelector('.sc-lock').classList.contains('off')`));
+
+// fruit already on the pans is fixed
+const before = await scaleWeights();
+const [fx1, fy1] = await center(".sc-pan.L [data-fixed]");
+const [fx2, fy2] = await center(".sc-pan.R");
+await mouse("mousePressed", fx1, fy1);
+for (let i = 1; i <= 5; i++) { await mouse("mouseMoved", fx1 + ((fx2 - fx1) * i) / 5, fy1 + ((fy2 - fy1) * i) / 5); await sleep(16); }
+await mouse("mouseReleased", fx2, fy2); await sleep(150);
+check("fixed fruit cannot be dragged to the other pan", JSON.stringify(await scaleWeights()) === JSON.stringify(before));
+
+// putting fruit on the heavier pan makes it worse, and it can be taken back
+let plan = solveScale(sq);
+await putOn([sq.tray[0].k], plan.heavier);
+const worse = await scaleWeights();
+check("fruit on the heavier pan widens the gap (live)", Math.abs(worse.L - worse.R) > Math.abs(before.L - before.R));
+await click(`.sc-pan.${plan.heavier} [data-item]:not([data-fixed])`);
+await click(".sc-tray");
+check("fruit can be taken back to the tray", JSON.stringify(await scaleWeights()) === JSON.stringify(before));
+// drag from the tray with the mouse
+const [tx, ty] = await center(`.sc-tray .sc-fruit[data-k="${plan.pick[0]}"]`);
+const [px, py] = await center(`.sc-pan.${plan.side}`);
+await mouse("mousePressed", tx, ty);
+for (let i = 1; i <= 6; i++) { await mouse("mouseMoved", tx + ((px - tx) * i) / 6, ty + ((py - ty) * i) / 6); await sleep(16); }
+await mouse("mouseReleased", px, py); await sleep(150);
+check("fruit can be dragged from the tray onto a pan", (await ev(`document.querySelectorAll('.sc-pan.${plan.side} [data-item]:not([data-fixed])').length`)) === 1);
+await click(`.sc-pan.${plan.side} [data-item]:not([data-fixed])`); await click(".sc-tray"); // back to the tray
+
+// --- set 1: all correct ---
+const scTiers = [];
+for (let i = 0; i < 5; i++) {
+  sq = await readScale();
+  scTiers.push(sq.tier);
+  plan = solveScale(sq);
+  if (sq.tier !== "Vòng 1") {
+    check(`scale question ${i + 1} (${sq.tier}): weight table shown and the padlock holds the scale level`, sq.keyRows >= 2 && (await beamAngle()) === 0 && (await ev(`!document.querySelector('.sc-lock').classList.contains('off')`)));
+  }
+  await putOn(plan.pick, plan.side);
+  if (sq.tier === "Vòng 1") check(`scale question ${i + 1}: the sign shows = when balanced`, (await ev(`document.querySelector('.sc-sign').textContent`)) === "=" && (await ev(`document.querySelector('.sc-sign').classList.contains('eq')`)));
+  else check(`scale question ${i + 1}: still held level before Xong (the child must work it out)`, (await beamAngle()) === 0);
+  await click("#xong");
+  check(`scale set, question ${i + 1}: balanced is praised`, (await overlayKind()) === "correct");
+  if (i === 1) await shot("ui-9-scale-feedback");
+  await closeOverlay();
+  if (i < 4) await scaleReady(i + 1);
+}
+check("scale: starts at Vòng 1 and rises", scTiers[0] === "Vòng 1" && scTiers[1] === "Vòng 2", scTiers.join());
+check("scale: star screen, 3 stars; saved", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await ev(`document.querySelectorAll('.star-row img:not(.dim)').length`)) === 3 && (await profileOf(anId)).games.scale.sets === 1);
+await click("#back-home");
+
+// --- set 2: nothing added (still unbalanced) → hint says which side is heavier; then reveal ---
+await click(".tile[data-game=scale]");
+await scaleReady(0);
+sq = await readScale();
+plan = solveScale(sq);
+await click("#xong");
+check("unbalanced: retry card says which pan is still heavier", (await overlayKind()) === "retry" && /Đĩa bên (trái|phải) còn nặng hơn/.test(await ev(`document.querySelector('.overlay p').textContent`)));
+await closeOverlay();
+check("after the retry the scale is ready again (Vòng 1 stays live)", await ev(`!document.querySelector('.overlay')`));
+await putOn(plan.pick, plan.side);
+await click("#xong");
+check("fixed after the retry: praised", (await overlayKind()) === "correct");
+await closeOverlay();
+await scaleReady(1);
+sq = await readScale();
+await click("#xong");
+await overlayKind(); await closeOverlay();
+if (sq.tier !== "Vòng 1") check("scale: after a wrong try the padlock is back (level again)", (await beamAngle()) === 0 && (await ev(`!document.querySelector('.sc-lock').classList.contains('off')`)));
+await click("#xong");
+check("scale: out of tries, the answer is revealed", (await overlayKind()) === "reveal");
+const rw = await scaleWeights();
+check("scale: the reveal balances the pans", rw.L === rw.R, JSON.stringify(rw));
+await closeOverlay();
+await ev(`location.hash = '#/home'`); await sleep(300);
+
+// --- dev route: Vòng 3 has three kinds in the weight table; 'Giải' balances ---
+await ev(`__app.go('dev/scale/3/1/6')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 3')`); await sleep(300);
+check("dev: Vòng 3 weight table lists grapes, apple and watermelon", (await ev(`document.querySelectorAll('.sc-key .row').length`)) === 3);
+await click("#dev-solve");
+await sleep(2600);
+const dw = await scaleWeights();
+check("dev: 'Giải' balances the scale and opens the padlock", dw.L === dw.R && (await ev(`document.querySelector('.sc-lock').classList.contains('off')`)), JSON.stringify(dw));
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 
