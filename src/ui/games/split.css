@@ -13,10 +13,10 @@
 .sp-scene.bond-only { display: grid; place-items: center; }
 
 .sp-right { position: absolute; left: 530px; right: 40px; top: 172px; bottom: 34px; display: flex; flex-direction: column; gap: 14px; }
-.sp-sent { padding: 16px 24px; font-family: "Baloo 2"; font-weight: 700; font-size: 28px; line-height: 1.85; }
+.sp-sent { padding: 14px 24px; font-family: "Baloo 2"; font-weight: 700; font-size: 28px; line-height: 2.45; } /* tall enough that boxes on two lines never touch */
 .sp-sent .answer-box { min-width: 60px; height: 56px; font-size: 36px; border-radius: 16px; vertical-align: middle; margin: 0 4px; }
 .sp-sent img { display: inline-block; vertical-align: middle; }
-.sp-sent .given { display: inline-grid; place-items: center; min-width: 54px; height: 54px; border-radius: 16px; background: var(--split-bg); font-weight: 800; vertical-align: middle; margin: 0 4px; }
+.sp-sent .given { display: inline-grid; place-items: center; min-width: 54px; height: 54px; border-radius: 16px; background: var(--split-bg); font-weight: 800; vertical-align: middle; margin: 0 4px; line-height: 1; }
 .answer-box.right { border-style: solid; border-color: var(--green); background: #e4f6e9; }
 .answer-box.wrong { border-style: solid; border-color: var(--red); background: #ffe2dc; }
 .sp-bond { display: flex; justify-content: center; }

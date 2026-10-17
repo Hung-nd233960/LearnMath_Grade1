@@ -109,6 +109,18 @@ describe("equations", () => {
       if (p.tier === 3) expect(q.clues.length).toBeGreaterThanOrEqual(3);
     });
   });
+  it("the question is never a clue repeated (the answer must not be on screen)", () => {
+    const key = (terms: readonly string[]) => [...terms].sort().join(",");
+    let checked = 0;
+    for (const p of POSITIONS) {
+      for (let seed = 1; seed <= 400; seed++) {
+        const q = equationsLogic.generate(p, createRng(seed));
+        checked++;
+        for (const c of q.clues) expect(key(c.terms), `seed ${seed} at ${p.tier}.${p.step}`).not.toBe(key(q.ask));
+      }
+    }
+    expect(checked).toBe(POSITIONS.length * 400);
+  });
   it("detects puzzles that need two clues at once", () => {
     const q = { known: [], clues: [{ terms: ["red_apple", "pear"], total: 3 }, { terms: ["red_apple", "red_apple", "pear"], total: 4 }], ask: ["pear"], answer: 2 } as never;
     expect(isChainSolvable(q)).toBe(false);

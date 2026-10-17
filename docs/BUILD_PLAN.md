@@ -53,9 +53,11 @@
   3. Review it at every tier with `#/dev/<id>/<tier>/<step>/<seed>`, then add play-through checks to `scripts/ui-check.mjs` (read the question from the DOM, answer like a child would, as the Mấy và mấy checks do).
 - **Known gaps (later steps):** the guide (i) opens from the button but does not yet auto-open on first play or speak the steps (step 11); no break or lock between sets (step 9); the picture-panel and Mèo-bubble prompt that the basket game wants are added in step 5 (the generic prompt bar is used until then).
 
-## 4. Tính theo hình ☐
-- [ ] `src/ui/games/equations.ts`: Bảng số, Manh mối rows, question row with answer box, numpad
-- **Done when:** a set plays at every tier via `#/dev/equations/<t>/<s>/<seed>`.
+## 4. Tính theo hình ☑
+- [x] `src/ui/games/equations.ts` (+ `equations.css`): "Bảng số" strip, numbered "Manh mối" rows, the question row with an answer box, the 3-column numpad; rows carry `data-fruits` / `data-total` so tests can solve from the screen; `ready: true`
+- [x] `npm run ui:check` now has 117 checks: a whole set solved from what is on screen (every puzzle verified to have exactly one answer), empty "Xong", wrong → retry → right, leaving early, dev route at Vòng 3
+- **Done when:** a set plays at every tier via `#/dev/equations/<t>/<s>/<seed>`. ✔ checked in a real browser.
+- **Notes:** the view reuses `createNumpad`, `setBox`, `boxValue`, the `answer-box` right/wrong styles and the shake-on-empty pattern from the split view. If a third game needs the same "empty box → shake + `pick_number`" code, move it into a shared helper.
 
 ## 5. Giỏ trái cây ☐
 - [ ] `src/ui/games/basket.ts`: two teal baskets, fruit + bags of 10 (`dragTap`), counts (tier 1 only), picture panel (muted, or after 2 wrong), `tensReading` praise

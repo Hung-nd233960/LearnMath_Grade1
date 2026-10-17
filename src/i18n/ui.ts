@@ -41,6 +41,10 @@ export const STR = {
   countTipFruit: "Chạm vào quả để đánh dấu đã đếm",
   devSolve: "Giải",
 
+  eqKnown: "Bảng số:",
+  eqClue: (n: number) => `Manh mối ${n}`,
+  eqQuestion: "Câu hỏi",
+
   // home
   changeKid: "Đổi bạn chơi",
   greeting: (name: string) => `Chào thám tử nhí ${name}!`,

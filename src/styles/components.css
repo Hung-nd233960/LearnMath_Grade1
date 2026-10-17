@@ -89,6 +89,7 @@
   min-width: 84px; height: 84px; border-radius: 22px; border: 4px dashed var(--navy);
   display: inline-grid; place-items: center; background: #fff;
   font-family: "Baloo 2"; font-weight: 800; font-size: 44px; padding: 0 10px;
+  line-height: 1; /* a tall inherited line height would push the digit below the middle of the box */
 }
 .answer-box.active { border-style: solid; border-color: var(--green); box-shadow: 0 0 0 6px rgba(47, 138, 76, 0.18); }
 .answer-box.filled { border-style: solid; }

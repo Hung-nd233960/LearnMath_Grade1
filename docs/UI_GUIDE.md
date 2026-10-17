@@ -69,6 +69,7 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `screens/stars.ts` | End-of-set screen; reads `ctx.lastSet` (set by `play.ts`, cleared when you leave). |
 | `screens/dev.ts` | Dev-only `#/dev/<id>/<tier>/<step>/<seed>`: one deterministic question + a "Giải" button. |
 | `games/types.ts`, `games/index.ts` | The `GameView` contract and the `VIEWS` registry. |
+| `games/equations.ts` | The Tính theo hình screen (second game screen; simpler than split, a good second example). |
 | `games/split.ts`, `games/bond.ts`, `games/splitLayout.ts` | The first game screen (Mấy và mấy): the model for the others. `bond.ts` is the number-bond widget; `splitLayout.ts` is pure and tested. |
 | `screens/addProfile.ts` | `openAddProfile(ctx, onAdded)`: the "Thêm bạn mới" form (name + picture). Reuse it in the teacher area. |
 | `screens/kit.ts` | Dev-only gallery at `#/kit`: every component above on one screen (not in production builds). Open it to see how they look and work. |

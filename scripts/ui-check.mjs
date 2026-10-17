@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3).
+// then plays whole sets of Mấy và mấy (step 3) and Tính theo hình (step 4).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -222,7 +222,7 @@ await click(`.kid[data-profile="${binhId}"]`);
 check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
 const chips = () => ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`);
 check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn 30 phút", await chips());
-check("home: six tiles; only the finished games are playable", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 5 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
+check("home: six tiles; only the finished games are playable (2 so far)", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 4 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
 check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
 check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
 await shot("ui-5-home");
@@ -410,6 +410,86 @@ await ev(`location.hash = '#/dev/split/1/2/5'`); await sleep(500);
 await typeNumber(1);
 await click("#xong");
 check("dev route: a wrong answer is judged but nothing is saved", await waitFor(`document.querySelector('#dev-status').textContent.startsWith('✘')`) && (await profileOf(anId)).history.length === 2);
+
+// ---------- 7. Tính theo hình (step 4) ----------
+const readEq = () => ev(`(() => {
+  const rows = [...document.querySelectorAll('.eq-row.clue')].map(r => ({ fruits: r.dataset.fruits.split(','), total: +r.dataset.total }));
+  const known = [...document.querySelectorAll('.eq-known .kv')].map(k => ({ fruit: k.dataset.fruit, value: +k.dataset.value }));
+  const ask = document.querySelector('.eq-row.q').dataset.ask.split(',');
+  return { rows, known, ask, tier: document.querySelector('.tier-badge').textContent };
+})()`);
+/** What a careful child would do: find the fruit values that fit every clue, then add up the question. */
+const solveEq = (q) => {
+  const knownV = Object.fromEntries(q.known.map((k) => [k.fruit, k.value]));
+  const unknown = [...new Set([...q.rows.flatMap((r) => r.fruits), ...q.ask])].filter((f) => !(f in knownV));
+  const answers = new Set();
+  const v = { ...knownV };
+  const rec = (i) => {
+    if (i === unknown.length) {
+      if (q.rows.every((r) => r.fruits.reduce((t, f) => t + v[f], 0) === r.total)) answers.add(q.ask.reduce((t, f) => t + v[f], 0));
+      return;
+    }
+    for (let x = 0; x <= 10; x++) { v[unknown[i]] = x; rec(i + 1); }
+  };
+  rec(0);
+  return answers;
+};
+const eqReady = () => waitFor(`!document.querySelector('.overlay') && !!document.querySelector('.eq-row.q') && !document.querySelector('.answer-box.right, .answer-box.wrong')`);
+
+await ev(`location.hash = '#/home'`); await sleep(400);
+check("home: the equations tile is playable", await ev(`!document.querySelector('.tile[data-game=equations]').classList.contains('soon')`));
+await click(".tile[data-game=equations]");
+await eqReady();
+await shot("ui-7-equations-first");
+check("equations: question row, answer box, numpad, Xong; Vòng 1 has the value table", await ev(`!!document.querySelector('.eq-row.q .answer-box') && document.querySelectorAll('#numpad button').length === 11 && !!document.querySelector('#xong') && !!document.querySelector('.eq-known')`));
+await click("#xong");
+check("equations: Xong with an empty box is not an answer", (await ev(`!document.querySelector('.overlay')`)) && (await questionIndex()) === 0);
+
+const eqTiers = [], eqUnique = [];
+for (let i = 0; i < 5; i++) {
+  const eq = await readEq();
+  eqTiers.push(eq.tier);
+  const answers = solveEq(eq);
+  eqUnique.push(answers.size);
+  await typeNumber([...answers][0]);
+  await click("#xong");
+  const kind = await overlayKind();
+  check(`equations set, question ${i + 1}: correct answer is praised`, kind === "correct", kind);
+  if (i === 2) await shot("ui-7-equations-feedback");
+  await closeOverlay();
+  if (i < 4) await eqReady();
+}
+check("equations: every puzzle on screen has exactly one answer", eqUnique.every((n) => n === 1), eqUnique.join());
+check("equations: starts at Vòng 1 and rises after a correct answer", eqTiers[0] === "Vòng 1" && eqTiers[1] === "Vòng 2", eqTiers.join());
+check("equations: star screen, 3 stars", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await ev(`document.querySelectorAll('.star-row img:not(.dim)').length`)) === 3);
+const an3 = await profileOf(anId);
+check("equations set saved (seed moved, history grew)", an3.games.equations.sets === 1 && an3.games.equations.bestStars === 3 && an3.games.equations.seed.step === 1 && an3.history.length === 3 && an3.history[2].game === "equations", JSON.stringify(an3.games.equations));
+await click("#back-home");
+
+// a wrong answer: retry card, red box, cleared and editable again
+await click(".tile[data-game=equations]");
+await eqReady();
+const eq2 = await readEq();
+const right = [...solveEq(eq2)][0];
+await typeNumber(right + 1);
+await click("#xong");
+check("equations: wrong answer → retry card, box turns red", (await overlayKind()) === "retry" && (await ev(`!!document.querySelector('#eq-answer.wrong')`)));
+await closeOverlay();
+check("equations: after retry the box is empty and editable", (await ev(`document.querySelector('#eq-answer').dataset.v`)) === "" && (await ev(`!document.querySelector('#eq-answer.wrong')`)));
+await typeNumber(right);
+await click("#xong");
+check("equations: right on the retry is praised", (await overlayKind()) === "correct");
+await closeOverlay();
+await click(".topbar .btn-round:first-child");
+check("equations: leaving early saves nothing", (await profileOf(anId)).history.length === 3);
+
+// dev route at Vòng 3: a chain of clues, 'Giải' shows the answer
+await ev(`location.hash = '#/dev/equations/3/1/9'`); await sleep(500);
+check("dev route: Vòng 3 shows a chain of at least 3 clues", (await ev(`document.querySelectorAll('.eq-row.clue').length`)) >= 3);
+const eq3 = await readEq();
+await click("#dev-solve");
+await sleep(1500);
+check("dev route: 'Giải' fills the one correct answer", (await ev(`document.querySelector('#eq-answer').dataset.v`)) === String([...solveEq(eq3)][0]) && (await ev(`!!document.querySelector('#eq-answer.right')`)));
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 

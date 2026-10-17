@@ -68,6 +68,13 @@ export function isChainSolvable(q: EquationsQuestion): boolean {
   return q.ask.every((f) => solved.has(f));
 }
 
+/** True if the question asks exactly what one clue already states (the child could just copy the number). */
+export function questionRepeatsClue(q: EquationsQuestion): boolean {
+  const key = (terms: readonly Fruit[]) => [...terms].sort().join(",");
+  const asked = key(q.ask);
+  return q.clues.some((c) => key(c.terms) === asked);
+}
+
 function pickFruits(n: number, rng: Rng): Fruit[] {
   return rng.shuffle(FRUITS).slice(0, n);
 }
@@ -139,7 +146,7 @@ export const equationsLogic: GameLogic<EquationsQuestion, EquationsAnswer> = {
     for (let i = 0; i < 200; i++) {
       const q = make();
       const totalsOk = q.clues.every((c) => c.total <= 20) && q.answer <= 20;
-      if (totalsOk && isChainSolvable(q) && countSolutions(q) === 1) return q;
+      if (totalsOk && !questionRepeatsClue(q) && isChainSolvable(q) && countSolutions(q) === 1) return q;
     }
     // Always-valid fallback.
     return { known: [{ fruit: "red_apple", value: 1 }], clues: [], ask: ["red_apple", "red_apple"], answer: 2 };
