@@ -6,15 +6,17 @@ import { STR } from "../i18n/ui.ts";
 import type { Channel, Settings } from "../core/settings.ts";
 import type { AppContext } from "./context.ts";
 import { emoji, h } from "./dom.ts";
+import { mascot } from "./mascot.ts";
 import { openOverlay, type Overlay } from "./overlay.ts";
 import "./soundPanel.css";
 
+/** `icon` is a Fluent Emoji name, or "meo" for Mèo's own face. */
 type Row = { key: "master" | Channel; icon: string; label: string };
 const ROWS: Row[] = [
   { key: "master", icon: "speaker_high_volume", label: STR.soundMaster },
   { key: "music", icon: "musical_note", label: STR.soundMusic },
   { key: "sfx", icon: "bell", label: STR.soundSfx },
-  { key: "voice", icon: "speaking_head", label: STR.soundVoice },
+  { key: "voice", icon: "meo", label: STR.soundVoice },
 ];
 
 export function openSoundPanel(ctx: AppContext): Overlay {
@@ -24,7 +26,7 @@ export function openSoundPanel(ctx: AppContext): Overlay {
     const slider = h("input", { type: "range", min: 0, max: 100, step: 5, "data-vol": row.key, "aria-label": `${row.label}: ${STR.soundVolume}` });
     const note = h("small", null);
     const el = h("div", { class: "snd-row", "data-row": row.key },
-      emoji(row.icon, 52),
+      row.icon === "meo" ? mascot("happy") : emoji(row.icon, 52),
       h("div", { class: "snd-main" }, h("b", null, row.label), slider, note),
       h("label", { class: "sw snd-sw" }, check, h("i")));
     check.addEventListener("change", () => change((s) => (row.key === "master"
