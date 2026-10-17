@@ -1,0 +1,33 @@
+/* So sánh cân. Ported from mockup/v2/compare.html (class names prefixed cp-). */
+.cp-clues { position: absolute; left: 40px; right: 40px; top: 176px; height: 280px; display: flex; justify-content: center; gap: 26px; padding: 18px; }
+.cp-mini { width: 320px; height: 240px; position: relative; background: var(--cmp-bg); border-radius: 24px; }
+.cp-mini .tag { position: absolute; left: 14px; top: 10px; display: flex; align-items: center; gap: 4px; font: 700 16px "Baloo 2"; color: var(--ink-muted); }
+.cp-mbeam { position: absolute; left: 45px; top: 79px; width: 230px; height: 22px; z-index: 2; transition: transform 0.7s cubic-bezier(0.35, 1.5, 0.5, 1); }
+.cp-mbeam svg { display: block; }
+.cp-mstand { position: absolute; left: 120px; top: 90px; z-index: 1; }
+.cp-mpivot { position: absolute; left: 147px; top: 77px; width: 26px; height: 26px; border-radius: 50%; border: 3.5px solid var(--navy); z-index: 3; background: radial-gradient(circle at 35% 32%, #fff6cf 0 18%, #f2b544 50%, #c98a1e 100%); }
+.cp-mpan { position: absolute; top: 88px; width: 110px; height: 108px; z-index: 2; transition: transform 0.7s cubic-bezier(0.35, 1.5, 0.5, 1); }
+.cp-mpan.L { left: 0; }
+.cp-mpan.R { left: 210px; }
+.cp-mpan svg { position: absolute; left: 0; }
+.cp-mpan .ch { top: 0; }
+.cp-mpan .bw { top: 74px; }
+.cp-mpan .gift { position: absolute; left: 20px; top: 10px; }
+
+.cp-ask { position: absolute; left: 40px; right: 40px; top: 476px; text-align: center; font: 800 30px "Baloo 2"; }
+.cp-choices { position: absolute; left: 40px; right: 40px; top: 530px; display: flex; justify-content: center; gap: 30px; }
+.cp-choice { width: 170px; height: 170px; border-radius: 30px; background: #fff; display: grid; place-items: center; box-shadow: 0 8px 0 rgba(30, 42, 74, 0.14); transition: transform 0.15s; }
+.cp-choice:hover { transform: translateY(-4px); }
+.cp-choice.used { opacity: 0.3; pointer-events: none; }
+.cp-choice.right { box-shadow: 0 0 0 6px var(--green), 0 8px 0 rgba(30, 42, 74, 0.14); background: #e4f6e9; }
+.cp-choice.wrong { box-shadow: 0 0 0 6px var(--red), 0 8px 0 rgba(30, 42, 74, 0.14); background: #ffe2dc; }
+.cp-order { position: absolute; left: 40px; right: 40px; top: 524px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.cp-order .cp-choices { position: static; gap: 20px; }
+.cp-order .cp-choice { width: 120px; height: 120px; }
+.cp-slots { display: flex; align-items: center; gap: 10px; }
+.cp-slot { width: 116px; height: 104px; border-radius: 22px; border: 4px dashed #8da2c8; display: grid; place-items: center; background: rgba(255, 255, 255, 0.6); position: relative; }
+.cp-slot.right { border: 4px solid var(--green); background: #e4f6e9; }
+.cp-slot.wrong { border: 4px solid var(--red); background: #ffe2dc; }
+.cp-slot small { position: absolute; bottom: -24px; font: 700 15px "Baloo 2"; color: var(--ink-muted); white-space: nowrap; }
+.cp-arrow { font: 800 30px "Baloo 2"; color: #8da2c8; }
+.cp-done { position: absolute; right: 40px; bottom: 40px; }

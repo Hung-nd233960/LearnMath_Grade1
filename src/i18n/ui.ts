@@ -46,6 +46,12 @@ export const STR = {
   eqQuestion: "Câu hỏi",
 
   and: "và",
+  compareScale: (n: number) => `Cân ${n}`,
+  askHeaviest: "Chạm vào hộp nặng nhất:",
+  askLightest: "Chạm vào hộp nhẹ nhất:",
+  askOrder: "Chạm lần lượt từng hộp, từ nhẹ đến nặng:",
+  lightestLabel: "nhẹ nhất",
+  heaviestLabel: "nặng nhất",
   robotSteps: "Các bước của em",
   run: "Chạy!",
   clearProgram: "Làm lại",

@@ -79,9 +79,11 @@
 - **Done when:** every tier's generated level can be solved by entering the shortest route. ✔ checked in a real browser (route found from the drawn board).
 - **Not built (stretch, see "Later"):** the number-pattern and "collect 10" variants.
 
-## 8. So sánh cân ☐
-- [ ] `src/ui/games/compare.ts`: mini brass scales from `weighings`, tap-one (heaviest / lightest) or order slots
-- **Done when:** all three modes work; tier 3 shuffled scales still read correctly.
+## 8. So sánh cân ☑
+- [x] `src/ui/games/compare.ts` (+ `compare.css`): small brass scales built from the same pieces as game 1 (the beam tips toward the heavier box; boxes are one gift picture recoloured), three question forms (tap the heaviest / the lightest / put all in order), order slots with "nhẹ nhất" / "nặng nhất" labels, tapping a placed box takes it out, an unfinished row is a nudge (not a wrong try), after a wrong order the correct start of the row stays and only the rest is cleared, reveal fills the right order; `ready: true`
+- [x] `npm run ui:check` has 236 checks (30 new): the checks work the order out themselves from the scales on screen (following A<B, B<C…), a whole set in whichever mode comes up, wrong then right, wrong twice → reveal, and on the dev route: nudge, taking a box out, swapped last two → kept prefix, finishing correctly, a wrong single pick, Vòng 3 shuffled scales, "Giải"
+- **Done when:** all three modes work; tier 3 shuffled scales still read correctly. ✔ checked in a real browser.
+- **All six games now have a screen.** The tile "Sắp ra mắt" state in `home.ts` is still used by `ready: false` games (none now), and `?allready` has no visible effect.
 
 ## 9. Screen time ☐
 - [ ] Tick loop in `app.ts`, input tracking, idle nudge / pause, daily warning toast
