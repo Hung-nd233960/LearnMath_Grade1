@@ -27,9 +27,9 @@ export function hint(r: CheckResult): Speech {
   return say("split_hint_sum");
 }
 
-export const GUIDE_STEPS = [
-  "Nhìn lọ hoa: có hai loại, khác nhau về hình dạng và màu sắc.",
-  "Chạm vào từng bông để đánh dấu, đếm không sót bông nào.",
-  "Số ở trên (tất cả) gồm hai số ở dưới (hai phần).",
-  "Chạm vào ô trống, chọn số trên bàn phím, rồi bấm Xong.",
+export const GUIDE_STEPS: Speech[] = [
+  say("guide_split_1"),
+  say("guide_split_2"),
+  say("guide_split_3"),
+  say("guide_split_4"),
 ];

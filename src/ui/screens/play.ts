@@ -6,7 +6,7 @@
 // This file knows nothing about any particular game: the view draws and returns answers,
 // logic.check() judges, text.hint() words the hint.
 import { createRng, randomSeed } from "../../core/rng.ts";
-import { recordSet, starsToday, streakToday } from "../../core/profiles.ts";
+import { markGuideSeen, recordSet, starsToday, streakToday } from "../../core/profiles.ts";
 import { SetRunner, type AnswerFeedback } from "../../core/session.ts";
 import type { GameId } from "../../core/types.ts";
 import { GAMES } from "../../games/index.ts";
@@ -54,10 +54,21 @@ export const playScreen: ScreenDef = {
       index: 0,
       length: runner.progress.length,
       onBack: () => ctx.go("home"), // leaving early: the unfinished set is not saved
-      onInfo: () => showGuide(ctx.stage.el, game.text.GUIDE_STEPS),
+      onInfo: () => openGuide(),
     });
     promptBar.append(replay);
     screen.append(body, promptBar, bar.el);
+
+    // The guide (i) opens by itself the first time this child plays this game. Whenever it is
+    // closed, Mèo reads the question again.
+    const openGuide = () => {
+      ctx.store.updateProfile((p) => (p.games[game.id].seenGuide ? p : markGuideSeen(p, game.id)));
+      showGuide(ctx.stage.el, game.text.GUIDE_STEPS, {
+        voice: ctx.voice,
+        onStep: () => ctx.time.touch(),
+        onClose: () => { if (!disposed) void ctx.voice.play(promptSpeech); },
+      });
+    };
 
     const startQuestion = () => {
       view?.unmount();
@@ -133,7 +144,7 @@ export const playScreen: ScreenDef = {
     };
 
     startQuestion();
-    // Steps 9–11 of docs/BUILD_PLAN.md add: break/lock between sets, the guide's first-time auto-show.
+    if (!profile.games[game.id].seenGuide) openGuide();
 
     return () => {
       disposed = true;

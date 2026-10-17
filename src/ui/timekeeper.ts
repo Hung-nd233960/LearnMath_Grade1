@@ -135,6 +135,11 @@ export class Timekeeper {
     this.step();
   }
 
+  /** Count the child as active right now (e.g. while Mèo reads the guide aloud). */
+  touch(): void {
+    if (this.usage) this.usage = noteInput(this.usage, this.deps.now());
+  }
+
   /** Forget the working usage WITHOUT saving it: a backup is about to replace all data. Follow with reload(). */
   discard(): void {
     this.usage = null;

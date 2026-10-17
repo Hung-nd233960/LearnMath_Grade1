@@ -108,6 +108,11 @@
 .overlay .stars { display: flex; gap: 6px; margin-bottom: 14px; }
 .overlay .stars img { width: 54px; }
 .overlay ol { font-size: 21px; line-height: 1.5; padding-left: 26px; margin: 10px 0 20px; }
+.overlay ol li { border-radius: 12px; padding: 1px 8px; margin-left: -8px; transition: background 0.2s; }
+.overlay ol li.now { background: #fff1c2; font-weight: 700; }
+.overlay .guide-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+.overlay .guide-card { width: 760px; }
+.overlay .guide-replay { font-size: 22px; padding: 10px 24px 7px; }
 @keyframes fade { from { opacity: 0; } }
 @keyframes pop { from { transform: scale(0.7); opacity: 0; } }
 

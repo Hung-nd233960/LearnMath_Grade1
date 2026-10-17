@@ -14,9 +14,9 @@ export function hint(r: CheckResult): Speech {
   return say("scale_fix");
 }
 
-export const GUIDE_STEPS = [
-  "Nhìn hai đĩa cân: đĩa nào nặng hơn?",
-  "Xem bảng cân: mỗi loại quả nặng khác nhau (Vòng 1: chỉ cần đếm).",
-  "Kéo quả từ khay vào đĩa nhẹ hơn (hoặc chạm quả rồi chạm đĩa).",
-  "Bấm Xong để thả cân và xem kết quả.",
+export const GUIDE_STEPS: Speech[] = [
+  say("guide_scale_1"),
+  say("guide_scale_2"),
+  say("guide_scale_3"),
+  say("guide_scale_4"),
 ];

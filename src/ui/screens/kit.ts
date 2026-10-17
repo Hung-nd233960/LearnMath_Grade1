@@ -22,7 +22,7 @@ export const kitScreen: ScreenDef = {
     const bar = topbar({
       tier: 2, index: 2, length: 5,
       onBack: () => ctx.go("home"),
-      onInfo: () => showGuide(stage, ["Nhìn kỹ câu hỏi.", "Kéo hoặc chạm để trả lời.", "Bấm Xong khi em chắc chắn."], () => say("guide closed")),
+      onInfo: () => showGuide(stage, ["Nhìn kỹ câu hỏi.", "Kéo hoặc chạm để trả lời.", "Bấm Xong khi em chắc chắn."].map((text) => ({ text, clips: [] })), { onClose: () => say("guide closed") }),
     });
 
     const moods: Mood[] = ["normal", "happy", "think", "sleep", "detective"];

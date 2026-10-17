@@ -200,3 +200,18 @@ describe("Vietnamese numbers and speech", () => {
     expect(say("give_meo", 3, "fruit_cam", "nhe")).toEqual({ text: "Đưa cho Mèo ba quả cam nhé!", clips: ["give_meo", "n3", "fruit_cam", "nhe"] });
   });
 });
+
+describe("guide (i) lines", () => {
+  it("every game has 3-5 spoken steps, each with its own voice clip", () => {
+    for (const g of GAMES) {
+      const steps = g.text.GUIDE_STEPS;
+      expect(steps.length, g.id).toBeGreaterThanOrEqual(3);
+      expect(steps.length, g.id).toBeLessThanOrEqual(5);
+      for (const s of steps) {
+        expect(s.text.length, g.id).toBeGreaterThan(10);
+        expect(s.clips.length, g.id).toBe(1);
+        expect(s.clips[0], g.id).toContain(`guide_`);
+      }
+    }
+  });
+});

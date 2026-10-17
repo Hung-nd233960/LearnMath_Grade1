@@ -48,9 +48,9 @@ export function hint(r: CheckResult, q?: BasketQuestion): Speech {
   return say("basket_too_few", "basket_bag_is_ten");
 }
 
-export const GUIDE_STEPS = [
-  "Nghe Mèo nói cần những quả gì, bao nhiêu quả.",
-  "Kéo quả từ Giỏ của em sang Giỏ của Mèo (hoặc chạm quả rồi chạm giỏ).",
-  "Mỗi túi có 1 chục = 10 quả. 2 chục = 2 túi. 13 quả = 1 túi và 3 quả.",
-  "Đưa đúng số quả: không thừa, không thiếu. Xong thì bấm Xong.",
+export const GUIDE_STEPS: Speech[] = [
+  say("guide_basket_1"),
+  say("guide_basket_2"),
+  say("guide_basket_3"),
+  say("guide_basket_4"),
 ];

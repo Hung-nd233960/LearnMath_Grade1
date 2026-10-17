@@ -107,9 +107,13 @@
 - **Done when:** the settings change behaviour immediately ✔, and an export imported on another browser restores everything ✔ (export → fresh store → import is unit tested; import of a real file is browser tested).
 - **Decision for you:** "+ Thêm bạn" is still on the child picker. Now that the teacher area can add children, you can hide it there once the first child exists (one line in `screens/who.ts`).
 
-## 11. Guide (i) ☐
-- [ ] Card with `GUIDE_STEPS` + voice; auto-show the first time (`seenGuide`) → `markGuideSeen`
-- [ ] (stretch) ghost hand performing `logic.solve()` on a sample question
+## 11. Guide (i) ☑
+- [x] The guide card reads its steps aloud one after another, marking the one being read (`showGuide(stage, steps, { voice, onStep, onClose })` in `overlay.ts`); "Nghe lại" reads them again; closing stops the voice. With no voice (muted, or no clips and no Vietnamese voice on the device) nothing is marked and nothing races through.
+- [x] `GUIDE_STEPS` are now `Speech[]` built from 24 new clips (`guide_<game>_1…4`, group "Hướng dẫn (i)" in the manifest; `docs/AUDIO_SCRIPT.md` regenerated: 121 clips). Numbers are spelled out in the spoken lines.
+- [x] Auto-show the first time a child plays a game (`seenGuide`), marked seen as soon as it opens (`markGuideSeen`); the (i) button opens it any time. Closing it, either way, makes Mèo read the question again.
+- [x] Listening counts as activity (`ctx.time.touch()` at each step), so the 20 s idle nudge does not fire during a long narration.
+- [x] `npm run ui:check`: 339 checks (18 new): first time opens by itself, four steps, marked seen per game, stays closed the second time, (i) reopens it, a child who has seen it is not interrupted, narration order and highlight with a fake voice, closing stops the voice, silent device.
+- [ ] (stretch, not done) the ghost hand performing `logic.solve()` on a sample question, as CLAUDE.md describes. The card is text + voice for now; do this in step 13 if time allows, game by game (robot and scale first: they are the hardest to explain in words).
 
 ## 12. Installable + offline ☐
 - [ ] `public/manifest.webmanifest` (name, icons, `display: fullscreen`, `orientation: landscape`)

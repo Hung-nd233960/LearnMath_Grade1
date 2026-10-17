@@ -153,4 +153,33 @@ Mẹo thu âm:
 | `cmp_hint.mp3` | Bên nào cân hạ xuống là bên nặng hơn. Em đọc từng cân một nhé. |
 | `cmp_ok.mp3` | Thám tử tài ba! |
 
-Tổng cộng: **97** tệp.
+## Hướng dẫn (i)
+
+| Tên tệp | Câu cần đọc |
+| --- | --- |
+| `guide_split_1.mp3` | Nhìn lọ hoa: có hai loại hoa, khác nhau về hình dạng và màu sắc. |
+| `guide_split_2.mp3` | Chạm vào từng bông để đánh dấu, đếm không sót bông nào. |
+| `guide_split_3.mp3` | Số ở trên là tất cả, gồm hai số ở dưới là hai phần. |
+| `guide_split_4.mp3` | Chạm vào ô trống, chọn số trên bàn phím, rồi bấm Xong. |
+| `guide_scale_1.mp3` | Nhìn hai đĩa cân: đĩa nào nặng hơn? |
+| `guide_scale_2.mp3` | Xem bảng cân: mỗi loại quả nặng khác nhau. Ở Vòng một, em chỉ cần đếm. |
+| `guide_scale_3.mp3` | Kéo quả từ khay vào đĩa nhẹ hơn, hoặc chạm quả rồi chạm đĩa. |
+| `guide_scale_4.mp3` | Bấm Xong để thả cân và xem kết quả. |
+| `guide_basket_1.mp3` | Nghe Mèo nói cần những quả gì, bao nhiêu quả. |
+| `guide_basket_2.mp3` | Kéo quả từ giỏ của em sang giỏ của Mèo, hoặc chạm quả rồi chạm giỏ. |
+| `guide_basket_3.mp3` | Mỗi túi là một chục, bằng mười quả. Hai chục là hai túi. Mười ba quả là một túi và ba quả. |
+| `guide_basket_4.mp3` | Đưa đúng số quả, không thừa, không thiếu. Xong thì bấm Xong. |
+| `guide_eq_1.mp3` | Mỗi loại quả là một con số. |
+| `guide_eq_2.mp3` | Ở Vòng một, xem bảng số để biết mỗi quả là số mấy, rồi cộng lại. |
+| `guide_eq_3.mp3` | Khi có manh mối, tìm manh mối chỉ có một loại quả chưa biết và giải nó trước, rồi thay số vào manh mối tiếp theo. |
+| `guide_eq_4.mp3` | Chạm số trên bàn phím để trả lời, rồi bấm Xong. |
+| `guide_robot_1.mp3` | Tìm rô-bốt và lá cờ trên bảng. |
+| `guide_robot_2.mp3` | Chạm các mũi tên để xếp từng bước đi cho rô-bốt. Mỗi mũi tên là một ô. |
+| `guide_robot_3.mp3` | Rô-bốt không đi qua được tường đỏ và ô gạch. |
+| `guide_robot_4.mp3` | Bấm Chạy để xem rô-bốt đi. Sai thì bấm Làm lại. |
+| `guide_cmp_1.mp3` | Mỗi cái cân so sánh hai hộp quà. Các hộp to bằng nhau nhưng nặng khác nhau. |
+| `guide_cmp_2.mp3` | Bên nào cân hạ xuống là bên nặng hơn. |
+| `guide_cmp_3.mp3` | Đọc từng cân để tìm ra manh mối. |
+| `guide_cmp_4.mp3` | Chạm vào hộp đúng, hoặc xếp các hộp từ nhẹ đến nặng rồi bấm Xong. |
+
+Tổng cộng: **121** tệp.

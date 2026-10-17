@@ -10,9 +10,9 @@ export function hint(r: CheckResult): Speech {
   return say("robot_not_there");
 }
 
-export const GUIDE_STEPS = [
-  "Tìm rô-bốt và lá cờ trên bảng.",
-  "Chạm các mũi tên để xếp từng bước đi cho rô-bốt. Mỗi mũi tên là một ô.",
-  "Rô-bốt không đi qua được tường đỏ và ô gạch.",
-  "Bấm Chạy! để xem rô-bốt đi. Sai thì bấm Làm lại.",
+export const GUIDE_STEPS: Speech[] = [
+  say("guide_robot_1"),
+  say("guide_robot_2"),
+  say("guide_robot_3"),
+  say("guide_robot_4"),
 ];

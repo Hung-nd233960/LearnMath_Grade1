@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9) and the teacher area (step 10).
+// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9), the teacher area (step 10) and the guide (step 11).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -219,6 +219,9 @@ await goHash("#/who");
 await shot("ui-5-picker");
 const idOf = (name) => ev(`Object.values(__app.store.data.profiles).find(p => p.name === ${JSON.stringify(name)}).id`);
 const binhId = await idOf("Bình"), anId = await idOf("An");
+// the guide (i) opens by itself the first time a child plays a game: mark it seen here, section 14 tests it
+const markGuidesSeen = (id) => ev(`__app.store.update(d => ({ ...d, profiles: { ...d.profiles, [${JSON.stringify(id)}]: { ...d.profiles[${JSON.stringify(id)}], games: Object.fromEntries(Object.entries(d.profiles[${JSON.stringify(id)}].games).map(([k, g]) => [k, { ...g, seenGuide: true }])) } } }))`);
+await markGuidesSeen(binhId); await markGuidesSeen(anId);
 await click(`.kid[data-profile="${binhId}"]`);
 check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
 const chips = async () => (await ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`)).replace(/còn \d+ phút/, 'còn N phút');
@@ -1319,6 +1322,62 @@ await holdPadlock();
 check("lockout: leaving and coming back does not reset the wait", await ev(`document.querySelector('.pin-pad').classList.contains('disabled')`));
 await click(".t-back .btn-round");
 await sleep(300);
+
+// ---------- 14. guide (i) (step 11) ----------
+const guideOpen = () => ev(`!!document.querySelector('.guide-card')`);
+const seenGuides = () => ev(`JSON.stringify(Object.fromEntries(Object.entries(__app.store.data.profiles[__app.store.data.activeId].games).map(([k, g]) => [k, g.seenGuide])))`);
+await ev(`(() => { const p = __app.store.addProfile('Mới', 'star'); __app.store.setActive(p.id); })()`);
+await goHash("#/home"); await sleep(300);
+check("guide: a new child has not seen any guide", Object.values(JSON.parse(await seenGuides())).every((v) => v === false));
+await ev(`__app.go('play/split')`);
+check("guide: opens by itself the first time a child plays a game", await waitFor(`!!document.querySelector('.guide-card')`, 3000));
+check("guide: four steps, a replay button and an OK button", (await ev(`document.querySelectorAll('.guide-card ol li').length`)) === 4 && await ev(`!!document.querySelector('.guide-replay') && !!document.querySelector('.guide-card .btn-primary')`));
+check("guide: the question behind it is already there", await ev(`!!document.querySelector('.sp')`));
+check("guide: that game is now marked as seen, the others are not", (await seenGuides()) === JSON.stringify({ scale: false, robot: false, basket: false, equations: false, split: true, compare: false }), await seenGuides());
+await shot("ui-14-guide");
+await click(".guide-card .btn-primary");
+check("guide: 'Em hiểu rồi!' closes it", await ev(`!document.querySelector('.overlay')`));
+await ev(`__app.go('home')`); await sleep(300);
+await ev(`__app.go('play/split')`); await sleep(500);
+check("guide: the second time it stays closed", !(await guideOpen()));
+await click(".btn-round.info");
+check("guide: the (i) button opens it any time", await guideOpen());
+await click(".guide-card .btn-primary");
+await ev(`__app.go('play/robot')`);
+check("guide: each game has its own first time (Rô-bốt)", await waitFor(`!!document.querySelector('.guide-card')`, 3000) && (await ev(`document.querySelector('.guide-card ol li').textContent`)).includes("rô-bốt"));
+await click(".guide-card .btn-primary");
+
+// narration: with a fake voice, each step is marked while it is "read", and closing stops the voice
+await ev(`window.__spoken = []; window.__stops = 0; const v = __app.voice; v.__play = v.play.bind(v); v.__stop = v.stop.bind(v);
+  v.play = (s) => { window.__spoken.push(s.clips[0] || ''); return new Promise((r) => setTimeout(r, 600)); };
+  v.stop = () => { window.__stops++; v.__stop(); };`);
+await click(".btn-round.info");
+await sleep(250);
+const lit = () => ev(`[...document.querySelectorAll('.guide-card li')].findIndex(li => li.classList.contains('now'))`);
+check("guide: the first step is marked while it is read", (await lit()) === 0);
+await sleep(650);
+check("guide: then the second", (await lit()) === 1);
+await sleep(650);
+check("guide: then the third", (await lit()) === 2);
+check("guide: the spoken order is the written order", (await ev(`window.__spoken.slice(-3).join(',')`)) === "guide_robot_1,guide_robot_2,guide_robot_3");
+const stops0 = await ev(`window.__stops`);
+await click(".guide-card .btn-primary");
+check("guide: closing it stops the voice", (await ev(`window.__stops`)) > stops0);
+await sleep(1500);
+check("guide: after closing nothing keeps reading", (await ev(`window.__spoken.length`)) <= 5);
+// a muted or voiceless device: no race through the steps, no stuck highlight
+await ev(`__app.voice.play = () => Promise.resolve()`);
+await click(".btn-round.info");
+await sleep(500);
+check("guide: with no voice nothing is highlighted", (await lit()) === -1);
+await click(".guide-card .btn-primary");
+await ev(`__app.voice.play = __app.voice.__play; __app.voice.stop = __app.voice.__stop`);
+// a child who has seen the guide is not interrupted
+await ev(`__app.store.setActive(${JSON.stringify(anId)})`);
+await ev(`__app.go('home')`); await sleep(300);
+await ev(`__app.go('play/split')`); await sleep(600);
+check("guide: a child who has seen it is not interrupted", !(await guideOpen()) && await ev(`!!document.querySelector('.sp')`));
+await ev(`__app.go('home')`); await sleep(200);
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 

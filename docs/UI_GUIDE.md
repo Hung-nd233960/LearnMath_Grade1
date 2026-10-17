@@ -55,7 +55,7 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `mascot.ts` | `mascot(mood)` → `<div class="meo">` (moods: normal, happy, think, sleep, detective); `setMood(el, mood)`. Size it with CSS on `.meo`. |
 | `svgDefs.ts` | Gradients `#brass`, `#brassV`, `#bowlG`, `#wood`, `#ceramic` for `fill="url(#brass)"`. Already injected by `startApp`. |
 | `topbar.ts` | `topbar({ tier, index, length, onBack, onInfo? })` → `{ el, setProgress(tier, index, length) }`. Also `speakerButton()` (use it on the home screen too) and `backButton()`. |
-| `overlay.ts` | `showFeedback(stage.el, { kind: "correct" or "retry" or "reveal", title, message?, stars?, button?, onClose? })` (plays the win/oops sound, confetti on correct), `showGuide(stage.el, steps, onClose?)`, `openOverlay(stage.el, card, onClose?)`. Any element inside with `data-close` closes it. |
+| `overlay.ts` | `showFeedback(stage.el, { kind: "correct" or "retry" or "reveal", title, message?, stars?, button?, onClose? })` (plays the win/oops sound, confetti on correct), `showGuide(stage.el, steps: Speech[], { voice?, onStep?, onClose? })` (reads each step aloud and marks it; the play screen opens it by itself the first time), `openOverlay(stage.el, card, onClose?)`. Any element inside with `data-close` closes it. |
 | `effects.ts` | `confetti(stage.el)`, `sparkle(stage.el, element, count?, distance?)`. Both do nothing when "Pháo hoa" is off. |
 | `fx.ts` | `fxOn("anim" / "decor" / "celebrate" / "sfx")`: reads the class on `<html>`. |
 | `dragTap.ts` | `dragTap({ root: screen, onMove(item, zone) })` → cleanup. Items have `data-item` (fixed ones also `data-fixed`), places have `data-zone`. You move the element in `onMove`. Plays pick/drop sounds and sparkles on drop. |

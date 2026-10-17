@@ -46,5 +46,5 @@ export interface GameText<Q> {
   /** Hint after a wrong try, or praise detail after a right one. */
   hint(result: CheckResult, question: Q): import("../i18n/speech.ts").Speech;
   /** Steps of the guide (i), shown/read the first time a child opens the game. */
-  GUIDE_STEPS: string[];
+  GUIDE_STEPS: import("../i18n/speech.ts").Speech[];
 }

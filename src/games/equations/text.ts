@@ -13,9 +13,9 @@ export function hint(r: CheckResult): Speech {
   return r.reason === "wrongChain" ? say("eq_hint_first") : say("eq_hint_add");
 }
 
-export const GUIDE_STEPS = [
-  "Mỗi loại quả là một con số.",
-  "Vòng 1: xem Bảng số để biết mỗi quả là số mấy, rồi cộng lại.",
-  "Có manh mối: tìm manh mối chỉ có một loại quả chưa biết và giải nó trước, rồi thay số vào manh mối tiếp theo.",
-  "Chạm số trên bàn phím để trả lời, rồi bấm Xong.",
+export const GUIDE_STEPS: Speech[] = [
+  say("guide_eq_1"),
+  say("guide_eq_2"),
+  say("guide_eq_3"),
+  say("guide_eq_4"),
 ];
