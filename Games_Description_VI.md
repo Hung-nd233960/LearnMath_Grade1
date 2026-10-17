@@ -201,15 +201,14 @@ Một dạng về sau dùng **hình khối**: hình tam giác nặng 3, hình vu
 
 Khoảng một phần ba số câu của Vòng 2 trở lên là câu tròn chục.
 
-- **10 quả lẻ cũng được tính là 1 chục** và vẫn được chấp nhận. Khi đó Mèo nói: "10 quả lẻ cũng là 1 chục đấy! Lần sau em thử đưa cả túi cho nhanh nhé."
 - **Khi trả lời đúng**, Mèo nói số lượng theo cả hai cách, ví dụ "Hai chục là 20 quả cam" hoặc "Một chục và 3 quả là 13 quả cam."
 - **Khi trả lời sai**, gợi ý nhắc em rằng mỗi túi là 1 chục = 10 quả.
 - **Trong bảng hình**, mỗi chục được vẽ thành một túi nhỏ ghi "10", nên bảng hình cũng dùng cùng ý tưởng.
-- **Giỏ luôn có đủ quả lẻ** (ít nhất 10 quả) để em có thể tự gom thành một chục.
+- **Giỏ của em không bao giờ có 10 quả lẻ.** Giỏ có từ 2 đến 9 quả lẻ (luôn đủ cho phần "lẻ") và 2 túi, nên muốn có một chục em phải lấy một túi, không thể đếm ra 10 quả lẻ.
 
 **Nếu em không nghe được (hoặc chưa hiểu).**
 
-- **Bảng chữ và hình** hiện lời yêu cầu (ví dụ "🍊🍊🍊"). Bảng **luôn hiện khi tắt tiếng**; khi bật tiếng, bảng hiện ra sau **hai lần thử sai**.
+- **Bảng chữ và hình** hiện lời yêu cầu (ví dụ "3 🍊": con số kèm hình, để em đọc chữ còn chậm vẫn đọc được số; ở Vòng 2 có thêm các túi bên dưới, ví dụ "[10] + 3 🍊"). Bảng **luôn hiện khi tắt tiếng**; khi bật tiếng, bảng hiện ra sau **lần thử sai đầu tiên**, trước khi em thử lại.
 - Nút **"nghe lại"** đọc lại yêu cầu bất cứ lúc nào.
 
 **Số đếm trên giỏ.** Ở Vòng 1, mỗi giỏ hiện số quả đang có và cập nhật khi em chuyển quả, giúp em gắn số lượng với con số. Từ Vòng 2, số đếm được ẩn đi để em tự đếm.

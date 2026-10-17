@@ -59,9 +59,13 @@
 - **Done when:** a set plays at every tier via `#/dev/equations/<t>/<s>/<seed>`. ✔ checked in a real browser.
 - **Notes:** the view reuses `createNumpad`, `setBox`, `boxValue`, the `answer-box` right/wrong styles and the shake-on-empty pattern from the split view. If a third game needs the same "empty box → shake + `pick_number`" code, move it into a shared helper.
 
-## 5. Giỏ trái cây ☐
-- [ ] `src/ui/games/basket.ts`: two teal baskets, fruit + bags of 10 (`dragTap`), counts (tier 1 only), picture panel (muted, or after 2 wrong), `tensReading` praise
-- **Done when:** tier 2 shows all three phrasings (try different seeds); 10 loose oranges are accepted with the tip.
+## 5. Giỏ trái cây ☑
+- [x] `src/ui/games/basket.ts` (+ `basket.css`): Mèo's speech bubble, two teal baskets, fruit and bags of ten moved by drag or tap-then-tap, live counts (Vòng 1 only), the picture panel, red/green outline on Mèo's basket, reveal that moves the right fruit across; `ready: true`
+- [x] View contract extended: `GameView.ownPrompt` (the play loop hides its prompt bar) and `GameViewApi.prompt / replayPrompt() / wrongTries()`. Shared drawings moved to `ui/games/art.ts` (basket, table).
+- [x] After a correct Vòng 2 answer Mèo names the amount both ways, shown AND spoken ("Hai chục là 20 quả cam" / "Một chục và 3 quả là 13 quả cam") from recorded clips; one new clip `la` ("là") was added, `docs/AUDIO_SCRIPT.md` regenerated (97 clips)
+- [x] `npm run ui:check` has 148 checks: tap and drag moving, live counts, sound off → panel (number + picture), a whole set with bags, too many → retry + panel, empty basket twice → reveal, dev route: the basket holds 2–9 loose oranges and all of them together are still too few for a chục, one bag accepted, "không quả …" is right with an empty basket and wrong with a fruit, "Giải"
+- **Done when:** tier 2 shows all three phrasings; a chục can only be made with a bag. ✔ checked in a real browser.
+- **Decision to confirm:** the picture panel appears after the **first** wrong try (or whenever sound is off), not after two. A child gets one retry, so "after 2 wrong tries" would only be the reveal, too late to help. Change `syncPanel` in `basket.ts` if the teachers disagree.
 
 ## 6. Cái cân ☐
 - [ ] `src/ui/games/scale.ts`: brass scale, live tilt (tier 1) / padlock until Xong (tier 2+), counts + `compareSign` (tier 1), weight key, tray drag

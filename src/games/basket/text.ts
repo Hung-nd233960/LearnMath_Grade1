@@ -28,8 +28,22 @@ export function tensReading(q: BasketQuestion): string | null {
   return `${head} là ${total} quả cam.`;
 }
 
-export function hint(r: CheckResult): Speech {
-  if (r.correct) return r.reason === "looseTen" ? say("basket_ok", "basket_loose_ten") : say("basket_ok");
+/** The same reading as voice clips: "hai chục là hai mươi quả cam". */
+function tensReadingClips(q: BasketQuestion) {
+  const t = q.tens!;
+  const parts: SpeechPart[] = [t.tens, "chuc"];
+  if (t.ones) parts.push("va", t.ones, "qua");
+  parts.push("la", t.tens * 10 + t.ones, FRUIT_CLIP.tangerine);
+  return say(...parts).clips;
+}
+
+/** Hint after a wrong try, or the praise detail after a right one (tier 2 adds the "chục" reading, shown and spoken). */
+export function hint(r: CheckResult, q?: BasketQuestion): Speech {
+  if (r.correct) {
+    const base = r.reason === "looseTen" ? say("basket_ok", "basket_loose_ten") : say("basket_ok");
+    if (!q?.tens) return base;
+    return { text: `${base.text} ${tensReading(q)}`, clips: [...base.clips, ...tensReadingClips(q)] };
+  }
   if (r.reason === "tooMany") return say("basket_too_many");
   return say("basket_too_few", "basket_bag_is_ten");
 }

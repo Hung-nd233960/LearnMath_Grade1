@@ -5,7 +5,7 @@ import { CLIPS } from "../src/audio/manifest.ts";
 import { fromIndex } from "../src/core/difficulty.ts";
 import { createRng } from "../src/core/rng.ts";
 import type { Position } from "../src/core/types.ts";
-import { basketLogic, BAG_SIZE } from "../src/games/basket/logic.ts";
+import { basketLogic, BAG_SIZE, MAX_LOOSE, MIN_LOOSE } from "../src/games/basket/logic.ts";
 import * as basketText from "../src/games/basket/text.ts";
 import { compareLogic } from "../src/games/compare/logic.ts";
 import { countSolutions, equationsLogic, isChainSolvable } from "../src/games/equations/logic.ts";
@@ -71,17 +71,29 @@ describe("robot", () => {
 });
 
 describe("basket", () => {
-  it("tier 2 covers whole tens, plain ten, tens+ones; at least 10 loose", () => {
+  it("tier 2 covers whole tens, plain ten, tens+ones; fewer than 10 loose, enough for the ones", () => {
     const kinds = new Set<string>();
     for (let s = 1; s < 300; s++) {
       const q = basketLogic.generate({ tier: 2, step: 0 }, createRng(s));
       kinds.add(q.tens!.kind);
-      expect(q.loose.tangerine).toBeGreaterThanOrEqual(10);
+      expect(q.loose.tangerine!).toBeLessThan(10);
+      expect(q.loose.tangerine!).toBeGreaterThanOrEqual(Math.max(2, q.tens!.ones));
       expect(q.want.tangerine).toBe(q.tens!.tens * BAG_SIZE + q.tens!.ones);
     }
     expect(kinds).toEqual(new Set(["wholeTens", "plainTen", "tensOnes"]));
   });
-  it("ten loose oranges count as one chục", () => {
+  it("the child's basket never holds ten loose fruit of a kind (at least 2 each), and the answer is always reachable", () => {
+    each((p, sd) => basketLogic.generate(p, createRng(sd)), (q) => {
+      for (const n of Object.values(q.loose)) {
+        expect(n).toBeGreaterThanOrEqual(MIN_LOOSE);
+        expect(n).toBeLessThanOrEqual(MAX_LOOSE);
+      }
+      const solution = basketLogic.solve!(q);
+      expect(solution.bags).toBeLessThanOrEqual(q.bags);
+      for (const [k, n] of Object.entries(solution.loose)) expect(n).toBeLessThanOrEqual(q.loose[k as keyof typeof q.loose] ?? 0);
+    });
+  });
+  it("a ten made of loose fruit is still accepted if it ever happens (safety net; unreachable in play)", () => {
     const q = { want: { tangerine: 10 }, order: ["tangerine"], loose: { tangerine: 12 }, bags: 2, tens: { kind: "wholeTens", tens: 1, ones: 0 }, showCounts: false } as const;
     const r = basketLogic.check({ ...q, order: ["tangerine"], want: { ...q.want }, loose: { ...q.loose }, tens: { ...q.tens } }, { loose: { tangerine: 10 }, bags: 0 });
     expect(r.correct).toBe(true);
@@ -95,6 +107,23 @@ describe("basket", () => {
     expect(basketText.prompt({ order: ["tangerine", "red_apple"], loose: {}, bags: 0, showCounts: false, want: { tangerine: 2, red_apple: 3 }, tens: null }).text)
       .toBe("Đưa cho Mèo hai quả cam và ba quả táo nhé!");
     expect(basketText.tensReading({ order: ["tangerine"], loose: {}, bags: 2, showCounts: false, want: { tangerine: 20 }, tens: { kind: "wholeTens", tens: 2, ones: 0 } })).toBe("Hai chục là 20 quả cam.");
+  });
+});
+
+describe("basket: the chục reading is spoken as well as shown", () => {
+  const base = { order: ["tangerine" as const], loose: {}, bags: 2, showCounts: false };
+  const ok = { correct: true, reason: "exact" };
+  it("whole tens: hai chục là hai mươi quả cam", () => {
+    const h = basketText.hint(ok, { ...base, want: { tangerine: 20 }, tens: { kind: "wholeTens", tens: 2, ones: 0 } });
+    expect(h.text).toBe("Mèo nhận đủ rồi. Cảm ơn em nhé! Hai chục là 20 quả cam.");
+    expect(h.clips).toEqual(["basket_ok", "n2", "chuc", "la", "n20", "fruit_cam"]);
+  });
+  it("tens and ones: một chục và ba quả là mười ba quả cam", () => {
+    const h = basketText.hint(ok, { ...base, want: { tangerine: 13 }, tens: { kind: "tensOnes", tens: 1, ones: 3 } });
+    expect(h.clips).toEqual(["basket_ok", "n1", "chuc", "va", "n3", "qua", "la", "n13", "fruit_cam"]);
+  });
+  it("no reading outside tier 2", () => {
+    expect(basketText.hint(ok, { ...base, want: { tangerine: 3 }, tens: null }).clips).toEqual(["basket_ok"]);
   });
 });
 

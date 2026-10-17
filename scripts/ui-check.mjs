@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3) and Tính theo hình (step 4).
+// then plays whole sets of Mấy và mấy (step 3), Tính theo hình (step 4) and Giỏ trái cây (step 5).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -222,7 +222,7 @@ await click(`.kid[data-profile="${binhId}"]`);
 check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
 const chips = () => ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`);
 check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn 30 phút", await chips());
-check("home: six tiles; only the finished games are playable (2 so far)", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 4 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
+check("home: six tiles; only the finished games are playable (3 so far)", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 3 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Tính theo hình,Mấy và mấy,So sánh cân'`));
 check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
 check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
 await shot("ui-5-home");
@@ -490,6 +490,157 @@ const eq3 = await readEq();
 await click("#dev-solve");
 await sleep(1500);
 check("dev route: 'Giải' fills the one correct answer", (await ev(`document.querySelector('#eq-answer').dataset.v`)) === String([...solveEq(eq3)][0]) && (await ev(`!!document.querySelector('#eq-answer.right')`)));
+
+// ---------- 8. Giỏ trái cây (step 5) ----------
+const readBasket = () => ev(`(() => {
+  const a = document.querySelector('.bk-ask');
+  return { want: JSON.parse(a.dataset.want), tens: a.dataset.tens, tier: document.querySelector('.tier-badge').textContent, prompt: a.querySelector('.bubble span').textContent };
+})()`);
+const tallyOf = (sideName) => ev(`(() => { const t = {}; document.querySelectorAll('.bk-basket.${sideName} [data-item]').forEach(i => { t[i.dataset.k] = (t[i.dataset.k] || 0) + Number(i.dataset.n); }); return t; })()`);
+const bagCount = (sideName) => ev(`document.querySelectorAll('.bk-basket.${sideName} [data-bag]').length`);
+/** Tap a fruit (or bag) in the child's basket, then tap Mèo's basket: the tap-then-tap way of moving. */
+const give = async (selector) => { await click(`.bk-basket.L ${selector}`); await click(".bk-basket.R"); };
+const giveAmount = async (want, { bags = true } = {}) => {
+  for (const [kind, n] of Object.entries(want)) {
+    let left = n;
+    if (kind === "tangerine" && bags) while (left >= 10 && (await bagCount("L")) > 0) { await give(".bk-bag"); left -= 10; }
+    for (let i = 0; i < left; i++) await give(`.bk-fruit[data-k="${kind}"]`);
+  }
+};
+const basketReady = () => waitFor(`!document.querySelector('.overlay') && !!document.querySelector('.bk-ask') && !document.querySelector('.bk-basket.right, .bk-basket.wrong')`);
+
+await ev(`location.hash = '#/home'`); await sleep(400);
+await click(".tile[data-game=basket]");
+await basketReady();
+await shot("ui-8-basket-first");
+check("basket: Mèo's bubble with the request replaces the prompt bar", await ev(`!!document.querySelector('.bk-ask .bubble') && document.querySelector('.prompt').hidden === true && document.querySelector('.bk-ask .bubble span').textContent.startsWith('Đưa cho Mèo')`));
+check("basket: two baskets, the child's holds fruit, Mèo's is empty", (await ev(`document.querySelectorAll('.bk-basket.L .bk-fruit').length`)) > 0 && (await ev(`document.querySelectorAll('.bk-basket.R [data-item]').length`)) === 0);
+check("basket: the picture panel is hidden at first", await ev(`!document.querySelector('.bk-panel.show')`));
+
+// Vòng 1 shows live counts that follow the fruit
+let b = await readBasket();
+const kind1 = Object.keys(b.want)[0];
+const stock = (await tallyOf("L"))[kind1];
+await give(`.bk-fruit[data-k="${kind1}"]`);
+check("Vòng 1: each basket shows a live count that follows the fruit", (await ev(`document.querySelector('.bk-basket.R .bk-counts').textContent.trim()`)) === "1" && (await ev(`document.querySelector('.bk-basket.L .bk-counts').textContent.trim()`)) === String(stock - 1));
+// moving it back works too (tap it in Mèo's basket, then tap the child's basket)
+await click(".bk-basket.R [data-item]");
+await click(".bk-basket.L");
+check("a fruit can be moved back", (await ev(`document.querySelectorAll('.bk-basket.R [data-item]').length`)) === 0);
+// drag with the mouse also works
+const [dx1, dy1] = await center(`.bk-basket.L .bk-fruit[data-k="${kind1}"]`);
+const [dx2, dy2] = await center(".bk-basket.R");
+await mouse("mousePressed", dx1, dy1);
+for (let i = 1; i <= 6; i++) { await mouse("mouseMoved", dx1 + ((dx2 - dx1) * i) / 6, dy1 + ((dy2 - dy1) * i) / 6); await sleep(16); }
+await mouse("mouseReleased", dx2, dy2); await sleep(100);
+check("a fruit can be dragged to Mèo's basket", (await ev(`document.querySelectorAll('.bk-basket.R [data-item]').length`)) === 1);
+await click(".bk-basket.R [data-item]"); await click(".bk-basket.L"); // put it back
+
+// muting the sound shows the request in pictures
+await click(".speaker");
+check("sound off: the panel shows the number with its picture", (await ev(`!!document.querySelector('.bk-panel.show') && document.querySelectorAll('.bk-panel img').length >= 1`)) && (await ev(`document.querySelector('.bk-panel .num').textContent`)) === String(b.want[kind1]));
+await shot("ui-8-basket-panel");
+await click(".speaker");
+check("sound on again: the panel goes away", await ev(`!document.querySelector('.bk-panel.show')`));
+
+// --- set 1: all correct (bags used for tens) ---
+const bTiers = [];
+let sawTensReading = false, usedBag = false;
+for (let i = 0; i < 5; i++) {
+  b = await readBasket();
+  bTiers.push(b.tier);
+  await giveAmount(b.want);
+  if (b.tens) usedBag = usedBag || (await bagCount("R")) > 0;
+  await click("#xong");
+  const kind = await overlayKind();
+  check(`basket set, question ${i + 1}: exact amount is praised`, kind === "correct", kind + " " + JSON.stringify(b.want));
+  if (b.tens) sawTensReading = sawTensReading || /chục.* là \d+ quả cam/.test(await ev(`document.querySelector('.overlay p').textContent`));
+  if (i === 1) await shot("ui-8-basket-feedback");
+  await closeOverlay();
+  if (i < 4) await basketReady();
+}
+check("basket: starts at Vòng 1 and rises", bTiers[0] === "Vòng 1" && bTiers[1] === "Vòng 2", bTiers.join());
+check("basket: Vòng 2 praise names the amount both ways (…chục … là N quả cam)", sawTensReading);
+check("basket: tens were given as bags", usedBag);
+check("basket: star screen, 3 stars; set saved", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await ev(`document.querySelectorAll('.star-row img:not(.dim)').length`)) === 3 && (await profileOf(anId)).games.basket.sets === 1);
+await click("#back-home");
+
+// --- set 2: too many → retry with the picture panel; then reveal ---
+await click(".tile[data-game=basket]");
+await basketReady();
+b = await readBasket();
+await giveAmount(b.want);
+const extraKind = Object.keys(b.want)[0];
+await give(`.bk-fruit[data-k="${extraKind}"]`); // one too many
+await click("#xong");
+check("one too many: retry card says there are too many", (await overlayKind()) === "retry" && /nhiều quá/.test(await ev(`document.querySelector('.overlay p').textContent`)));
+await closeOverlay();
+check("after a wrong try the picture panel appears (even with sound on)", await ev(`!!document.querySelector('.bk-panel.show')`));
+await shot("ui-8-basket-retry");
+await click(".bk-basket.R [data-item]"); await click(".bk-basket.L"); // take one back
+await click("#xong");
+check("fixed after the retry: praised", (await overlayKind()) === "correct");
+await closeOverlay();
+await basketReady();
+// question 2: wrong twice → reveal moves the right fruit across
+b = await readBasket();
+await click("#xong"); // empty basket is wrong unless the request is zero
+const k2 = await overlayKind();
+await closeOverlay();
+if (k2 === "retry") {
+  await click("#xong");
+  check("empty basket twice: the answer is revealed", (await overlayKind()) === "reveal");
+  const tr = await tallyOf("R");
+  const sum = (o) => Object.entries(o).filter(([, v]) => v > 0).map(([k, v]) => `${k}:${v}`).sort().join();
+  check("reveal puts exactly the requested fruit in Mèo's basket", sum(tr) === sum(b.want), `${sum(tr)} vs ${sum(b.want)}`);
+  await closeOverlay();
+}
+await ev(`location.hash = '#/home'`); await sleep(300);
+
+// --- dev route: tens rules and the empty-basket question ---
+const devSeedWhere = async (tier, step, pred, max = 80) => {
+  for (let sd = 1; sd <= max; sd++) {
+    await ev(`location.hash = '#/dev/basket/${tier}/${step}/${sd}'`);
+    await waitFor(`!!document.querySelector('#dev-status') && document.querySelector('#dev-status').textContent.includes('seed ${sd}') && !!document.querySelector('.bk-ask')`);
+    const r = await readBasket();
+    if (pred(r)) return sd;
+  }
+  return null;
+};
+const seedTen = await devSeedWhere(2, 0, (r) => r.tens === "wholeTens" && r.want.tangerine === 10);
+check("dev: found a 'một chục' question", seedTen !== null);
+const looseCount = await ev(`document.querySelectorAll('.bk-basket.L .bk-fruit').length`);
+check("dev: the child's basket holds 2 to 9 loose oranges, never ten (a chục must come from a bag)", looseCount >= 2 && looseCount <= 9 && (await bagCount("L")) === 2, String(looseCount));
+for (let i = 0; i < looseCount; i++) await give('.bk-fruit[data-k="tangerine"]');
+await click("#xong");
+check("dev: every loose orange together is still too few for a chục", await waitFor(`document.querySelector('#dev-status').textContent === '✘ tooFew'`));
+await ev(`__app.go('dev/basket/2/0/${seedTen}')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 2')`); await sleep(300);
+await give(".bk-bag");
+await click("#xong");
+check("dev: one bag is accepted as one chục", await waitFor(`document.querySelector('#dev-status').textContent === '✔ exact'`));
+const seedZero = await devSeedWhere(3, 2, (r) => Object.values(r.want).every((v) => v === 0), 120);
+check("dev: found a 'không quả …' question", seedZero !== null);
+if (seedZero !== null) {
+  await click("#xong");
+  check("dev: giving nothing is right when Mèo asks for none", await waitFor(`document.querySelector('#dev-status').textContent === '✔ exact'`));
+  await ev(`__app.go('dev/basket/3/2/${seedZero}')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 3')`); await sleep(300);
+  await give('.bk-fruit');
+  await click("#xong");
+  check("dev: giving one anyway is too many", await waitFor(`document.querySelector('#dev-status').textContent === '✘ tooMany'`));
+}
+await ev(`__app.go('dev/basket/2/1/5')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('seed 5')`); await sleep(300);
+const bd = await readBasket();
+await click("#dev-solve");
+await sleep(2500);
+const trd = await tallyOf("R");
+check("dev: 'Giải' moves exactly the requested amount across", Object.entries(bd.want).every(([k, v]) => (trd[k] ?? 0) === v), JSON.stringify(trd) + JSON.stringify(bd.want));
+
+// the panel in Vòng 2 also shows the bags
+await ev(`__app.go('dev/basket/2/1/3')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('seed 3')`); await sleep(300);
+await click(".speaker");
+check("Vòng 2 panel: the number, and the bags with the ones underneath", (await ev(`!!document.querySelector('.bk-panel.show .row.sub .bk-minibag')`)) && /^\d+$/.test(await ev(`document.querySelector('.bk-panel .num').textContent`)));
+await shot("ui-8-basket-panel-t2");
+await click(".speaker");
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 

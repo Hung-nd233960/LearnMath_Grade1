@@ -91,7 +91,7 @@ interface GameView<Q, A> {
    2. It mounts the view with `runner.question`.
    3. When the view submits, it calls `runner.answer(a)` and gets a `{ outcome, result }`.
    4. It calls `view.playResult(fb)`, then shows the feedback:
-      - `correct` / `correctOnRetry`: praise plus `text.hint(result)` (for example basket's "10 quả lẻ cũng là 1 chục")
+      - `correct` / `correctOnRetry`: praise plus `text.hint(result)` (for example basket's "Hai chục là 20 quả cam")
       - `retry`: `text.hint(result)`, and the child tries again
       - `reveal`: `view.reveal(runner.solution())`, then continue
    5. It calls `runner.next()`.

@@ -69,6 +69,7 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `screens/stars.ts` | End-of-set screen; reads `ctx.lastSet` (set by `play.ts`, cleared when you leave). |
 | `screens/dev.ts` | Dev-only `#/dev/<id>/<tier>/<step>/<seed>`: one deterministic question + a "Giải" button. |
 | `games/types.ts`, `games/index.ts` | The `GameView` contract and the `VIEWS` registry. |
+| `games/basket.ts`, `games/art.ts` | The Giỏ trái cây screen: the model for views that draw their own prompt (`ownPrompt`), move items with `dragTap`, and react to wrong tries / the mute switch. `art.ts` holds SVG drawings shared by several games. |
 | `games/equations.ts` | The Tính theo hình screen (second game screen; simpler than split, a good second example). |
 | `games/split.ts`, `games/bond.ts`, `games/splitLayout.ts` | The first game screen (Mấy và mấy): the model for the others. `bond.ts` is the number-bond widget; `splitLayout.ts` is pure and tested. |
 | `screens/addProfile.ts` | `openAddProfile(ctx, onAdded)`: the "Thêm bạn mới" form (name + picture). Reuse it in the teacher area. |
@@ -128,8 +129,8 @@ Per game, the question fields to draw and the answer to submit:
 | compare | `items`, `weighings` (mini brass scales), `mode`, `BOXES[box].hue` | box or `Box[]` (order) | compare.html |
 
 Extra notes:
-- **Picture panel (basket):** show it when `settings.muted`, or after 2 wrong tries on the same question. The game screen counts tries and passes a flag.
-- **Tier 2 tens wording (basket):** after a correct answer, add `text.tensReading(q)` to the praise.
+- **Picture panel (basket):** shown when `settings.muted`, or after the first wrong try. The view reads `api.wrongTries()` and subscribes to the store for mute changes (`basket.ts`).
+- **Tier 2 tens wording (basket):** done inside `text.hint(result, q)`, which returns the praise detail with the reading as both text and clips; the play loop needs no special case.
 - **Guide (i):**
   - First version: a card with `text.GUIDE_STEPS`, read aloud.
   - Show it automatically when `profile.games[id].seenGuide` is false, then call `markGuideSeen`.

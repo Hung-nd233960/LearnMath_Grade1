@@ -42,9 +42,11 @@ export const playScreen: ScreenDef = {
     let promptSpeech: Speech = say();
     let answering = false;
     let disposed = false;
+    let wrongTries = 0;
 
     const body = h("div", { class: "game-body" });
     const promptText = h("span");
+    const promptBar = h("div", { class: "prompt" }, promptText);
     const replay = h("button", { class: "replay", title: STR.replay, onclick: () => void ctx.voice.play(promptSpeech) });
     replay.innerHTML = ICON.replay;
     const bar = topbar({
@@ -54,7 +56,8 @@ export const playScreen: ScreenDef = {
       onBack: () => ctx.go("home"), // leaving early: the unfinished set is not saved
       onInfo: () => showGuide(ctx.stage.el, game.text.GUIDE_STEPS),
     });
-    screen.append(body, h("div", { class: "prompt" }, promptText, replay), bar.el);
+    promptBar.append(replay);
+    screen.append(body, promptBar, bar.el);
 
     const startQuestion = () => {
       view?.unmount();
@@ -62,14 +65,19 @@ export const playScreen: ScreenDef = {
       const q = runner.question;
       const pos = runner.position;
       view = makeView();
+      wrongTries = 0;
       promptSpeech = game.text.prompt(q, pos);
       promptText.textContent = promptSpeech.text;
+      promptBar.hidden = !!view.ownPrompt;
       bar.setProgress(pos.tier, runner.progress.index, runner.progress.length);
       view.mount(body, q, {
         ctx,
         pos,
         speak: (s) => void ctx.voice.play(s),
         submit: (answer) => void onSubmit(answer),
+        prompt: promptSpeech,
+        replayPrompt: () => void ctx.voice.play(promptSpeech),
+        wrongTries: () => wrongTries,
       });
       answering = true;
       void ctx.voice.play(promptSpeech);
@@ -89,6 +97,7 @@ export const playScreen: ScreenDef = {
       await view.playResult?.(fb);
       if (disposed) return;
 
+      if (fb.outcome === "retry" || fb.outcome === "reveal") wrongTries++;
       if (fb.outcome === "retry") {
         card("retry", STR.almost, hint.text, say("try_again", hint), () => {
           view?.reset?.();

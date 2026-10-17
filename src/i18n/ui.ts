@@ -45,6 +45,10 @@ export const STR = {
   eqClue: (n: number) => `Manh mối ${n}`,
   eqQuestion: "Câu hỏi",
 
+  and: "và",
+  basketMine: "Giỏ của em",
+  basketMeo: "Giỏ của Mèo",
+
   // home
   changeKid: "Đổi bạn chơi",
   greeting: (name: string) => `Chào thám tử nhí ${name}!`,

@@ -39,18 +39,27 @@ export const devScreen: ScreenDef = {
     const body = h("div", { class: "game-body" });
     const replay = h("button", { class: "replay", onclick: () => void ctx.voice.play(prompt) });
     replay.innerHTML = ICON.replay;
+    let wrong = 0;
     const bar = topbar({ tier, index: 0, length: 5, onBack: () => ctx.go("home") });
-    screen.append(body, h("div", { class: "prompt" }, h("span", null, prompt.text), replay), bar.el, h("div", { class: "dev-bar" }, status, solveButton));
+    const promptBar = h("div", { class: "prompt" }, h("span", null, prompt.text), replay);
+    promptBar.hidden = !!view.ownPrompt;
+    screen.append(body, promptBar, bar.el, h("div", { class: "dev-bar" }, status, solveButton));
 
     view.mount(body, q, {
       ctx,
       pos,
       speak: (s) => void ctx.voice.play(s),
+      prompt,
+      replayPrompt: () => void ctx.voice.play(prompt),
+      wrongTries: () => wrong,
       submit: async (answer) => {
         const result = meta.logic.check(q, answer);
         status.textContent = `${result.correct ? "✔" : "✘"} ${result.reason}`;
         await view.playResult?.({ outcome: result.correct ? "correct" : "retry", result, canContinue: result.correct });
-        if (!result.correct) view.reset?.();
+        if (!result.correct) {
+          wrong++;
+          view.reset?.();
+        }
       },
     });
     solveButton.addEventListener("click", async () => {

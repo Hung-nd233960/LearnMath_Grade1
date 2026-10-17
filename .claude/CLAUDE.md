@@ -127,8 +127,8 @@ Build these once, in the shell: the drag/tap system, the number pad (0–20), th
   - whole tens ("một chục / hai chục quả cam" → 1 or 2 bags; about a third or more of the questions)
   - the same amount by its other name ("mười quả cam" → 1 bag)
   - tens and ones ("mười ba quả cam" → 1 bag + 3)
-- **Checking tens:** 10 loose oranges are accepted as 1 chục, with a tip to use the bag. Success messages name the amount both ways ("Hai chục là 20 quả cam"). The basket always holds at least 10 loose oranges. Implemented in `mockup/v2/basket.html` (`&q=0..4` picks a bank item for review).
-- **Text panel:** always shown when sound is off; otherwise appears after 2 wrong tries. Always include a "nghe lại" (hear again) button.
+- **Checking tens:** the child's basket always holds **2 to 9 loose fruit of a kind** (`MIN_LOOSE` / `MAX_LOOSE` in `basket/logic.ts`), never ten or more, so a chục can only come from a bag; a Vòng 2 basket also holds 2 bags. Success messages name the amount both ways ("Hai chục là 20 quả cam"), shown and spoken. The "10 loose oranges are accepted" branch (`looseTen`) stays in `check()` as a safety net but cannot happen in play.
+- **Text panel:** always shown when sound is off; otherwise appears after the first wrong try (the child gets one retry, so "after 2" would only be the reveal). Always include a "nghe lại" (hear again) button.
 - Teacher to confirm the Vietnamese counting words (quả cam, chùm nho?…).
 
 ### 4. Fruit equations

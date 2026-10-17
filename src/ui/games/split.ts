@@ -10,6 +10,7 @@ import { sentence } from "../../games/split/text.ts";
 import { emoji, h, html, wait } from "../dom.ts";
 import { ICON } from "../icons.ts";
 import { boxValue, createNumpad, setBox, type Numpad } from "../numpad.ts";
+import { BASKET_ART, TABLE_ART } from "./art.ts";
 import { createBond, type Bond } from "./bond.ts";
 import { basketSpots, ITEM, vaseSpots } from "./splitLayout.ts";
 import type { GameView } from "./types.ts";
@@ -30,14 +31,6 @@ const VASE_ART = `<defs><clipPath id="vaseClip"><path d="M188 412 Q186 438 156 4
   <path d="M188 412 Q186 438 156 456 Q110 484 114 524 Q118 560 176 570 H284 Q342 560 346 524 Q350 484 304 456 Q274 438 272 412 Z" fill="none" stroke="#1e2a4a" stroke-width="4.5" stroke-linejoin="round"/>
   <ellipse cx="230" cy="410" rx="54" ry="13" fill="#3d97bf" stroke="#1e2a4a" stroke-width="4.5"/>
   <ellipse cx="230" cy="410" rx="40" ry="7" fill="#1d5a78"/>`;
-
-const TABLE_ART = `<rect x="0" y="566" width="460" height="42" fill="url(#wood)"/><rect x="0" y="566" width="460" height="7" fill="#e3b583"/>
-  <ellipse cx="230" cy="568" rx="190" ry="9" fill="rgba(30,42,74,.22)"/>`;
-
-const BASKET_ART = `<path d="M10 30 H470 L432 168 Q240 196 48 168 Z" fill="#3FA7B5"/>
-  <g stroke="#2E8996" stroke-width="6"><path d="M22 70 H458M32 110 H448M42 148 H438"/></g>
-  <g stroke="#5FC0CC" stroke-width="5"><path d="M80 32 L92 172M150 32 L156 178M220 32 L222 180M290 32 L286 180M360 32 L352 176M420 32 L404 172"/></g>
-  <rect x="0" y="12" width="480" height="34" rx="17" fill="#23707C"/><rect x="10" y="18" width="460" height="10" rx="5" fill="#7FD3DC" opacity=".6"/>`;
 
 export function createSplitView(): GameView<SplitQuestion, SplitAnswer> {
   let q: SplitQuestion;

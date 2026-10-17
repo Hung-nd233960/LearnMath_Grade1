@@ -201,15 +201,14 @@ A later variant uses **shapes**: a triangle weighs 3, a square or rectangle weig
 
 About a third or more of the Vòng 2 questions are whole tens.
 
-- **Ten loose oranges also count as 1 chục** and are accepted. Mèo then says: "10 quả lẻ cũng là 1 chục đấy! Lần sau em thử đưa cả túi cho nhanh nhé."
 - **After a correct answer**, Mèo names the amount both ways, e.g. "Hai chục là 20 quả cam" or "Một chục và 3 quả là 13 quả cam."
 - **After a wrong answer**, the hint reminds the child that each bag is 1 chục = 10 oranges.
 - **In the picture panel**, a ten is drawn as a small bag marked "10", so the panel uses the same idea.
-- **There are always enough loose oranges** (at least 10) for a child to build a ten by hand.
+- **The child's basket never holds ten loose oranges.** It has 2 to 9 single oranges (always enough for the "ones") and 2 bags, so a chục can only be made by taking a bag; counting out ten single oranges is not possible.
 
 **If the child can't hear (or doesn't understand).**
 
-- A **text and picture panel** shows the request (for example, "🍊🍊🍊"). It is **always shown when the sound is off**; when the sound is on it appears after **two wrong tries**.
+- A **text and picture panel** shows the request (for example, "3 🍊": the number with its picture, so a child who struggles with words can still read the number; in Vòng 2 the bags are shown underneath, e.g. "[10] + 3 🍊"). It is **always shown when the sound is off**; when the sound is on it appears after the **first wrong try**, before the child tries again.
 - A **"nghe lại"** button repeats the request at any time.
 
 **Counts on the baskets.** In Vòng 1, each basket shows how many fruit it holds, updating as the child moves fruit, to link the amount to the number. From Vòng 2 the counts are hidden, so the child has to count by themselves.

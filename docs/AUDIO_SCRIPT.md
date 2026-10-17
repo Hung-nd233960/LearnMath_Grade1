@@ -60,6 +60,7 @@ Mẹo thu âm:
 | `chuc.mp3` | chục |
 | `qua.mp3` | quả |
 | `may_q.mp3` | mấy? |
+| `la.mp3` | là |
 
 ## Chung
 
@@ -152,4 +153,4 @@ Mẹo thu âm:
 | `cmp_hint.mp3` | Bên nào cân hạ xuống là bên nặng hơn. Em đọc từng cân một nhé. |
 | `cmp_ok.mp3` | Thám tử tài ba! |
 
-Tổng cộng: **96** tệp.
+Tổng cộng: **97** tệp.

@@ -12,11 +12,19 @@ export interface GameViewApi<A> {
   pos: Position;
   /** The child pressed "Xong" / "Chạy!". Ignored while feedback is showing. */
   submit(answer: A): void;
+  /** What Mèo asks (text + voice). Only needed by views that draw their own prompt (`ownPrompt`). */
+  prompt: Speech;
+  /** Say the prompt again. */
+  replayPrompt(): void;
+  /** Wrong tries so far on this question (0 on the first try). */
+  wrongTries(): number;
   /** Say something short (e.g. "Em chọn một số trên bàn phím nhé."). */
   speak(s: Speech): void;
 }
 
 export interface GameView<Q, A> {
+  /** true: the view draws the prompt itself (e.g. Mèo's speech bubble); the play loop then hides its prompt bar. */
+  readonly ownPrompt?: boolean;
   /** Draw the question into `el` (an absolutely positioned layer covering the screen under the top bar). */
   mount(el: HTMLElement, q: Q, api: GameViewApi<A>): void;
   /** Show the result before the feedback card (colour the answer, tilt the scale, walk the robot). */

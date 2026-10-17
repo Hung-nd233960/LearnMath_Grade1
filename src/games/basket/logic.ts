@@ -31,11 +31,18 @@ export interface BasketAnswer {
 
 export const BAG_SIZE = 10;
 
+/**
+ * The child's basket always holds between MIN_LOOSE and MAX_LOOSE single fruit of a kind, never ten or more:
+ * a child who wants ten must reach for a bag (a chục), not count out ten loose ones.
+ */
+export const MIN_LOOSE = 2;
+export const MAX_LOOSE = 9;
+
 export function totalOf(a: BasketAnswer, kind: Fruit): number {
   return (a.loose[kind] ?? 0) + (kind === "tangerine" ? a.bags * BAG_SIZE : 0);
 }
 
-const T1 = [[1, 3, 5], [2, 5, 7], [3, 9, 11]] as const; // [min want, max want, fruit in basket]
+const T1 = [[1, 3, 5], [2, 5, 7], [3, 8, 9]] as const; // [min want, max want, fruit in basket]: always fewer than ten, with at least one spare
 
 function tierTwo(step: number, rng: Rng): BasketQuestion {
   // The bank deliberately leans on whole tens so children meet "chục" again and again.
@@ -48,7 +55,7 @@ function tierTwo(step: number, rng: Rng): BasketQuestion {
   return {
     want: { tangerine: tens * BAG_SIZE + ones },
     order: ["tangerine"],
-    loose: { tangerine: 12 }, // at least 10 loose, so a ten can also be built by hand
+    loose: { tangerine: rng.int(Math.max(MIN_LOOSE, ones), MAX_LOOSE) }, // always fewer than 10, and enough for the "ones"
     bags: 2,
     tens: { kind, tens, ones },
     showCounts: false,

@@ -15,7 +15,7 @@ export const CLIP_GROUPS = {
     u_mot: "mốt", u_tu: "tư", u_lam: "lăm", n100: "một trăm",
   },
   "Từ nối": {
-    va: "và", nhe: "nhé!", bang: "bằng", cong: "cộng", gom: "gồm", chuc: "chục", qua: "quả", may_q: "mấy?",
+    va: "và", nhe: "nhé!", bang: "bằng", cong: "cộng", gom: "gồm", chuc: "chục", qua: "quả", may_q: "mấy?", la: "là",
   },
   "Chung": {
     hello: "Chào thám tử nhí!",
