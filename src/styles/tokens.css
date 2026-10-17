@@ -1,0 +1,23 @@
+/* Design tokens. Per-game colour names match GAMES[].bgVar / tileVar in src/games/index.ts. */
+:root {
+  --navy: #1e2a4a;
+  --navy-soft: #3a4870;
+  --ink-muted: #5b6684;
+  --white: #ffffff;
+  --green: #2f8a4c;
+  --green-dark: #1f6235;
+  --red: #e8604c;
+  --yellow: #ffc53d;
+  --shadow: 0 6px 0 rgba(30, 42, 74, 0.14);
+  --shadow-lg: 0 10px 0 rgba(30, 42, 74, 0.12), 0 18px 40px rgba(30, 42, 74, 0.1);
+
+  /* game colours: page background and homepage tile */
+  --scale-bg: #fff4d6;  --scale-tile: #ffe39a;
+  --robot-bg: #e2f3e7;  --robot-tile: #c9ebd3;
+  --basket-bg: #ffeee2; --basket-tile: #ffd6bd;
+  --eq-bg: #efeafd;     --eq-tile: #ddd2fb;
+  --split-bg: #fdeaf0;  --split-tile: #fbd0dc;
+  --cmp-bg: #e5f0ff;    --cmp-tile: #cde1fb;
+  --home-bg: #eaf2ff;
+  --teacher-bg: #eef1f7;
+}

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mấy và mấy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .stage { --bg: var(--split-bg); }
+  .scene { position: absolute; left: 40px; top: 172px; width: 460px; height: 608px; overflow: hidden; }
+  .scene svg.stems, .scene svg.vase { position: absolute; left: 0; top: 0; }
+  .flower { position: absolute; width: 88px; height: 88px; cursor: pointer; transition: transform .15s, opacity .2s; }
+  .flower img { width: 100%; height: 100%; }
+  .flower:hover { transform: scale(1.08); }
+  .flower.counted { opacity: .45; }
+  .flower.counted::after { content: "✓"; position: absolute; right: -2px; top: -2px; width: 34px; height: 34px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font: 800 22px "Baloo 2"; }
+  .scene .tip { position: absolute; left: 0; right: 0; top: 14px; text-align: center; font-size: 16px; color: var(--ink-muted); }
+
+  .rpane { position: absolute; left: 530px; right: 40px; top: 172px; bottom: 34px; display: flex; flex-direction: column; gap: 14px; }
+  .sent { padding: 16px 24px; font-family: "Baloo 2"; font-weight: 700; font-size: 28px; line-height: 1.85; }
+  .sent .answer-box { min-width: 60px; height: 56px; font-size: 36px; border-radius: 16px; vertical-align: middle; margin: 0 4px; }
+  .sent img { display: inline-block; vertical-align: middle; }
+  .sent .given { display: inline-grid; place-items: center; min-width: 54px; height: 54px; border-radius: 16px; background: var(--split-bg); font-weight: 800; vertical-align: middle; margin: 0 4px; }
+  .bond { display: flex; justify-content: center; }
+  .bottom { display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; }
+  .scene.bondonly { display: grid; place-items: center; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div id="top"></div>
+  <div class="prompt"><span id="q"></span><button class="replay" id="replay"></button></div>
+  <div class="scene card" id="scene"></div>
+  <div class="rpane">
+    <div class="sent card" id="sent"></div>
+    <div class="bond" id="bond"></div>
+    <div class="bottom"><div class="numpad" id="pad"></div><button class="btn btn-primary" id="done">Xong</button></div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+  const T = tier();
+  const LEVELS = {
+    1: { red: 3, yellow: 2, q: "Đếm hoa trong lọ nhé! Lọ có tất cả bao nhiêu bông?", hint: "Em chạm vào từng bông hoa để đếm, mỗi bông chỉ đếm một lần nhé." },
+    2: { red: 4, yellow: 2, q: "Lọ có 6 bông hoa. Bao nhiêu bông đỏ, bao nhiêu bông vàng?", hint: "Đếm riêng hoa đỏ, rồi đếm riêng hoa vàng. Hai số cộng lại phải bằng 6." },
+    3: { whole: 7, a: 3, ans: 4, q: "7 gồm 3 và mấy?", hint: "Em đếm thêm từ 3 cho đến 7: 4, 5, 6, 7. Đếm được mấy số?" },
+  };
+  const lv = LEVELS[T];
+  document.getElementById("top").outerHTML = topbar({ done: 2 });
+  document.getElementById("replay").innerHTML = ICON.replay;
+  document.getElementById("done").innerHTML = ICON.check + " Xong";
+  document.getElementById("q").textContent = lv.q;
+
+  const box = (id) => `<span class="answer-box" id="${id}"></span>`;
+  const given = (v) => `<span class="given">${v}</span>`;
+  const R = img("tulip", 40), Y = img("sunflower", 40);
+
+  // number bond: whole on top, two parts below
+  function bondSVG(size, top, left, right) {
+    const w = size, h = size * 0.62, r = size * 0.13;
+    const node = (x, y, content) => `<foreignObject x="${x - r}" y="${y - r}" width="${2 * r}" height="${2 * r}">
+      <div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;border-radius:50%;background:#fff;border:5px solid #1e2a4a;display:grid;place-items:center;font:800 ${r * 0.95}px 'Baloo 2'">${content}</div></foreignObject>`;
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+      <path d="M${w / 2} ${r + 4} L${w * 0.22} ${h - r - 4} M${w / 2} ${r + 4} L${w * 0.78} ${h - r - 4}" stroke="#1e2a4a" stroke-width="6" stroke-linecap="round"/>
+      ${node(w / 2, r + 4, top)}${node(w * 0.22, h - r - 4, left)}${node(w * 0.78, h - r - 4, right)}</svg>`;
+  }
+
+  const scene = document.getElementById("scene");
+  if (T < 3) {
+    // vase + flowers in a fan, kinds differ by shape (tulip vs sunflower)
+    const kinds = [];
+    for (let i = 0; i < Math.max(lv.red, lv.yellow); i++) { if (i < lv.red) kinds.push("tulip"); if (i < lv.yellow) kinds.push("sunflower"); }
+    const n = kinds.length, cx = 230, cy = 430;
+    let stems = "", flowers = "";
+    kinds.forEach((k, i) => {
+      const a = (-55 + (110 * i) / Math.max(1, n - 1)) * Math.PI / 180;
+      const rad = i % 2 ? 250 : 320;
+      const x = cx + Math.sin(a) * rad * 0.75, y = cy - Math.cos(a) * rad;
+      const sx = cx + (i - (n - 1) / 2) * 7, sy = 414, qx = (cx + x) / 2, qy = (cy + y) / 2 + 40, ey = y + 30;
+      const lx = 0.25 * sx + 0.5 * qx + 0.25 * x, ly = 0.25 * sy + 0.5 * qy + 0.25 * ey; // leaf at the middle of the stem
+      stems += `<path d="M${sx} ${sy} Q${qx} ${qy} ${x} ${ey}" stroke="#3f9a52" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <ellipse cx="${lx + (x < cx ? -11 : 11)}" cy="${ly}" rx="17" ry="7" transform="rotate(${x < cx ? 35 : -35} ${lx + (x < cx ? -11 : 11)} ${ly})" fill="#5cbf6a" stroke="#3f9a52" stroke-width="3"/>`;
+      flowers += `<div class="flower" data-k="${k}" style="left:${x - 44}px;top:${y - 44}px">${img(k, 88)}</div>`;
+    });
+    scene.innerHTML = `<div class="tip">Chạm vào hoa để đánh dấu đã đếm</div>
+      <svg class="stems" width="460" height="608">${stems}</svg>${flowers}
+      <svg class="vase" width="460" height="608">
+        <defs><clipPath id="vaseClip"><path d="M188 412 Q186 438 156 456 Q110 484 114 524 Q118 560 176 570 H284 Q342 560 346 524 Q350 484 304 456 Q274 438 272 412 Z"/></clipPath></defs>
+        <!-- table -->
+        <rect x="0" y="566" width="460" height="42" fill="url(#wood)"/><rect x="0" y="566" width="460" height="7" fill="#e3b583"/>
+        <ellipse cx="230" cy="572" rx="104" ry="9" fill="rgba(30,42,74,.22)"/>
+        <!-- vase body -->
+        <path d="M188 412 Q186 438 156 456 Q110 484 114 524 Q118 560 176 570 H284 Q342 560 346 524 Q350 484 304 456 Q274 438 272 412 Z" fill="url(#ceramic)"/>
+        <g clip-path="url(#vaseClip)">
+          <path d="M100 498 Q230 530 360 498" stroke="#fff7e6" stroke-width="22" fill="none"/>
+          <path d="M100 498 Q230 530 360 498" stroke="#f08aa0" stroke-width="4" fill="none" stroke-dasharray="2 14" stroke-linecap="round"/>
+          <path d="M104 482 Q230 512 356 482 M104 516 Q230 548 356 516" stroke="#ffc53d" stroke-width="4" fill="none"/>
+          <g transform="translate(230 540)"><circle r="7" fill="#ffc53d"/><g fill="#fff7e6"><circle cx="0" cy="-12" r="7"/><circle cx="11" cy="-4" r="7"/><circle cx="7" cy="10" r="7"/><circle cx="-7" cy="10" r="7"/><circle cx="-11" cy="-4" r="7"/></g><circle r="6" fill="#ffc53d"/></g>
+          <ellipse cx="152" cy="494" rx="13" ry="34" transform="rotate(18 152 494)" fill="#fff" opacity=".35"/>
+          <rect x="100" y="556" width="260" height="20" fill="#1e5f7f" opacity=".35"/>
+        </g>
+        <path d="M188 412 Q186 438 156 456 Q110 484 114 524 Q118 560 176 570 H284 Q342 560 346 524 Q350 484 304 456 Q274 438 272 412 Z" fill="none" stroke="#1e2a4a" stroke-width="4.5" stroke-linejoin="round"/>
+        <!-- lip -->
+        <ellipse cx="230" cy="410" rx="54" ry="13" fill="#3d97bf" stroke="#1e2a4a" stroke-width="4.5"/>
+        <ellipse cx="230" cy="410" rx="40" ry="7" fill="#1d5a78"/></svg>`;
+    scene.addEventListener("click", (e) => { const f = e.target.closest(".flower"); if (f) f.classList.toggle("counted"); });
+  } else {
+    scene.classList.add("bondonly");
+    scene.innerHTML = bondSVG(400, lv.whole, lv.a, `<span id="b3" style="color:#2f8a4c">?</span>`);
+  }
+
+  const sent = document.getElementById("sent");
+  if (T === 1) sent.innerHTML = `Trong lọ có ${box("total")} bông hoa, trong đó có ${given(lv.red)} ${R} hoa đỏ và ${given(lv.yellow)} ${Y} hoa vàng.`;
+  if (T === 2) sent.innerHTML = `Trong lọ có ${given(lv.red + lv.yellow)} bông hoa, trong đó có ${box("red")} ${R} hoa đỏ và ${box("yellow")} ${Y} hoa vàng.`;
+  if (T === 3) sent.innerHTML = `${given(lv.whole)} gồm ${given(lv.a)} và ${box("part")}`;
+
+  const bond = document.getElementById("bond");
+  const mirror = () => {
+    if (T !== 2) return;
+    const v = (id) => document.getElementById(id).dataset.v || "?";
+    bond.innerHTML = bondSVG(270, lv.red + lv.yellow, v("red"), v("yellow"));
+  };
+  mirror();
+  numpad(document.getElementById("pad"), () => {
+    mirror();
+    if (T === 3) document.getElementById("b3").textContent = document.getElementById("part").dataset.v || "?";
+  });
+
+  document.getElementById("done").onclick = () => {
+    const v = (id) => document.getElementById(id).dataset.v;
+    const ok = T === 1 ? +v("total") === lv.red + lv.yellow
+      : T === 2 ? +v("red") === lv.red && +v("yellow") === lv.yellow
+      : +v("part") === lv.ans;
+    if (ok) feedback(true, T === 3 ? "7 gồm 3 và 4. Chính xác!" : "Em đếm rất cẩn thận!", { next: () => location.reload() });
+    else feedback(false, lv.hint);
+  };
+  document.getElementById("replay").onclick = () => speak(lv.q);
+  guide([
+    T < 3 ? "Nhìn lọ hoa: có <b>hoa đỏ</b> (hình tulip) và <b>hoa vàng</b> (hoa hướng dương)." : "Số ở trên là <b>tất cả</b>. Hai số ở dưới là <b>hai phần</b>.",
+    T < 3 ? "Chạm vào từng bông để đánh dấu, đếm không sót bông nào." : "Hai phần gộp lại bằng số ở trên.",
+    "Chạm vào ô trống, rồi chọn số trên bàn phím.",
+    "Bấm <b>Xong</b> để kiểm tra.",
+  ]);
+  boot(); mockbar({ tiers: true });
+  setTimeout(() => speak(lv.q), 600);
+</script>
+</body>
+</html>

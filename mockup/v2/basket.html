@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Giỏ trái cây</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .stage { --bg: #fff8ef; }
+  .ask { position: absolute; left: 40px; top: 112px; display: flex; align-items: center; gap: 22px; }
+  .ask .meo { width: 150px; height: 150px; flex: none; }
+  .ask .bubble { display: flex; align-items: center; gap: 14px; font-size: 34px; }
+  .ask .replay { width: 56px; height: 56px; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; flex: none; }
+  .ask .replay svg { width: 28px; height: 28px; }
+  .panel { position: absolute; right: 40px; top: 122px; padding: 12px 20px; display: none; align-items: center; gap: 14px; border: 4px solid #ffb547; }
+  .panel.show { display: flex; animation: pop .35s cubic-bezier(.3,1.6,.5,1); }
+  .panel .grp { display: flex; align-items: center; gap: 2px; font-family: "Baloo 2"; font-weight: 800; font-size: 34px; }
+  .minibag { display: inline-flex; align-items: center; gap: 2px; background: #fff; border: 3px solid var(--green); border-radius: 10px 10px 14px 14px; padding: 2px 8px 0 4px; margin-right: 4px; font-size: 22px; }
+  .panel .plus { font-family: "Baloo 2"; font-weight: 800; font-size: 30px; color: var(--ink-muted); }
+
+  .bk { position: absolute; top: 290px; width: 470px; height: 490px; }
+  .bk.L { left: 40px; } .bk.R { right: 40px; }
+  .bk .counts { position: absolute; bottom: 16px; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; z-index: 3; pointer-events: none; }
+  .bk .counts span { display: flex; align-items: center; gap: 4px; background: #fff; border: 3px solid var(--navy); border-radius: 999px; padding: 2px 14px 0 6px; font: 800 26px/1.3 "Baloo 2"; box-shadow: 0 3px 0 rgba(30,42,74,.18); }
+  .fx-anim .bk .counts span.bump { animation: popIn .35s cubic-bezier(.3,1.6,.5,1); }
+  .bk .name { position: absolute; bottom: 72px; left: 50%; transform: translateX(-50%); background: #fff; border-radius: 999px; padding: 6px 22px 3px; font-family: "Baloo 2"; font-weight: 800; font-size: 24px; box-shadow: var(--shadow); white-space: nowrap; z-index: 3; }
+  .bk .fz { position: absolute; left: 40px; right: 40px; bottom: 150px; height: 320px; display: flex; flex-wrap: wrap-reverse; justify-content: center; align-content: flex-start; gap: 0 2px; z-index: 1; }
+  .bk .front { position: absolute; left: 10px; bottom: 0; z-index: 2; pointer-events: none; }
+
+  .fruit { width: 58px; height: 58px; display: grid; place-items: center; }
+  .fruit img { width: 56px; height: 56px; filter: drop-shadow(0 3px 0 rgba(30,42,74,.18)); }
+  .bag {
+    width: 128px; height: 74px; border-radius: 18px 18px 26px 26px; margin: 0 4px 4px; position: relative;
+    background: repeating-linear-gradient(45deg, rgba(47,138,76,.28) 0 2px, transparent 2px 11px), repeating-linear-gradient(-45deg, rgba(47,138,76,.28) 0 2px, transparent 2px 11px), #fff;
+    border: 4px solid var(--green); box-shadow: 0 4px 0 rgba(30,42,74,.15); display: grid; grid-template-columns: repeat(5, 1fr); align-content: center; justify-items: center; padding: 4px 6px;
+  }
+  .bag img { width: 22px; height: 22px; }
+  .bag b { position: absolute; top: -16px; right: -10px; background: var(--navy); color: #fff; border-radius: 999px; padding: 2px 10px 0; font-family: "Baloo 2"; font-size: 20px; }
+
+  .done-btn { position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); z-index: 4; padding: 14px 26px 10px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div id="top"></div>
+  <div class="ask"><div class="meo" data-meo="normal"></div><div class="bubble"><span id="say"></span><button class="replay" id="replay" title="Nghe lại"></button></div></div>
+  <div class="panel card" id="panel"></div>
+
+  <div class="bk L" data-zone="L"><div class="name">Giỏ của em</div><div class="fz"></div><svg class="front" width="450" height="178" viewBox="0 0 480 190" id="basketL"></svg><div class="counts"></div></div>
+  <div class="bk R" data-zone="R"><div class="name">Giỏ của Mèo</div><div class="fz"></div><svg class="front" width="450" height="178" viewBox="0 0 480 190" id="basketR"></svg><div class="counts"></div></div>
+  <button class="btn btn-primary done-btn" id="done">Xong</button>
+</div>
+<script src="shared.js"></script>
+<script>
+  const T = tier();
+  const WORD = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín", "mười", "mười một", "mười hai", "mười ba", "mười bốn", "mười lăm", "mười sáu", "mười bảy", "mười tám", "mười chín", "hai mươi"];
+  const NAME = { tangerine: "quả cam", red_apple: "quả táo", banana: "quả chuối" };
+  const LEVELS = {
+    1: { left: [["tangerine", 7]], bags: 0, want: { tangerine: 3 } },
+    // Vòng 2 bank: deliberately includes whole tens ("1 chục", "2 chục") so children move whole bags.
+    2: { left: [["tangerine", 12]], bags: 2, bank: [
+      { tens: 1, ones: 0 },               // "một chục quả cam"
+      { tens: 2, ones: 0 },               // "hai chục quả cam"
+      { tens: 1, ones: 0, plain: true },  // "mười quả cam" — same amount, other name
+      { tens: 1, ones: 3 },               // "mười ba quả cam"
+      { tens: 1, ones: 6 },
+    ] },
+    3: { left: [["tangerine", 4], ["red_apple", 5], ["banana", 3]], bags: 0, want: { tangerine: 2, red_apple: 3 } },
+  };
+  const lv = LEVELS[T];
+  const qi = new URLSearchParams(location.search).get("q"); // mockup review: &q=0..4 picks a bank item
+  const ask = lv.bank ? lv.bank[qi !== null ? +qi % lv.bank.length : Math.floor(Math.random() * lv.bank.length)] : null;
+  if (ask) lv.want = { tangerine: ask.tens * 10 + ask.ones };
+  const wholeTens = ask && ask.ones === 0 && !ask.plain;
+  const phrase = (k, n) => wholeTens ? `${WORD[ask.tens]} chục ${NAME[k]}` : `${WORD[n]} ${NAME[k]}`;
+  const sentence = "Đưa cho Mèo " + Object.entries(lv.want).map(([k, n]) => phrase(k, n)).join(" và ") + " nhé!";
+
+  document.getElementById("top").outerHTML = topbar({ done: 3 });
+  document.getElementById("replay").innerHTML = ICON.replay;
+  document.getElementById("done").innerHTML = ICON.check + " Xong";
+  document.getElementById("say").textContent = sentence;
+
+  // custom woven basket front
+  const basketSVG = `<path d="M10 30 H470 L432 168 Q240 196 48 168 Z" fill="#3FA7B5"/>
+    <g stroke="#2E8996" stroke-width="6"><path d="M22 70 H458M32 110 H448M42 148 H438"/></g>
+    <g stroke="#5FC0CC" stroke-width="5"><path d="M80 32 L92 172M150 32 L156 178M220 32 L222 180M290 32 L286 180M360 32 L352 176M420 32 L404 172"/></g>
+    <rect x="0" y="12" width="480" height="34" rx="17" fill="#23707C"/><rect x="10" y="18" width="460" height="10" rx="5" fill="#7FD3DC" opacity=".6"/>`;
+  document.getElementById("basketL").innerHTML = basketSVG;
+  document.getElementById("basketR").innerHTML = basketSVG;
+
+  const L = document.querySelector(".bk.L .fz");
+  for (let i = 0; i < lv.bags; i++)
+    L.insertAdjacentHTML("beforeend", `<div class="bag" data-item data-k="tangerine" data-n="10" title="Túi 10 quả cam">${img("tangerine", 22).repeat(10)}<b>10</b></div>`);
+  lv.left.forEach(([k, n]) => L.insertAdjacentHTML("beforeend",
+    `<div class="fruit" data-item data-k="${k}" data-n="1">${img(k, 56)}</div>`.repeat(n)));
+
+  // picture panel (shown when sound is off, or after 2 wrong tries)
+  let wrong = 0;
+  const panel = document.getElementById("panel");
+  const miniBag = `<span class="minibag">${img("tangerine", 20)}<b>10</b></span>`;
+  panel.innerHTML = ask
+    ? `<div class="grp">${miniBag.repeat(ask.tens)}${ask.ones ? `<span class="plus">và</span>${img("tangerine", 44).repeat(ask.ones)}` : ""}&nbsp;= ${lv.want.tangerine}</div>`
+    : Object.entries(lv.want).map(([k, n]) =>
+        `<div class="grp">${n <= 5 ? img(k, 44).repeat(n) : img(k, 44) + "&nbsp;× " + n}</div>`).join(`<span class="plus">và</span>`);
+  const syncPanel = () => panel.classList.toggle("show", muted || wrong >= 2);
+  document.addEventListener("mutechange", syncPanel);
+
+  const tally = () => {
+    const c = {};
+    document.querySelectorAll(".bk.R [data-item]").forEach((f) => (c[f.dataset.k] = (c[f.dataset.k] || 0) + +f.dataset.n));
+    return c;
+  };
+  // Live counts on each basket. Shown in Vòng 1 only: in higher rounds the child must count by themselves.
+  const SHOW_COUNTS = T === 1;
+  const KIND_ORDER = ["tangerine", "red_apple", "banana"];
+  function paintCounts() {
+    if (!SHOW_COUNTS) return;
+    document.querySelectorAll(".bk").forEach((bk) => {
+      const c = {};
+      bk.querySelectorAll("[data-item]").forEach((f) => (c[f.dataset.k] = (c[f.dataset.k] || 0) + +f.dataset.n));
+      const kinds = KIND_ORDER.filter((k) => k in c);
+      const html = (kinds.length ? kinds : [Object.keys(lv.want)[0]]).map((k) => `<span data-k="${k}">${img(k, 30)}${c[k] || 0}</span>`).join("");
+      const box = bk.querySelector(".counts"), old = box.textContent;
+      box.innerHTML = html;
+      if (old && old !== box.textContent) box.querySelectorAll("span").forEach((s) => s.classList.add("bump"));
+    });
+  }
+  paintCounts();
+  dragTap((item, zone) => { zone.querySelector(".fz").appendChild(item); paintCounts(); });
+
+  document.getElementById("done").onclick = () => {
+    const got = tally();
+    const kinds = new Set([...Object.keys(got), ...Object.keys(lv.want)]);
+    const ok = [...kinds].every((k) => (got[k] || 0) === (lv.want[k] || 0));
+    if (ok) {
+      let msg = "Mèo nhận đủ rồi. Cảm ơn em nhé!";
+      if (ask) {
+        const bagsGiven = document.querySelectorAll(".bk.R .bag").length;
+        msg = `${WORD[ask.tens][0].toUpperCase() + WORD[ask.tens].slice(1)} chục${ask.ones ? ` và ${ask.ones} quả` : ""} là ${lv.want.tangerine} quả cam.`;
+        if (bagsGiven < ask.tens) msg += " 10 quả lẻ cũng là 1 chục đấy! Lần sau em thử đưa cả túi cho nhanh nhé.";
+        else msg += " Em dùng túi chục rất giỏi!";
+      }
+      return feedback(true, msg, { next: () => location.reload() });
+    }
+    wrong++; syncPanel();
+    const k = Object.keys(lv.want).find((k) => (got[k] || 0) !== lv.want[k]) || [...kinds].find((k) => !lv.want[k]);
+    const have = got[k] || 0, need = lv.want[k] || 0;
+    if (ask) return feedback(false, `Giỏ của Mèo có ${have} quả cam, Mèo cần ${need} quả. Nhớ nhé: mỗi túi là <b>1 chục = 10 quả</b>.`);
+    feedback(false, have > need
+      ? `Giỏ của Mèo có ${have} ${NAME[k]}, nhiều quá rồi! Em lấy bớt ra nhé.`
+      : `Giỏ của Mèo mới có ${have} ${NAME[k]}. Mèo cần ${need} cơ!`);
+  };
+  document.getElementById("replay").onclick = () => speak(sentence);
+  guide([
+    "Nghe Mèo nói cần những quả gì, bao nhiêu quả.",
+    "Kéo quả từ <b>Giỏ của em</b> sang <b>Giỏ của Mèo</b> (hoặc chạm quả rồi chạm giỏ).",
+    T === 2 ? "Mỗi <b>túi</b> có <b>1 chục = 10 quả</b>. 2 chục = 2 túi. 13 quả = 1 túi và 3 quả." : "Đưa đúng số quả: không thừa, không thiếu.",
+    "Bấm loa để nghe lại. Xong thì bấm <b>Xong</b>.",
+  ]);
+  boot(); syncPanel(); mockbar({ tiers: true });
+  setTimeout(() => speak(sentence), 600);
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Khu vực giáo viên</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .stage { --bg: #eef1f7; }
+  /* PIN gate */
+  .gate { position: absolute; inset: 0; display: grid; place-items: center; }
+  .gate .card { width: 500px; padding: 30px 40px 32px; text-align: center; }
+  .gate h2 { font-size: 34px; }
+  .gate p { margin: 4px 0 0; font-size: 18px; color: var(--ink-muted); }
+  .pinDots { display: flex; gap: 16px; justify-content: center; margin: 18px 0 20px; }
+  .pinDots span { width: 26px; height: 26px; border-radius: 50%; border: 4px solid var(--navy); }
+  .pinDots span.f { background: var(--navy); }
+  .gate .numpad { grid-template-columns: repeat(3, 96px); justify-content: center; }
+  .gate .hint { margin-top: 16px; font-size: 15px; color: var(--ink-muted); }
+  .gate .err { color: var(--red); font-weight: 700; min-height: 22px; margin-top: 10px; }
+  .gate .back { position: absolute; left: 36px; top: 26px; }
+
+  /* area */
+  .area { display: none; }
+  .unlocked .area { display: block; } .unlocked .gate { display: none; }
+  .ahead { position: absolute; left: 36px; right: 36px; top: 26px; height: 76px; display: flex; align-items: center; gap: 18px; }
+  .ahead h1 { font-size: 34px; flex: 1; }
+  .ahead .lockbtn { background: #fff; border-radius: 999px; padding: 10px 22px 7px; font: 800 20px "Baloo 2"; box-shadow: var(--shadow); display: flex; gap: 8px; align-items: center; }
+  .nav { position: absolute; left: 36px; top: 126px; width: 250px; display: flex; flex-direction: column; gap: 10px; }
+  .nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px 9px; border-radius: 20px; font: 800 22px "Baloo 2"; text-align: left; }
+  .nav button.on { background: #fff; box-shadow: var(--shadow); }
+  .panel { position: absolute; left: 310px; right: 36px; top: 126px; bottom: 36px; padding: 26px 32px; overflow: auto; }
+  .panel h2 { font-size: 30px; margin-bottom: 4px; }
+  .panel .sub { color: var(--ink-muted); margin: 0 0 16px; font-size: 17px; }
+  .panel .note { font-size: 15px; color: var(--ink-muted); margin-top: 16px; }
+  .rng { padding: 12px 2px; border-bottom: 2px solid #eef1f7; }
+  .rng label { display: flex; justify-content: space-between; font: 800 22px "Baloo 2"; }
+  .rng output { color: var(--green); }
+  .rng input { width: 100%; accent-color: var(--green); height: 30px; }
+  table { width: 100%; border-collapse: collapse; font-size: 18px; }
+  th, td { padding: 9px 6px; text-align: center; border-bottom: 2px solid #eef1f7; }
+  th:first-child, td:first-child { text-align: left; }
+  td .av { display: inline-flex; vertical-align: middle; margin-right: 8px; }
+  td b { font-family: "Baloo 2"; font-size: 20px; }
+  .v { display: inline-block; min-width: 30px; border-radius: 999px; padding: 1px 8px; font: 800 16px "Baloo 2"; }
+  .v1 { background: #e6f4ea; } .v2 { background: #fff1c2; } .v3 { background: #ffd9cf; }
+  .actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+  .actions .btn { font-size: 24px; padding: 12px 28px 9px; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <section class="gate">
+    <a class="btn-round back" href="index.html" title="Về trang chủ"></a>
+    <div class="card">
+      <h2>Khu vực giáo viên</h2>
+      <p>Dành cho thầy cô và phụ huynh. Nhập mã PIN để mở.</p>
+      <div class="pinDots" id="dots"><span></span><span></span><span></span><span></span></div>
+      <div class="numpad" id="pinpad"></div>
+      <div class="err" id="err"></div>
+      <div class="hint">Mockup: mã PIN là <b>1234</b></div>
+    </div>
+  </section>
+
+  <section class="area">
+    <div class="ahead">
+      <a class="btn-round" href="index.html" title="Về trang chủ" id="home"></a>
+      <h1>Khu vực giáo viên</h1>
+      <button class="lockbtn" id="lock"></button>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="panel card" id="panel"></div>
+  </section>
+</div>
+<script src="shared.js"></script>
+<script>
+  const PIN = "1234";
+  const ss = { get: (k) => { try { return sessionStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch {} } };
+  const stage = document.getElementById("stage");
+  document.querySelector(".gate .back").innerHTML = ICON.back;
+  document.getElementById("home").innerHTML = ICON.back;
+  document.getElementById("lock").innerHTML = img("locked", 28) + "Khoá lại";
+
+  /* ---- PIN gate ---- */
+  let entry = "";
+  const dots = document.getElementById("dots"), err = document.getElementById("err");
+  document.getElementById("pinpad").innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9, "", 0, "xoá"]
+    .map((n) => n === "" ? "<span></span>" : `<button class="${n === "xoá" ? "del" : ""}" data-k="${n}">${n}</button>`).join("");
+  const paintDots = () => dots.querySelectorAll("span").forEach((s, i) => s.classList.toggle("f", i < entry.length));
+  document.getElementById("pinpad").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    entry = b.dataset.k === "xoá" ? entry.slice(0, -1) : (entry + b.dataset.k).slice(0, 4);
+    err.textContent = ""; paintDots();
+    if (entry.length === 4) {
+      if (entry === PIN) { ss.set("ttth.teacher", "1"); unlock(); }
+      else { err.textContent = "Mã PIN chưa đúng. Thử lại nhé."; dots.classList.add("shake"); SFX.oops(); setTimeout(() => { dots.classList.remove("shake"); entry = ""; paintDots(); }, 450); }
+    }
+  });
+  document.getElementById("lock").onclick = () => { ss.set("ttth.teacher", null); stage.classList.remove("unlocked"); entry = ""; paintDots(); };
+
+  /* ---- tabs ---- */
+  const TABS = [
+    ["fx", "sparkles", "Hiệu ứng"],
+    ["time", "hourglass_not_done", "Thời gian chơi"],
+    ["kids", "glowing_star", "Học sinh"],
+    ["backup", "package", "Sao lưu"],
+  ];
+  const nav = document.getElementById("nav"), panel = document.getElementById("panel");
+  nav.innerHTML = TABS.map(([k, e, t]) => `<button data-tab="${k}">${img(e, 34)}${t}</button>`).join("");
+  nav.addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) show(b.dataset.tab); });
+
+  const limits = Object.assign({ session: 15, daily: 30, idle: 20, weekend: true }, store.get("limits", {}));
+  const KIDS = [["Bình", "rocket", 24, 3, [2, 1, 1, 1, 1, 1]], ["An", "rainbow", 31, 5, [2, 2, 2, 1, 2, 1]], ["Chi", "strawberry", 12, 1, [1, 1, 1, 1, 1, 1]],
+                ["Dũng", "soccer_ball", 40, 6, [3, 2, 2, 2, 3, 1]], ["Hà", "sun_with_face", 18, 2, [1, 2, 1, 1, 2, 1]], ["Khôi", "kite", 9, 0, [1, 1, 1, 1, 1, 1]],
+                ["Linh", "cherry_blossom", 27, 4, [2, 1, 2, 2, 2, 2]]];
+  const GAMES = ["balance_scale", "robot", "basket", "input_numbers", "tulip", "wrapped_gift"];
+
+  function show(tab) {
+    nav.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.tab === tab));
+    if (tab === "fx") {
+      panel.innerHTML = `<h2>Hiệu ứng</h2><p class="sub">Hoạt ảnh, trang trí và âm thanh vui nhộn. Chọn <b>Yên tĩnh</b> cho các em dễ mất tập trung.</p><div id="fxs"></div>
+        <p class="note">Bản thật: có thể cài riêng cho từng em. Thay đổi có hiệu lực ngay.</p>`;
+      fxSettings(document.getElementById("fxs"));
+    }
+    if (tab === "time") {
+      const rng = (k, t, min, max, step, unit) => `<div class="rng"><label>${t}<output id="o_${k}">${limits[k]} ${unit}</output></label>
+        <input type="range" min="${min}" max="${max}" step="${step}" value="${limits[k]}" data-k="${k}" data-unit="${unit}"></div>`;
+      panel.innerHTML = `<h2>Thời gian chơi</h2><p class="sub">Giới hạn để các em chơi vừa đủ mỗi ngày.</p>
+        ${rng("session", "Mỗi lượt chơi, rồi nghỉ mắt", 10, 30, 5, "phút")}
+        ${rng("daily", "Tối đa mỗi ngày", 15, 60, 5, "phút")}
+        ${rng("idle", "Mèo nhắc khi em không chạm màn hình", 10, 60, 5, "giây")}
+        <label class="sw"><span><b>Cuối tuần không làm đứt chuỗi ngày</b><small>Thứ 7 và Chủ nhật không cần chơi vẫn giữ chuỗi</small></span><input type="checkbox" id="weekend" ${limits.weekend ? "checked" : ""}><i></i></label>`;
+      panel.oninput = (e) => {
+        const k = e.target.dataset.k; if (!k) return;
+        limits[k] = +e.target.value; document.getElementById("o_" + k).textContent = `${limits[k]} ${e.target.dataset.unit}`; store.set("limits", limits);
+      };
+      document.getElementById("weekend").onchange = (e) => { limits.weekend = e.target.checked; store.set("limits", limits); };
+    }
+    if (tab === "kids") {
+      panel.innerHTML = `<h2>Học sinh</h2><p class="sub">Sao, chuỗi ngày và vòng đã đạt ở từng trò chơi.</p>
+        <table><tr><th>Tên</th><th>${img("glowing_star", 26, 'style="display:inline"')}</th><th>${img("fire", 26, 'style="display:inline"')}</th>
+        ${GAMES.map((g) => `<th>${img(g, 30, 'style="display:inline"')}</th>`).join("")}</tr>
+        ${KIDS.map(([n, e, st, sk, v]) => `<tr><td><span class="av">${img(e, 32)}</span><b>${n}</b></td><td>${st}</td><td>${sk}</td>${v.map((x) => `<td><span class="v v${x}">V${x}</span></td>`).join("")}</tr>`).join("")}</table>
+        <div class="actions" style="margin-top:18px"><button class="btn btn-secondary">+ Thêm bạn</button></div>`;
+    }
+    if (tab === "backup") {
+      panel.innerHTML = `<h2>Sao lưu</h2><p class="sub">Tiến trình được lưu trên trình duyệt của máy này. Hãy tải bản sao lưu thường xuyên, vì trình duyệt có thể tự xoá dữ liệu.</p>
+        <div class="actions"><button class="btn btn-primary" id="exp">Tải bản sao lưu</button>
+        <label class="btn btn-secondary" style="cursor:pointer">Nhập bản sao lưu<input type="file" accept="application/json" id="imp" hidden></label></div>
+        <div class="actions" style="margin-top:22px"><button class="btn btn-secondary">Đổi mã PIN</button></div>
+        <p class="note">Mã PIN giúp các em không tự đổi cài đặt. Đây không phải bảo mật thật: người lớn rành máy tính vẫn có thể sửa dữ liệu trên trình duyệt.</p>`;
+      document.getElementById("exp").onclick = () => {
+        const data = {};
+        try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith("ttth.")) data[k] = localStorage.getItem(k); } } catch {}
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: "tham-tu-toan-hoc", version: 1, data }, null, 2)], { type: "application/json" }));
+        a.download = "tham-tu-toan-hoc-sao-luu.json"; a.click();
+      };
+      document.getElementById("imp").onchange = async (e) => {
+        try {
+          const j = JSON.parse(await e.target.files[0].text());
+          Object.entries(j.data || {}).forEach(([k, v]) => { if (k.startsWith("ttth.")) localStorage.setItem(k, v); });
+          feedback(true, "Đã nhập bản sao lưu.", { title: "Xong!", next: () => location.reload() });
+        } catch { feedback(false, "Tệp này không phải bản sao lưu hợp lệ."); }
+      };
+    }
+  }
+  function unlock() { stage.classList.add("unlocked"); show("fx"); }
+  boot(); mockbar();
+  if (ss.get("ttth.teacher") === "1" || location.hash === "#clean-unlock") unlock(); // hash: screenshots only
+</script>
+</body>
+</html>

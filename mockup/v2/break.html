@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Giờ nghỉ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .stage { --bg: #e9e4fb; }
+  .stage.night { --bg: #2b3566; color: #fff; }
+  .stage.night::before { background-image: radial-gradient(rgba(255,255,255,.7) 1.5px, transparent 2px); background-size: 46px 46px; }
+  .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; }
+  .center .meo { width: 230px; height: 230px; }
+  .center h1 { font-size: 54px; font-weight: 800; }
+  .center p { font-size: 24px; margin: 0 0 10px; max-width: 700px; line-height: 1.4; }
+  .clock { display: flex; align-items: center; gap: 14px; background: #fff; color: var(--navy); border-radius: 999px; padding: 10px 34px 6px 16px; font: 800 56px "Baloo 2"; box-shadow: var(--shadow-lg); }
+  .tips { display: flex; gap: 18px; margin-top: 18px; }
+  .tips div { background: rgba(255,255,255,.75); border-radius: 22px; padding: 12px 18px; font: 700 20px "Baloo 2"; display: flex; align-items: center; gap: 8px; color: var(--navy); }
+  .pin { width: 520px; flex-direction: column; text-align: center; }
+  .pin h2 { font-size: 34px; }
+  .pin .dotsrow { display: flex; gap: 16px; justify-content: center; margin: 14px 0 18px; }
+  .pin .dotsrow span { width: 26px; height: 26px; border-radius: 50%; border: 4px solid var(--navy); }
+  .pin .dotsrow span.f { background: var(--navy); }
+  .pin .numpad { grid-template-columns: repeat(3, 96px); justify-content: center; }
+  .pin .opts { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  .pin .opts button { background: var(--home-bg); border-radius: 999px; padding: 8px 18px 6px; font: 700 20px "Baloo 2"; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"><div class="center" id="c"></div><button class="gate-btn" data-adult-gate="teacher.html" title="Khu vực giáo viên (giữ để mở)"><img src="assets/emoji/locked_3d.png" alt="Khu vực giáo viên"></button></div>
+<script src="shared.js"></script>
+<script>
+  const S = tier(), c = document.getElementById("c");
+  if (S === 1) {
+    c.innerHTML = `<div class="meo" data-meo="sleep"></div><h1>Nghỉ mắt một chút nhé!</h1>
+      <p>Em đã chơi 15 phút rồi. Mèo Smarty cũng đi nghỉ đây. Mình gặp lại sau nhé!</p>
+      <div class="clock">${img("hourglass_not_done", 64)}<span id="t">5:00</span></div>
+      <div class="tips"><div>${img("seedling", 34)} Nhìn ra xa, ngắm cây xanh</div><div>${img("sparkles", 34)} Vươn vai, chớp mắt 10 lần</div></div>`;
+    let s = 300;
+    setInterval(() => { s = Math.max(0, s - 1); document.getElementById("t").textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }, 1000);
+    setTimeout(() => speak("Nghỉ mắt một chút nhé! Em đã chơi 15 phút rồi."), 600);
+  } else if (S === 2) {
+    document.getElementById("stage").classList.add("night");
+    c.innerHTML = `<div class="meo" data-meo="sleep"></div><h1>Hôm nay mình chơi đủ rồi!</h1>
+      <p>Em đã chơi 30 phút và nhận được <b>5 sao</b> hôm nay. Giỏi lắm! Hẹn gặp lại em ngày mai nhé.</p>
+      <div class="tips"><div>${img("glowing_star", 34)} +5 sao hôm nay</div><div>${img("fire", 34)} Chuỗi 4 ngày!</div></div>`;
+    setTimeout(() => speak("Hôm nay mình chơi đủ rồi! Hẹn gặp lại em ngày mai nhé."), 600);
+  } else {
+    c.innerHTML = `<div class="card pin" style="padding:30px 40px;display:flex">
+      <h2>Dành cho phụ huynh / giáo viên</h2><p style="font-size:18px;margin:4px 0 0">Nhập mã PIN để cho thêm thời gian</p>
+      <div class="dotsrow"><span class="f"></span><span class="f"></span><span></span><span></span></div>
+      <div class="numpad" id="pad"></div>
+      <div class="opts"><button>+10 phút</button><button>+20 phút</button><button>Mở khoá hôm nay</button></div></div>`;
+    document.getElementById("pad").innerHTML = [1, 2, 3, 4, 5, 6, 7, 8, 9, "", 0, "xoá"].map((n) => n === "" ? "<span></span>" : `<button class="${n === "xoá" ? "del" : ""}">${n}</button>`).join("");
+  }
+  boot(); mockbar({ tiers: true, label: "Trạng thái:", names: ["Nghỉ giữa giờ", "Hết giờ hôm nay", "Mã PIN"] });
+</script>
+</body>
+</html>

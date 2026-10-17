@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rô-bốt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .stage { --bg: var(--robot-bg); }
+  .board { position: absolute; left: 40px; top: 172px; width: 600px; height: 600px; background: #2f7a47; border-radius: 34px; box-shadow: 0 10px 0 #22603a; }
+  .board .inner { position: absolute; inset: 20px; }
+  .cell { position: absolute; background: #fff; border-radius: 16px; display: grid; place-items: center; }
+  .cell.goal { background: #fff3cc; }
+  .cell.block { background: #b9c9bd; }
+  .cell.block img { opacity: .95; }
+  .cell.ok { background: #c8f0d2; }
+  .cell.bad { background: #ffd0c8; }
+  .wall { position: absolute; background: #e8604c; border-radius: 6px; box-shadow: 0 0 0 3px #fff; z-index: 2; }
+  .bot { position: absolute; z-index: 3; transition: transform .38s cubic-bezier(.4,1.4,.6,1); pointer-events: none; }
+  .bot img { width: 100%; height: 100%; }
+
+  .side { position: absolute; left: 680px; right: 40px; top: 172px; bottom: 40px; display: flex; flex-direction: column; gap: 22px; }
+  .prog { padding: 18px 22px 20px; }
+  .prog h3 { font-size: 24px; margin-bottom: 10px; }
+  .slots { display: grid; grid-template-columns: repeat(6, 56px); gap: 10px; }
+  .slot { width: 56px; height: 56px; border-radius: 14px; border: 3px dashed #9aa5bd; display: grid; place-items: center; }
+  .slot.on { border: 0; background: var(--navy); color: #fff; }
+  .slot.run { background: #ffc53d; color: var(--navy); transform: scale(1.1); }
+  .slot svg { width: 30px; height: 30px; }
+  .pad { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(2, 100px); gap: 12px; justify-content: center; }
+  .pad button { background: #fff; border-radius: 24px; display: grid; place-items: center; box-shadow: 0 7px 0 rgba(30,42,74,.18); }
+  .pad button:active { transform: translateY(5px); box-shadow: 0 2px 0 rgba(30,42,74,.18); }
+  .pad button svg { width: 50px; height: 50px; }
+  .pad .u { grid-column: 2; grid-row: 1; } .pad .l { grid-column: 1; grid-row: 2; } .pad .d { grid-column: 2; grid-row: 2; } .pad .r { grid-column: 3; grid-row: 2; }
+  .actions { display: flex; gap: 18px; justify-content: center; margin-top: auto; }
+  .actions .btn { flex: 1; justify-content: center; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div id="top"></div>
+  <div class="prompt"><span id="q">Đưa rô-bốt đến lá cờ nhé!</span><button class="replay" id="replay"></button></div>
+  <div class="board"><div class="inner" id="grid"></div></div>
+  <div class="side">
+    <div class="prog card"><h3>Các bước của em</h3><div class="slots" id="slots"></div></div>
+    <div class="pad">
+      <button class="u" data-dir="U" title="Lên"></button>
+      <button class="l" data-dir="L" title="Sang trái"></button>
+      <button class="d" data-dir="D" title="Xuống"></button>
+      <button class="r" data-dir="R" title="Sang phải"></button>
+    </div>
+    <div class="actions"><button class="btn btn-secondary" id="clear">Làm lại</button><button class="btn btn-primary" id="run">Chạy!</button></div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+  const T = tier();
+  const LEVELS = {
+    1: { n: 4, start: [3, 0], goal: [1, 1], blocks: [], walls: [] },
+    2: { n: 5, start: [4, 0], goal: [0, 4], blocks: [[3, 0], [3, 1], [1, 2], [1, 3]], walls: ["3,2,R"] },
+    3: { n: 6, start: [5, 0], goal: [0, 5], blocks: [[4, 0], [4, 1], [2, 1], [2, 2], [2, 3], [0, 3]], walls: ["3,4,R", "4,3,D"] },
+  };
+  const lv = LEVELS[T], MAX = 12, GAP = 8;
+  const CS = (560 - GAP * (lv.n - 1)) / lv.n;
+  const ARROW = {
+    U: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg>`,
+    D: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5.5 12.5L12 19l6.5-6.5"/></svg>`,
+    L: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11.5 5.5L5 12l6.5 6.5"/></svg>`,
+    R: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12.5 5.5L19 12l-6.5 6.5"/></svg>`,
+  };
+  const STEP = { U: [-1, 0], D: [1, 0], L: [0, -1], R: [0, 1] };
+  const pos = (r, c) => [c * (CS + GAP), r * (CS + GAP)];
+  const isBlock = (r, c) => lv.blocks.some(([a, b]) => a === r && b === c);
+  const walls = new Set(lv.walls);
+  function canMove(r, c, d) {
+    const [dr, dc] = STEP[d], nr = r + dr, nc = c + dc;
+    if (nr < 0 || nc < 0 || nr >= lv.n || nc >= lv.n || isBlock(nr, nc)) return false;
+    if (d === "R" && walls.has(`${r},${c},R`)) return false;
+    if (d === "L" && walls.has(`${r},${c - 1},R`)) return false;
+    if (d === "D" && walls.has(`${r},${c},D`)) return false;
+    if (d === "U" && walls.has(`${r - 1},${c},D`)) return false;
+    return true;
+  }
+
+  document.getElementById("top").outerHTML = topbar({ done: 1 });
+  document.getElementById("replay").innerHTML = ICON.replay;
+  document.querySelectorAll(".pad button").forEach((b) => (b.innerHTML = ARROW[b.dataset.dir]));
+
+  // build grid
+  const grid = document.getElementById("grid");
+  let html = "";
+  for (let r = 0; r < lv.n; r++) for (let c = 0; c < lv.n; c++) {
+    const [x, y] = pos(r, c);
+    const goal = r === lv.goal[0] && c === lv.goal[1], blk = isBlock(r, c);
+    html += `<div class="cell ${goal ? "goal" : ""} ${blk ? "block" : ""}" data-rc="${r},${c}" style="left:${x}px;top:${y}px;width:${CS}px;height:${CS}px">
+      ${goal ? img("triangular_flag", CS * 0.66) : blk ? img("brick", CS * 0.62) : ""}</div>`;
+  }
+  lv.walls.forEach((w) => {
+    const [r, c, side] = w.split(","); const [x, y] = pos(+r, +c);
+    html += side === "R"
+      ? `<div class="wall" style="left:${x + CS + GAP / 2 - 6}px;top:${y - 4}px;width:12px;height:${CS + 8}px"></div>`
+      : `<div class="wall" style="left:${x - 4}px;top:${y + CS + GAP / 2 - 6}px;width:${CS + 8}px;height:12px"></div>`;
+  });
+  html += `<div class="bot" id="bot" style="width:${CS * 0.82}px;height:${CS * 0.82}px;left:${CS * 0.09}px;top:${CS * 0.09}px"><img src="${E("robot")}" alt=""></div>`;
+  grid.innerHTML = html;
+
+  const bot = document.getElementById("bot");
+  let at = [...lv.start];
+  const place = (r, c, nudge) => {
+    const [x, y] = pos(r, c);
+    const [nx, ny] = nudge ? [STEP[nudge][1] * CS * 0.3, STEP[nudge][0] * CS * 0.3] : [0, 0];
+    bot.style.transform = `translate(${x + nx}px, ${y + ny}px)`;
+  };
+  place(...at);
+
+  // program
+  const prog = [];
+  const slots = document.getElementById("slots");
+  const paint = (running = -1) => {
+    slots.innerHTML = Array.from({ length: MAX }, (_, i) =>
+      `<div class="slot ${prog[i] ? "on" : ""} ${i === running ? "run" : ""}">${prog[i] ? ARROW[prog[i]] : ""}</div>`).join("");
+  };
+  paint();
+  let busy = false;
+  const add = (d) => { if (busy || prog.length >= MAX) return; prog.push(d); paint(); };
+  document.querySelector(".pad").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) add(b.dataset.dir); });
+  addEventListener("keydown", (e) => { const m = { ArrowUp: "U", ArrowDown: "D", ArrowLeft: "L", ArrowRight: "R" }[e.key]; if (m) add(m); });
+  document.getElementById("clear").onclick = () => { if (busy) return; prog.length = 0; paint(); at = [...lv.start]; place(...at); };
+
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  document.getElementById("run").onclick = async () => {
+    if (busy || !prog.length) return;
+    busy = true; at = [...lv.start]; place(...at); await wait(250);
+    for (let i = 0; i < prog.length; i++) {
+      paint(i);
+      const d = prog[i];
+      if (!canMove(at[0], at[1], d)) {
+        place(at[0], at[1], d); await wait(220); place(...at);
+        const bd = document.querySelector(".board"); bd.classList.add("shake"); await wait(500); bd.classList.remove("shake");
+        busy = false; paint();
+        feedback(false, "Ôi, rô-bốt bị chặn rồi! Em xem lại bước thứ " + (i + 1) + " nhé.", { next: () => { at = [...lv.start]; place(...at); } });
+        return;
+      }
+      at = [at[0] + STEP[d][0], at[1] + STEP[d][1]];
+      place(...at); await wait(450);
+    }
+    busy = false; paint();
+    if (at[0] === lv.goal[0] && at[1] === lv.goal[1]) feedback(true, "Rô-bốt đã tới lá cờ. Em lập trình giỏi lắm!", { next: () => location.reload() });
+    else feedback(false, "Rô-bốt chưa tới lá cờ. Em thêm bước nữa nhé!", { next: () => { at = [...lv.start]; place(...at); } });
+  };
+  document.getElementById("replay").onclick = () => speak("Đưa rô-bốt đến lá cờ nhé!");
+  guide([
+    "Tìm rô-bốt và lá cờ trên bảng.",
+    "Chạm các mũi tên để xếp từng bước đi cho rô-bốt.",
+    T > 1 ? "Rô-bốt không đi qua được <b>tường đỏ</b> và <b>ô gạch</b>." : "Mỗi mũi tên là một ô.",
+    "Bấm <b>Chạy!</b> để xem rô-bốt đi. Sai thì bấm <b>Làm lại</b>.",
+  ]);
+  boot(); mockbar({ tiers: true });
+  setTimeout(() => speak("Đưa rô-bốt đến lá cờ nhé!"), 600);
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "tham-tu-toan-hoc-ti-hon",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Thám tử Toán học Tí hon — grade 1 math games (frontend only)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "audio:script": "node scripts/audio-script.ts",
+    "ui:check": "node scripts/ui-check.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}

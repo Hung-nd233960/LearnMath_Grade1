@@ -1,0 +1,151 @@
+/* Shared components. Classes match the clickable mockup in mockup/v2/. */
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: absolute; top: 26px; left: 36px; right: 36px; height: 76px;
+  display: flex; align-items: center; justify-content: space-between; z-index: 5;
+}
+.topbar .mid { display: flex; align-items: center; gap: 14px; font-family: "Baloo 2"; font-weight: 700; font-size: 22px; }
+.topbar .right { display: flex; gap: 14px; }
+
+.btn-round {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--white); color: var(--navy);
+  display: grid; place-items: center;
+  box-shadow: var(--shadow);
+  transition: transform 0.12s;
+}
+.btn-round:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(30, 42, 74, 0.14); }
+.btn-round.dark { background: var(--navy); color: #fff; box-shadow: 0 6px 0 #0d1530; }
+.btn-round.info { font-family: "Baloo 2"; font-weight: 800; font-size: 34px; background: var(--yellow); box-shadow: 0 6px 0 #d99a12; }
+.btn-round svg { width: 34px; height: 34px; }
+
+/* The speaker button holds both icons; the <html> class .is-muted picks one. */
+.speaker .i-on { display: contents; }
+.speaker .i-off { display: none; }
+.is-muted .speaker .i-on { display: none; }
+.is-muted .speaker .i-off { display: contents; }
+
+.tier-badge { background: var(--navy); color: #fff; border-radius: 999px; padding: 4px 18px 2px; font-size: 20px; }
+.dots { display: flex; gap: 8px; }
+.dots span { width: 22px; height: 22px; border-radius: 50%; border: 3.5px solid var(--navy); background: #fff; }
+.dots span.done { background: var(--navy); }
+.dots span.now { background: var(--yellow); border-color: var(--navy); transform: scale(1.18); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: "Baloo 2"; font-weight: 800; font-size: 30px;
+  border-radius: 999px; padding: 14px 40px 10px;
+  display: inline-flex; align-items: center; gap: 12px;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn-primary { background: var(--green); color: #fff; box-shadow: 0 8px 0 var(--green-dark); }
+.btn-primary:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--green-dark); }
+.btn-secondary { background: #fff; color: var(--navy); border: 4px solid var(--navy); box-shadow: 0 8px 0 var(--navy); }
+.btn-secondary:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--navy); }
+
+/* ---------- Cards & prompts ---------- */
+.card { background: #fff; border-radius: 30px; box-shadow: var(--shadow-lg); }
+.prompt {
+  position: absolute; top: 112px; left: 60px; right: 60px;
+  text-align: center; font-family: "Baloo 2"; font-weight: 800; font-size: 32px; line-height: 1.2;
+  display: flex; justify-content: center; align-items: center; gap: 12px;
+}
+.prompt .replay {
+  width: 46px; height: 46px; border-radius: 50%; background: #fff; box-shadow: 0 4px 0 rgba(30, 42, 74, 0.14);
+  display: grid; place-items: center; flex: none;
+}
+.prompt .replay svg { width: 24px; height: 24px; }
+
+/* speech bubble */
+.bubble {
+  position: relative; background: #fff; border-radius: 28px; padding: 18px 26px 14px;
+  font-family: "Baloo 2"; font-weight: 800; font-size: 30px; box-shadow: var(--shadow-lg);
+}
+.bubble::before {
+  content: ""; position: absolute; left: -18px; top: 34px;
+  border: 14px solid transparent; border-right: 22px solid #fff; border-left: 0;
+}
+
+/* ---------- Draggable items (drag OR tap-then-tap; see dragTap.ts) ---------- */
+[data-item] { cursor: grab; touch-action: none; transition: transform 0.15s, opacity 0.15s; }
+[data-item]:not([data-fixed]):hover { transform: translateY(-3px) scale(1.06); }
+[data-item].selected { transform: scale(1.18); filter: drop-shadow(0 0 0 #fff) drop-shadow(0 0 8px #ffc53d) drop-shadow(0 0 4px #ffc53d); }
+[data-item].dragging { opacity: 0.25; }
+[data-fixed] { cursor: default; }
+.ghost { position: fixed; z-index: 200; pointer-events: none; transform-origin: 0 0; filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.2)); }
+[data-zone].hint-zone { outline: 4px dashed rgba(30, 42, 74, 0.25); outline-offset: 6px; border-radius: 24px; }
+
+/* ---------- Number pad ---------- */
+.numpad { display: grid; grid-template-columns: repeat(4, 76px); gap: 12px; }
+.numpad button {
+  height: 72px; border-radius: 20px; background: #fff;
+  font-family: "Baloo 2"; font-weight: 800; font-size: 36px;
+  box-shadow: 0 6px 0 rgba(30, 42, 74, 0.18);
+}
+.numpad button:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(30, 42, 74, 0.18); }
+.numpad .del { background: #ffe2dc; font-size: 28px; }
+.answer-box {
+  min-width: 84px; height: 84px; border-radius: 22px; border: 4px dashed var(--navy);
+  display: inline-grid; place-items: center; background: #fff;
+  font-family: "Baloo 2"; font-weight: 800; font-size: 44px; padding: 0 10px;
+}
+.answer-box.active { border-style: solid; border-color: var(--green); box-shadow: 0 0 0 6px rgba(47, 138, 76, 0.18); }
+.answer-box.filled { border-style: solid; }
+
+/* ---------- Overlays (feedback, guide) ---------- */
+.overlay {
+  position: absolute; inset: 0; z-index: 50;
+  background: rgba(30, 42, 74, 0.35);
+  display: grid; place-items: center;
+  animation: fade 0.2s;
+}
+.overlay .card { width: 640px; padding: 34px 40px 36px; display: flex; gap: 26px; align-items: center; animation: pop 0.35s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.overlay .meo { width: 170px; height: 170px; flex: none; }
+.overlay h2 { font-size: 40px; line-height: 1.1; }
+.overlay p { font-size: 22px; margin: 8px 0 20px; line-height: 1.4; }
+.overlay .stars { display: flex; gap: 6px; margin-bottom: 14px; }
+.overlay .stars img { width: 54px; }
+.overlay ol { font-size: 21px; line-height: 1.5; padding-left: 26px; margin: 10px 0 20px; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { transform: scale(0.7); opacity: 0; } }
+
+/* ---------- Adult gate: small padlock, hold ~1 s to reach the teacher area ---------- */
+.gate-btn {
+  position: absolute; right: 22px; bottom: 14px; width: 52px; height: 52px; border-radius: 50%; background: #fff; box-shadow: var(--shadow);
+  display: grid; place-items: center; opacity: 0.8; z-index: 6; touch-action: none;
+}
+.gate-btn img { width: 28px; height: 28px; pointer-events: none; }
+.gate-btn::before {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  background: conic-gradient(var(--green) calc(var(--p, 0) * 1turn), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+}
+.gate-tip {
+  position: absolute; right: 88px; bottom: 26px; background: var(--navy); color: #fff; padding: 6px 14px 5px; border-radius: 12px;
+  font: 600 15px "Be Vietnam Pro", sans-serif; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 6; white-space: nowrap;
+}
+.gate-tip.show { opacity: 1; }
+
+/* ---------- Settings switches (teacher area) ---------- */
+.settings h2 { margin-bottom: 10px; }
+.presets { display: flex; gap: 10px; margin-bottom: 8px; }
+.presets button { flex: 1; background: var(--home-bg); border-radius: 18px; padding: 10px 6px 7px; font: 800 20px "Baloo 2"; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.presets button.on { box-shadow: inset 0 0 0 4px var(--green); }
+.presets button img { width: 34px; height: 34px; }
+.sw { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 2px; border-bottom: 2px solid #eef1f7; cursor: pointer; }
+.sw b { font: 800 22px "Baloo 2"; display: block; }
+.sw small { font-size: 15px; color: var(--ink-muted); }
+.sw input { display: none; }
+.sw i { flex: none; width: 72px; height: 42px; border-radius: 999px; background: #cfd6e4; position: relative; transition: background 0.2s; }
+.sw i::after { content: ""; position: absolute; left: 5px; top: 5px; width: 32px; height: 32px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); transition: transform 0.2s cubic-bezier(0.3, 1.5, 0.5, 1); }
+.sw input:checked + i { background: var(--green); }
+.sw input:checked + i::after { transform: translateX(30px); }
+.settings .note { font-size: 15px; color: var(--ink-muted); margin: 12px 0 14px; }
+
+/* Temporary placeholder screen (step 1); removed when the real home screen lands. */
+.placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; }
+.placeholder .meo { width: 220px; height: 220px; }
+.placeholder h1 { font-size: 48px; font-weight: 800; }
+.placeholder p { font-size: 22px; margin: 0; color: var(--ink-muted); }

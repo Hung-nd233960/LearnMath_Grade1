@@ -1,0 +1,269 @@
+/* Thám tử Toán học Tí hon — mockup v2 shared styles */
+:root {
+  --navy: #1e2a4a;
+  --navy-soft: #3a4870;
+  --ink-muted: #5b6684;
+  --white: #ffffff;
+  --green: #2f8a4c;
+  --green-dark: #1f6235;
+  --red: #e8604c;
+  --yellow: #ffc53d;
+  --shadow: 0 6px 0 rgba(30, 42, 74, 0.14);
+  --shadow-lg: 0 10px 0 rgba(30, 42, 74, 0.12), 0 18px 40px rgba(30, 42, 74, 0.10);
+
+  /* game colours */
+  --scale-bg: #fff4d6;   --scale-tile: #ffe39a;
+  --robot-bg: #e2f3e7;   --robot-tile: #c9ebd3;
+  --basket-bg: #ffeee2;  --basket-tile: #ffd6bd;
+  --eq-bg: #efeafd;      --eq-tile: #ddd2fb;
+  --split-bg: #fdeaf0;   --split-tile: #fbd0dc;
+  --cmp-bg: #e5f0ff;     --cmp-tile: #cde1fb;
+  --home-bg: #eaf2ff;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: #cfd8ea;
+  font-family: "Be Vietnam Pro", system-ui, sans-serif;
+  color: var(--navy);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+h1, h2, h3, .display { font-family: "Baloo 2", "Be Vietnam Pro", sans-serif; margin: 0; }
+img { -webkit-user-drag: none; user-select: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; padding: 0; }
+a { color: inherit; }
+
+/* ---------- Fixed 1180×820 stage, scaled to fit ---------- */
+.stage {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 1180px; height: 820px;
+  transform: translate(-50%, -50%) scale(var(--s, 1));
+  border-radius: 32px;
+  overflow: hidden;
+  background: var(--bg, var(--home-bg));
+  box-shadow: 0 30px 80px rgba(30, 42, 74, 0.25);
+}
+/* soft polka-dot texture for playfulness */
+.stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.55) 2.5px, transparent 3px);
+  background-size: 34px 34px;
+  pointer-events: none;
+}
+
+/* ---------- Portrait / phone notice ---------- */
+#rotate {
+  display: none;
+  position: fixed; inset: 0; z-index: 100;
+  background: var(--home-bg);
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 24px; gap: 16px;
+}
+#rotate .meo { width: 160px; height: 160px; }
+#rotate p { font-family: "Baloo 2"; font-size: 24px; font-weight: 700; max-width: 360px; margin: 0; }
+body.portrait #rotate { display: flex; }
+body.portrait .stage, body.portrait .mockbar { display: none; }
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: absolute; top: 26px; left: 36px; right: 36px; height: 76px;
+  display: flex; align-items: center; justify-content: space-between; z-index: 5;
+}
+.topbar .mid { display: flex; align-items: center; gap: 14px; font-family: "Baloo 2"; font-weight: 700; font-size: 22px; }
+.topbar .right { display: flex; gap: 14px; }
+
+.btn-round {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--white); color: var(--navy);
+  display: grid; place-items: center;
+  box-shadow: var(--shadow);
+  transition: transform .12s;
+}
+.btn-round:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(30, 42, 74, .14); }
+.btn-round.dark { background: var(--navy); color: #fff; box-shadow: 0 6px 0 #0d1530; }
+.btn-round.info { font-family: "Baloo 2"; font-weight: 800; font-size: 34px; background: var(--yellow); box-shadow: 0 6px 0 #d99a12; }
+.btn-round svg { width: 34px; height: 34px; }
+
+.tier-badge {
+  background: var(--navy); color: #fff; border-radius: 999px;
+  padding: 4px 18px 2px; font-size: 20px;
+}
+.dots { display: flex; gap: 8px; }
+.dots span { width: 22px; height: 22px; border-radius: 50%; border: 3.5px solid var(--navy); background: #fff; }
+.dots span.done { background: var(--navy); }
+.dots span.now { background: var(--yellow); border-color: var(--navy); transform: scale(1.18); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: "Baloo 2"; font-weight: 800; font-size: 30px;
+  border-radius: 999px; padding: 14px 40px 10px;
+  display: inline-flex; align-items: center; gap: 12px;
+  transition: transform .12s, box-shadow .12s;
+}
+.btn-primary { background: var(--green); color: #fff; box-shadow: 0 8px 0 var(--green-dark); }
+.btn-primary:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--green-dark); }
+.btn-secondary { background: #fff; color: var(--navy); border: 4px solid var(--navy); box-shadow: 0 8px 0 var(--navy); }
+.btn-secondary:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--navy); }
+
+/* ---------- Cards & prompts ---------- */
+.card { background: #fff; border-radius: 30px; box-shadow: var(--shadow-lg); }
+.prompt {
+  position: absolute; top: 112px; left: 60px; right: 60px;
+  text-align: center; font-family: "Baloo 2"; font-weight: 800; font-size: 32px; line-height: 1.2;
+  display: flex; justify-content: center; align-items: center; gap: 12px;
+}
+.prompt .replay {
+  width: 46px; height: 46px; border-radius: 50%; background: #fff; box-shadow: 0 4px 0 rgba(30,42,74,.14);
+  display: grid; place-items: center; flex: none;
+}
+.prompt .replay svg { width: 24px; height: 24px; }
+
+.emo { display: block; pointer-events: none; }
+
+/* ---------- Draggable items ---------- */
+[data-item] { cursor: grab; touch-action: none; transition: transform .15s, opacity .15s; }
+[data-item]:not([data-fixed]):hover { transform: translateY(-3px) scale(1.06); }
+[data-item].selected { transform: scale(1.18); filter: drop-shadow(0 0 0 #fff) drop-shadow(0 0 8px #ffc53d) drop-shadow(0 0 4px #ffc53d); }
+[data-item].dragging { opacity: .25; }
+[data-fixed] { cursor: default; }
+.ghost { position: fixed; z-index: 200; pointer-events: none; transform-origin: 0 0; filter: drop-shadow(0 10px 8px rgba(0,0,0,.2)); }
+[data-zone].hint-zone { outline: 4px dashed rgba(30,42,74,.25); outline-offset: 6px; border-radius: 24px; }
+
+/* ---------- Number pad ---------- */
+.numpad { display: grid; grid-template-columns: repeat(4, 76px); gap: 12px; }
+.numpad button {
+  height: 72px; border-radius: 20px; background: #fff;
+  font-family: "Baloo 2"; font-weight: 800; font-size: 36px;
+  box-shadow: 0 6px 0 rgba(30,42,74,.18);
+}
+.numpad button:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(30,42,74,.18); }
+.numpad .del { background: #ffe2dc; font-size: 28px; }
+.answer-box {
+  min-width: 84px; height: 84px; border-radius: 22px; border: 4px dashed var(--navy);
+  display: inline-grid; place-items: center; background: #fff;
+  font-family: "Baloo 2"; font-weight: 800; font-size: 44px; padding: 0 10px;
+}
+.answer-box.active { border-style: solid; border-color: var(--green); box-shadow: 0 0 0 6px rgba(47,138,76,.18); }
+.answer-box.filled { border-style: solid; }
+
+/* ---------- Feedback overlay ---------- */
+.overlay {
+  position: absolute; inset: 0; z-index: 50;
+  background: rgba(30, 42, 74, .35);
+  display: grid; place-items: center;
+  animation: fade .2s;
+}
+.overlay .card { width: 640px; padding: 34px 40px 36px; display: flex; gap: 26px; align-items: center; animation: pop .35s cubic-bezier(.3,1.6,.5,1); }
+.overlay .meo { width: 170px; height: 170px; flex: none; }
+.overlay h2 { font-size: 40px; line-height: 1.1; }
+.overlay p { font-size: 22px; margin: 8px 0 20px; line-height: 1.4; }
+.overlay .stars { display: flex; gap: 6px; margin-bottom: 14px; }
+.overlay .stars img { width: 54px; }
+.overlay ol { font-size: 21px; line-height: 1.5; padding-left: 26px; margin: 10px 0 20px; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { transform: scale(.7); opacity: 0; } }
+
+.confetti { position: absolute; top: -20px; width: 14px; height: 20px; border-radius: 4px; z-index: 60; animation: fall 1.8s ease-in forwards; }
+@keyframes fall { to { transform: translate(var(--dx), 900px) rotate(var(--r)); opacity: .9; } }
+
+@keyframes shake { 20%,60% { transform: translateX(-10px); } 40%,80% { transform: translateX(10px); } }
+.shake { animation: shake .45s; }
+
+/* speech bubble */
+.bubble {
+  position: relative; background: #fff; border-radius: 28px; padding: 18px 26px 14px;
+  font-family: "Baloo 2"; font-weight: 800; font-size: 30px; box-shadow: var(--shadow-lg);
+}
+.bubble::before {
+  content: ""; position: absolute; left: -18px; top: 34px;
+  border: 14px solid transparent; border-right: 22px solid #fff; border-left: 0;
+}
+
+/* ---------- Mockup-only review bar (outside the stage) ---------- */
+.mockbar {
+  position: fixed; left: 10px; bottom: 10px; z-index: 300;
+  background: rgba(30, 42, 74, .92); color: #fff; border-radius: 14px;
+  font: 600 13px/1.2 "Be Vietnam Pro", sans-serif; padding: 8px 10px;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap; max-width: calc(100vw - 20px);
+}
+.mockbar b { color: #ffc53d; }
+.mockbar a, .mockbar button { color: #fff; text-decoration: none; padding: 4px 8px; border-radius: 8px; background: rgba(255,255,255,.12); }
+.mockbar a.on, .mockbar button.on { background: #ffc53d; color: var(--navy); }
+.mockbar .sep { opacity: .4; }
+.mockbar.min > :not(.toggle) { display: none; }
+
+/* ======================================================================
+   Eye candy — every effect is switched by a class on <html>:
+   fx-anim (motion), fx-decor (background pictures), fx-celebrate (confetti/sparkles), fx-sfx (sound effects)
+   ====================================================================== */
+.decor { position: absolute; inset: 0; pointer-events: none; display: none; }
+.fx-decor .decor { display: block; }
+.decor img { position: absolute; opacity: .22; }
+.fx-anim .decor img { animation: drift 7s ease-in-out infinite alternate; }
+.decor img:nth-child(2n) { animation-duration: 9s; animation-delay: -3s; }
+.decor img:nth-child(3n) { animation-duration: 11s; animation-delay: -5s; }
+@keyframes drift { to { transform: translateY(-18px) rotate(10deg); } }
+
+.fx-anim .meo svg { animation: bob 3.2s ease-in-out infinite; transform-origin: 50% 90%; overflow: visible; }
+@keyframes bob { 50% { transform: translateY(-6px) rotate(-2deg); } }
+.fx-anim .meo .eyes { animation: blink 4.5s infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.fx-anim .overlay .meo[data-meo="happy"] svg { animation: jump .55s ease-out 3; }
+@keyframes jump { 40% { transform: translateY(-26px) rotate(-6deg); } 70% { transform: translateY(0) scale(1.05, .95); } }
+
+.fx-anim .card, .fx-anim .tile, .fx-anim .kid, .fx-anim .choice, .fx-anim .btn-round { animation: popIn .55s cubic-bezier(.3,1.5,.5,1) backwards; }
+.fx-anim .tile:nth-child(2), .fx-anim .kid:nth-child(2), .fx-anim .choice:nth-child(2) { animation-delay: .06s; }
+.fx-anim .tile:nth-child(3), .fx-anim .kid:nth-child(3), .fx-anim .choice:nth-child(3) { animation-delay: .12s; }
+.fx-anim .tile:nth-child(4), .fx-anim .kid:nth-child(4), .fx-anim .choice:nth-child(4) { animation-delay: .18s; }
+.fx-anim .tile:nth-child(5), .fx-anim .kid:nth-child(5) { animation-delay: .24s; }
+.fx-anim .tile:nth-child(6), .fx-anim .kid:nth-child(6) { animation-delay: .30s; }
+.fx-anim .kid:nth-child(7) { animation-delay: .36s; } .fx-anim .kid:nth-child(8) { animation-delay: .42s; }
+@keyframes popIn { from { transform: scale(.82) translateY(24px); opacity: 0; } }
+
+.fx-anim .tile .art { animation: bob 3s ease-in-out infinite; }
+.fx-anim .tile:nth-child(2n) .art { animation-delay: -1.5s; }
+.fx-anim .chip img, .fx-anim .tile .got img:not(.dim) { animation: twinkle 2.6s ease-in-out infinite; }
+@keyframes twinkle { 50% { transform: scale(1.18) rotate(12deg); } }
+.fx-anim .dots span.now { animation: pulse 1.3s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.38); } }
+.fx-anim [data-item].selected { animation: wiggle .5s ease-in-out infinite; }
+@keyframes wiggle { 0%, 100% { transform: scale(1.18) rotate(-7deg); } 50% { transform: scale(1.22) rotate(7deg); } }
+.fx-anim [data-item]:not([data-fixed]):hover, .fx-anim .flower:hover { animation: wobble .5s ease-in-out; }
+@keyframes wobble { 30% { transform: rotate(-10deg) scale(1.08); } 60% { transform: rotate(8deg) scale(1.08); } }
+html:not(.fx-anim) .overlay, html:not(.fx-anim) .overlay .card { animation: none; }
+
+.spark { position: absolute; width: 36px; height: 36px; margin: -18px 0 0 -18px; z-index: 70; pointer-events: none; animation: spark .75s ease-out forwards; }
+@keyframes spark { from { transform: translate(0, 0) scale(.3); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(90deg); opacity: 0; } }
+
+/* settings panel */
+.overlay .card:has(.settings) { display: block; width: 600px; }
+.settings h2 { margin-bottom: 10px; }
+.presets { display: flex; gap: 10px; margin-bottom: 8px; }
+.presets button { flex: 1; background: var(--home-bg); border-radius: 18px; padding: 10px 6px 7px; font: 800 20px "Baloo 2"; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.presets button img { width: 34px; height: 34px; }
+.sw { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 2px; border-bottom: 2px solid #eef1f7; cursor: pointer; }
+.sw b { font: 800 22px "Baloo 2"; display: block; }
+.sw small { font-size: 15px; color: var(--ink-muted); }
+.sw input { display: none; }
+.sw i { flex: none; width: 72px; height: 42px; border-radius: 999px; background: #cfd6e4; position: relative; transition: background .2s; }
+.sw i::after { content: ""; position: absolute; left: 5px; top: 5px; width: 32px; height: 32px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.2); transition: transform .2s cubic-bezier(.3,1.5,.5,1); }
+.sw input:checked + i { background: var(--green); }
+.sw input:checked + i::after { transform: translateX(30px); }
+.settings .note { font-size: 15px; color: var(--ink-muted); margin: 12px 0 14px; }
+
+/* adult gate: small padlock, hold ~1s to open the teacher area (PIN still required) */
+.gate-btn { position: absolute; right: 22px; bottom: 14px; width: 52px; height: 52px; border-radius: 50%; background: #fff; box-shadow: var(--shadow);
+  display: grid; place-items: center; opacity: .8; z-index: 6; touch-action: none; }
+.gate-btn img { width: 28px; height: 28px; pointer-events: none; }
+.gate-btn::before { content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  background: conic-gradient(var(--green) calc(var(--p, 0) * 1turn), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px)); }
+.gate-tip { position: absolute; right: 88px; bottom: 26px; background: var(--navy); color: #fff; padding: 6px 14px 5px; border-radius: 12px;
+  font: 600 15px "Be Vietnam Pro", sans-serif; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 6; white-space: nowrap; }
+.gate-tip.show { opacity: 1; }

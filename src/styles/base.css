@@ -1,0 +1,55 @@
+/* Reset, page, the fixed 1180×820 stage, and the portrait notice. */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: #cfd8ea;
+  font-family: "Be Vietnam Pro", system-ui, sans-serif;
+  color: var(--navy);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior: none;
+}
+h1, h2, h3, .display { font-family: "Baloo 2", "Be Vietnam Pro", sans-serif; margin: 0; }
+img { -webkit-user-drag: none; user-select: none; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; padding: 0; }
+a { color: inherit; }
+.emo { display: block; pointer-events: none; }
+
+/* The stage is always 1180×820 and is scaled to fit the window (--s is set by stage.ts). */
+.stage {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 1180px; height: 820px;
+  transform: translate(-50%, -50%) scale(var(--s, 1));
+  border-radius: 32px;
+  overflow: hidden;
+  background: var(--bg, var(--home-bg));
+  box-shadow: 0 30px 80px rgba(30, 42, 74, 0.25);
+}
+/* soft polka-dot texture */
+.stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.55) 2.5px, transparent 3px);
+  background-size: 34px 34px;
+  pointer-events: none;
+}
+/* One screen at a time; screens position their own children absolutely inside it. */
+.screen { position: absolute; inset: 0; }
+
+/* Portrait or phone: ask for a landscape tablet instead of drawing the stage. */
+#rotate {
+  display: none;
+  position: fixed; inset: 0; z-index: 100;
+  background: var(--home-bg);
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 24px; gap: 16px;
+}
+#rotate .meo { width: 160px; height: 160px; }
+#rotate p { font-family: "Baloo 2"; font-size: 24px; font-weight: 700; max-width: 360px; margin: 0; }
+body.portrait #rotate { display: flex; }
+body.portrait .stage { display: none; }
+
+@keyframes shake { 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+.shake { animation: shake 0.45s; }

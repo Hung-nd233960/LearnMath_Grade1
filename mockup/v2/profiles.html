@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chọn bạn chơi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .stage { --bg: var(--home-bg); }
+  .head { position: absolute; left: 60px; right: 60px; top: 40px; display: flex; align-items: center; gap: 24px; }
+  .head .meo { width: 150px; height: 150px; }
+  .head h1 { font-size: 50px; font-weight: 800; }
+  .head p { margin: 4px 0 0; font-size: 22px; }
+  .kids { position: absolute; left: 60px; right: 60px; top: 230px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .kid { height: 236px; border-radius: 30px; background: #fff; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-decoration: none; transition: transform .15s; }
+  .kid:hover { transform: translateY(-5px) rotate(-1deg); }
+  .kid .av { width: 130px; height: 130px; border-radius: 50%; display: grid; place-items: center; }
+  .kid b { font: 800 30px "Baloo 2"; }
+  .kid.add { background: transparent; border: 5px dashed #9fb0d0; box-shadow: none; color: var(--ink-muted); }
+  .kid.add .av { background: #fff; font: 800 70px "Baloo 2"; color: #9fb0d0; }
+  .note { position: absolute; bottom: 30px; left: 60px; right: 60px; text-align: center; color: var(--ink-muted); font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="head"><div class="meo" data-meo="normal"></div><div><h1>Ai đang chơi hôm nay?</h1><p>Chạm vào hình của em nhé!</p></div></div>
+  <div class="kids" id="kids"></div>
+  <div class="note">Hồ sơ được lưu trên máy này. Thầy cô thêm hoặc xoá bạn trong khu vực giáo viên.</div>
+</div>
+<script src="shared.js"></script>
+<script>
+  const KIDS = [["Bình", "rocket", "#e3dafb"], ["An", "rainbow", "#d9f0ff"], ["Chi", "strawberry", "#ffe0e6"], ["Dũng", "soccer_ball", "#dff3e4"],
+                ["Hà", "sun_with_face", "#fff1c7"], ["Khôi", "kite", "#ffe3d3"], ["Linh", "cherry_blossom", "#fde3ef"]];
+  document.getElementById("kids").innerHTML = KIDS.map(([n, e, c]) =>
+    `<a class="kid" href="index.html"><span class="av" style="background:${c}">${img(e, 92)}</span><b>${n}</b></a>`).join("") +
+    `<a class="kid add" href="#"><span class="av">+</span><b>Thêm bạn</b></a>`;
+  boot(); mockbar();
+  setTimeout(() => speak("Ai đang chơi hôm nay? Chạm vào hình của em nhé!"), 600);
+</script>
+</body>
+</html>

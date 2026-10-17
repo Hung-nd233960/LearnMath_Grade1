@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tính theo hình</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .stage { --bg: var(--eq-bg); }
+  .board { position: absolute; left: 40px; top: 186px; width: 720px; bottom: 40px; padding: 26px 30px; display: flex; flex-direction: column; gap: 16px; justify-content: center; }
+  .known { display: flex; gap: 14px; align-items: center; justify-content: center; background: var(--eq-bg); border-radius: 22px; padding: 10px 16px; }
+  .known b { font-family: "Baloo 2"; font-size: 22px; margin-right: 6px; }
+  .known .kv { display: flex; align-items: center; gap: 4px; background: #fff; border-radius: 999px; padding: 4px 16px 4px 6px; font-family: "Baloo 2"; font-weight: 800; font-size: 30px; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 24px; background: #f7f5fe; font-family: "Baloo 2"; font-weight: 800; font-size: 46px; min-height: 98px; }
+  .row .tag { font-size: 16px; line-height: 1.1; width: 70px; text-align: center; color: var(--ink-muted); display: flex; flex-direction: column; align-items: center; gap: 2px; margin-right: 6px; }
+  .row .num { min-width: 72px; height: 72px; border-radius: 20px; background: #fff; display: grid; place-items: center; box-shadow: inset 0 0 0 3px #d8d2f0; }
+  .row .op { color: var(--navy-soft); width: 30px; text-align: center; }
+  .row.q { background: #fff3c4; box-shadow: 0 0 0 4px #ffc53d; }
+  .side { position: absolute; left: 790px; right: 40px; top: 186px; bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 22px; padding-top: 6px; }
+  .side .numpad { grid-template-columns: repeat(3, 96px); }
+  .side .numpad button { height: 80px; font-size: 40px; }
+  .side .numpad [data-n="0"] { grid-column: 1 / 3; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div id="top"></div>
+  <div class="prompt"><span id="q"></span><button class="replay" id="replay"></button></div>
+  <div class="board card" id="board"></div>
+  <div class="side">
+    <div class="numpad" id="pad"></div>
+    <button class="btn btn-primary" id="done">Xong</button>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+  const T = tier();
+  const NAME = { red_apple: "táo", pear: "lê", watermelon: "dưa hấu" };
+  const LEVELS = {
+    1: { known: { pear: 2, red_apple: 1 }, clues: [], ask: ["pear", "red_apple"], ans: 3,
+         q: "Mỗi quả có một con số. Lê cộng táo bằng mấy?", hint: "Lê là 2, táo là 1. Em đếm thêm: 2, rồi 3…" },
+    2: { known: {}, clues: [[["red_apple", "red_apple"], 2], [["red_apple", "pear"], 3]], ask: ["pear"], ans: 2,
+         q: "Đọc manh mối và tìm xem quả lê là số mấy?", hint: "Tìm táo trước nhé: táo cộng táo bằng 2, vậy táo là mấy?" },
+    3: { known: {}, clues: [[["red_apple", "red_apple", "red_apple"], 6], [["red_apple", "pear"], 3], [["red_apple", "pear", "watermelon"], 6]], ask: ["watermelon"], ans: 3,
+         q: "Ba manh mối! Quả dưa hấu là số mấy?", hint: "Bắt đầu từ manh mối 1: ba quả táo bằng 6. Rồi tìm lê, rồi tìm dưa hấu." },
+  };
+  const lv = LEVELS[T];
+
+  document.getElementById("top").outerHTML = topbar({ done: 1 });
+  document.getElementById("replay").innerHTML = ICON.replay;
+  document.getElementById("done").innerHTML = ICON.check + " Xong";
+  document.getElementById("q").textContent = lv.q;
+
+  const lhs = (arr) => arr.map((k) => img(k, 76)).join(`<span class="op">+</span>`);
+  let html = "";
+  if (Object.keys(lv.known).length)
+    html += `<div class="known"><b>Bảng số:</b>${Object.entries(lv.known).map(([k, v]) => `<span class="kv">${img(k, 46)}= ${v}</span>`).join("")}</div>`;
+  lv.clues.forEach(([arr, v], i) => {
+    html += `<div class="row"><span class="tag">${img("magnifying_glass_tilted_left", 30)}Manh mối ${i + 1}</span>${lhs(arr)}<span class="op">=</span><span class="num">${v}</span></div>`;
+  });
+  html += `<div class="row q"><span class="tag">${img("thinking_face", 34)}Câu hỏi</span>${lhs(lv.ask)}<span class="op">=</span><span class="answer-box" id="ans"></span></div>`;
+  document.getElementById("board").innerHTML = html;
+
+  numpad(document.getElementById("pad"));
+  document.getElementById("done").onclick = () => {
+    const v = document.getElementById("ans").dataset.v;
+    if (v === undefined || v === "") return speak("Em chọn một số trên bàn phím nhé.");
+    if (+v === lv.ans) feedback(true, "Đúng rồi! Em là thám tử giải mã giỏi lắm!", { next: () => location.reload() });
+    else feedback(false, lv.hint);
+  };
+  document.getElementById("replay").onclick = () => speak(lv.q);
+  guide([
+    "Mỗi loại quả là <b>một con số</b>.",
+    T === 1 ? "Xem <b>Bảng số</b> để biết mỗi quả là số mấy, rồi cộng lại." : "Tìm manh mối <b>chỉ có một loại quả</b> chưa biết và giải nó trước.",
+    T === 3 ? "Biết một quả rồi thì thay số vào manh mối tiếp theo." : "Chạm số trên bàn phím để trả lời.",
+    "Bấm <b>Xong</b> để kiểm tra.",
+  ]);
+  boot(); mockbar({ tiers: true });
+  setTimeout(() => speak(lv.q), 600);
+</script>
+</body>
+</html>

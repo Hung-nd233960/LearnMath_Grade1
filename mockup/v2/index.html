@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thám tử Toán học Tí hon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .stage { --bg: var(--home-bg); }
+  header { position: absolute; top: 26px; left: 40px; right: 40px; height: 76px; display: flex; align-items: center; gap: 14px; }
+  header h1 { font-size: 36px; font-weight: 800; flex: 1; }
+  .who {
+    display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 999px;
+    padding: 6px 20px 6px 8px; box-shadow: var(--shadow); font-family: "Baloo 2"; font-weight: 800; font-size: 24px; text-decoration: none;
+  }
+  .who .av { width: 58px; height: 58px; border-radius: 50%; background: var(--eq-tile); display: grid; place-items: center; }
+
+  .hero { position: absolute; top: 118px; left: 40px; right: 40px; height: 200px; display: flex; align-items: center; padding: 0 40px 0 26px; gap: 22px; }
+  .hero .meo { width: 170px; height: 170px; margin-top: -10px; flex: none; }
+  .hero > div:nth-child(2) { flex: 1; min-width: 0; }
+  .hero h2 { font-size: 40px; font-weight: 800; line-height: 1.1; }
+  .hero p { font-size: 22px; margin: 6px 0 14px; }
+  .chips { display: flex; gap: 10px; }
+  .chip { white-space: nowrap; display: flex; align-items: center; gap: 8px; border-radius: 999px; padding: 5px 14px 3px 6px; font-family: "Baloo 2"; font-weight: 800; font-size: 21px; }
+  .chip.star { background: #fff4cc; } .chip.fire { background: #ffe3d6; } .chip.time { background: #e4efff; }
+  .hero .today { margin-left: auto; text-align: center; background: var(--home-bg); border-radius: 24px; padding: 12px 16px; flex: none; }
+  .hero .today b { font-family: "Baloo 2"; font-size: 18px; display: block; }
+  .week { display: flex; gap: 5px; margin-top: 8px; }
+  .week span { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: "Baloo 2"; font-weight: 800; font-size: 16px; background: #fff; color: var(--ink-muted); }
+  .week span.ok { background: #ffb547; color: #fff; }
+  .week span.is-today { box-shadow: 0 0 0 3px var(--navy); }
+  .week span.off { background: transparent; color: #a8b1c6; }
+
+  .grid { position: absolute; top: 340px; left: 40px; right: 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .tile {
+    height: 192px; border-radius: 30px; position: relative; text-decoration: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    box-shadow: 0 8px 0 rgba(30,42,74,.10); transition: transform .15s;
+  }
+  .tile:hover { transform: translateY(-4px) rotate(-.6deg); }
+  .tile:active { transform: translateY(3px); }
+  .tile h3 { font-size: 30px; font-weight: 800; }
+  .tile .art { height: 118px; display: flex; align-items: flex-end; justify-content: center; }
+  .tile .lvl { position: absolute; top: 14px; left: 16px; background: rgba(255,255,255,.8); border-radius: 999px; padding: 3px 12px 1px; font-family: "Baloo 2"; font-weight: 700; font-size: 16px; }
+  .tile .got { position: absolute; top: 12px; right: 14px; display: flex; gap: 1px; }
+  .tile .got img { width: 26px; height: 26px; }
+  .tile .got img.dim { filter: grayscale(1); opacity: .35; }
+  .tile .new { position: absolute; top: 12px; right: 14px; background: var(--red); color: #fff; border-radius: 999px; padding: 3px 12px 1px; font-family: "Baloo 2"; font-weight: 800; font-size: 16px; transform: rotate(6deg); }
+  .t1 { background: var(--scale-tile); } .t2 { background: var(--robot-tile); } .t3 { background: var(--basket-tile); }
+  .t4 { background: var(--eq-tile); } .t5 { background: var(--split-tile); } .t6 { background: var(--cmp-tile); }
+  .eqart { display: flex; align-items: center; gap: 2px; font-family: "Baloo 2"; font-weight: 800; font-size: 40px; }
+  .gift-b { filter: hue-rotate(200deg); } .gift-g { filter: hue-rotate(110deg); }
+
+</style>
+</head>
+<body>
+<div class="stage">
+  <header>
+    <img class="emo" src="assets/emoji/magnifying_glass_tilted_left_3d.png" width="52" height="52" alt="">
+    <h1>Thám tử Toán học Tí hon</h1>
+    <a class="who" href="profiles.html" title="Đổi bạn chơi"><span class="av"><img class="emo" src="assets/emoji/rocket_3d.png" width="40" height="40" alt=""></span>Bình</a>
+    <button class="btn-round dark" data-speaker></button>
+  </header>
+
+  <section class="hero card">
+    <div class="meo" data-meo="detective"></div>
+    <div>
+      <h2>Chào thám tử nhí Bình!</h2>
+      <p>Mèo Smarty cần em giúp giải các vụ án hôm nay nhé!</p>
+      <div class="chips">
+        <span class="chip star"><img class="emo" src="assets/emoji/glowing_star_3d.png" width="34" height="34" alt="">24 sao</span>
+        <span class="chip fire"><img class="emo" src="assets/emoji/fire_3d.png" width="34" height="34" alt="">3 ngày liền</span>
+        <span class="chip time"><img class="emo" src="assets/emoji/hourglass_not_done_3d.png" width="34" height="34" alt="">còn 22 phút</span>
+      </div>
+    </div>
+    <div class="today">
+      <b>Tuần này</b>
+      <div class="week"><span class="ok">T2</span><span class="ok">T3</span><span class="ok is-today">T4</span><span>T5</span><span>T6</span><span class="off">T7</span><span class="off">CN</span></div>
+    </div>
+  </section>
+
+  <nav class="grid">
+    <a class="tile t1" href="scale.html"><span class="lvl">Vòng 2</span><span class="got"><img src="assets/emoji/star_3d.png"><img src="assets/emoji/star_3d.png"><img class="dim" src="assets/emoji/star_3d.png"></span>
+      <div class="art"><img class="emo" src="assets/emoji/balance_scale_3d.png" width="112" height="112" alt=""></div><h3>Cái cân</h3></a>
+    <a class="tile t2" href="robot.html"><span class="lvl">Vòng 1</span><span class="got"><img src="assets/emoji/star_3d.png"><img class="dim" src="assets/emoji/star_3d.png"><img class="dim" src="assets/emoji/star_3d.png"></span>
+      <div class="art"><img class="emo" src="assets/emoji/robot_3d.png" width="104" height="104" alt=""><img class="emo" src="assets/emoji/triangular_flag_3d.png" width="54" height="54" alt=""></div><h3>Rô-bốt</h3></a>
+    <a class="tile t3" href="basket.html"><span class="lvl">Vòng 1</span><span class="new">Mới!</span>
+      <div class="art"><img class="emo" src="assets/emoji/tangerine_3d.png" width="54" height="54" alt="" style="margin-right:-18px"><img class="emo" src="assets/emoji/basket_3d.png" width="108" height="108" alt=""></div><h3>Giỏ trái cây</h3></a>
+    <a class="tile t4" href="equations.html"><span class="lvl">Vòng 1</span><span class="new">Mới!</span>
+      <div class="art eqart"><img class="emo" src="assets/emoji/red_apple_3d.png" width="64" height="64" alt="">+<img class="emo" src="assets/emoji/pear_3d.png" width="64" height="64" alt="">=?</div><h3>Tính theo hình</h3></a>
+    <a class="tile t5" href="split.html"><span class="lvl">Vòng 1</span><span class="got"><img src="assets/emoji/star_3d.png"><img src="assets/emoji/star_3d.png"><img src="assets/emoji/star_3d.png"></span>
+      <div class="art"><img class="emo" src="assets/emoji/tulip_3d.png" width="78" height="78" alt=""><img class="emo" src="assets/emoji/sunflower_3d.png" width="78" height="78" alt="" style="margin-left:-14px"><img class="emo" src="assets/emoji/tulip_3d.png" width="60" height="60" alt="" style="margin-left:-12px"></div><h3>Mấy và mấy</h3></a>
+    <a class="tile t6" href="compare.html"><span class="lvl">Vòng 1</span><span class="new">Mới!</span>
+      <div class="art"><img class="emo" src="assets/emoji/wrapped_gift_3d.png" width="66" height="66" alt=""><img class="emo gift-b" src="assets/emoji/wrapped_gift_3d.png" width="84" height="84" alt=""><img class="emo gift-g" src="assets/emoji/wrapped_gift_3d.png" width="66" height="66" alt=""></div><h3>So sánh cân</h3></a>
+  </nav>
+
+  <button class="gate-btn" data-adult-gate="teacher.html" title="Khu vực giáo viên (giữ để mở)"><img src="assets/emoji/locked_3d.png" alt="Khu vực giáo viên"></button>
+</div>
+<script src="shared.js"></script>
+<script>
+  boot(); mockbar();
+  document.querySelector(".hero .meo").addEventListener("click", () => speak("Chào thám tử nhí Bình! Mèo Smarty cần em giúp giải các vụ án hôm nay nhé!"));
+</script>
+</body>
+</html>

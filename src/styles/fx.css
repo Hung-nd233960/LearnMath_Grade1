@@ -1,0 +1,47 @@
+/* ======================================================================
+   Eye candy. Every effect is switched by a class on <html>, set from settings.fx:
+   fx-anim (motion), fx-decor (background pictures), fx-celebrate (confetti/sparkles),
+   fx-sfx (sound effects; no CSS needed). With all four off ("Yên tĩnh") screens must still look right.
+   ====================================================================== */
+.decor { position: absolute; inset: 0; pointer-events: none; display: none; }
+.fx-decor .decor { display: block; }
+.decor img { position: absolute; opacity: 0.22; }
+.fx-anim .decor img { animation: drift 7s ease-in-out infinite alternate; }
+.decor img:nth-child(2n) { animation-duration: 9s; animation-delay: -3s; }
+.decor img:nth-child(3n) { animation-duration: 11s; animation-delay: -5s; }
+@keyframes drift { to { transform: translateY(-18px) rotate(10deg); } }
+
+.fx-anim .meo svg { animation: bob 3.2s ease-in-out infinite; transform-origin: 50% 90%; overflow: visible; }
+@keyframes bob { 50% { transform: translateY(-6px) rotate(-2deg); } }
+.fx-anim .meo .eyes { animation: blink 4.5s infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+.fx-anim .overlay .meo[data-mood="happy"] svg { animation: jump 0.55s ease-out 3; }
+@keyframes jump { 40% { transform: translateY(-26px) rotate(-6deg); } 70% { transform: translateY(0) scale(1.05, 0.95); } }
+
+.fx-anim .card, .fx-anim .tile, .fx-anim .kid, .fx-anim .choice, .fx-anim .btn-round { animation: popIn 0.55s cubic-bezier(0.3, 1.5, 0.5, 1) backwards; }
+.fx-anim .tile:nth-child(2), .fx-anim .kid:nth-child(2), .fx-anim .choice:nth-child(2) { animation-delay: 0.06s; }
+.fx-anim .tile:nth-child(3), .fx-anim .kid:nth-child(3), .fx-anim .choice:nth-child(3) { animation-delay: 0.12s; }
+.fx-anim .tile:nth-child(4), .fx-anim .kid:nth-child(4), .fx-anim .choice:nth-child(4) { animation-delay: 0.18s; }
+.fx-anim .tile:nth-child(5), .fx-anim .kid:nth-child(5) { animation-delay: 0.24s; }
+.fx-anim .tile:nth-child(6), .fx-anim .kid:nth-child(6) { animation-delay: 0.3s; }
+.fx-anim .kid:nth-child(7) { animation-delay: 0.36s; }
+.fx-anim .kid:nth-child(8) { animation-delay: 0.42s; }
+@keyframes popIn { from { transform: scale(0.82) translateY(24px); opacity: 0; } }
+
+.fx-anim .tile .art { animation: bob 3s ease-in-out infinite; }
+.fx-anim .tile:nth-child(2n) .art { animation-delay: -1.5s; }
+.fx-anim .chip img, .fx-anim .tile .got img:not(.dim) { animation: twinkle 2.6s ease-in-out infinite; }
+@keyframes twinkle { 50% { transform: scale(1.18) rotate(12deg); } }
+.fx-anim .dots span.now { animation: pulse 1.3s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(1.38); } }
+.fx-anim [data-item].selected { animation: wiggle 0.5s ease-in-out infinite; }
+@keyframes wiggle { 0%, 100% { transform: scale(1.18) rotate(-7deg); } 50% { transform: scale(1.22) rotate(7deg); } }
+.fx-anim [data-item]:not([data-fixed]):hover, .fx-anim .flower:hover { animation: wobble 0.5s ease-in-out; }
+@keyframes wobble { 30% { transform: rotate(-10deg) scale(1.08); } 60% { transform: rotate(8deg) scale(1.08); } }
+html:not(.fx-anim) .overlay, html:not(.fx-anim) .overlay .card { animation: none; }
+
+/* celebration pieces (created by src/ui/effects.ts only when fx-celebrate is on) */
+.confetti { position: absolute; top: -20px; width: 14px; height: 20px; border-radius: 4px; z-index: 60; animation: fall 1.8s ease-in forwards; }
+@keyframes fall { to { transform: translate(var(--dx), 900px) rotate(var(--r)); opacity: 0.9; } }
+.spark { position: absolute; width: 36px; height: 36px; margin: -18px 0 0 -18px; z-index: 70; pointer-events: none; animation: spark 0.75s ease-out forwards; }
+@keyframes spark { from { transform: translate(0, 0) scale(0.3); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(90deg); opacity: 0; } }
