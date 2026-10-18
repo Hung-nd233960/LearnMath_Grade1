@@ -57,7 +57,8 @@ export function createPatternView(): GameView<PatternQuestion, PatternAnswer> {
   /** Put option i in the blank (the child can change their mind and pick another). */
   function pick(i: number) {
     picked = i;
-    blank.replaceChildren(renderToken(q.options[i]!, size));
+    // the blank has a border, so the picture inside is a little smaller than the box: it sits exactly in the middle
+    blank.replaceChildren(renderToken(q.options[i]!, Math.max(40, blank.clientWidth - 2)));
     blank.dataset.k = tokenKey(q.options[i]!);
     blank.classList.add("filled");
     optEls.forEach((o, j) => o.classList.toggle("picked", j === i));

@@ -27,3 +27,9 @@
 .pt-options.grid { left: 640px; right: 60px; top: 230px; flex-wrap: wrap; gap: 28px; align-content: flex-start; justify-content: center; }
 
 .pt #xong { position: absolute; right: 40px; bottom: 40px; }
+
+/* A filled blank reads clearly as "my answer goes here"; numbers are not boxed twice (the blank and the choice card are the boxes). */
+.pt-blank.filled { border-width: 6px; border-style: solid; border-color: var(--yellow); background: #fff8dc; box-shadow: 0 0 0 7px rgba(255, 197, 61, 0.35); }
+.pt-blank .pt-tok, .pt-opt .pt-tok { margin: 0; }
+.pt-blank .pt-tok.num, .pt-opt .pt-tok.num { background: transparent; box-shadow: none; }
+.pt-blank .pt-tok.fruit img { display: block; }

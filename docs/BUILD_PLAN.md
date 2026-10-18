@@ -136,7 +136,7 @@
 - [ ] Record the voice: hand [AUDIO_SCRIPT.md](AUDIO_SCRIPT.md) to the teacher (now 132 clips); drop the files into `public/audio/`
 - [ ] Worked examples for the other four games, if the teachers ask (same pattern; Giỏ trái cây is next in line)
 
-## 14. Feedback round 2 ☐
+## 14. Feedback round 2 ☑
 The teachers' second round (2026-10-18). Each item has a detailed task file in [docs/tasks/](tasks/README.md); do them in order. Where a task file disagrees with CLAUDE.md, the task file wins until task 10 updates CLAUDE.md.
 - [x] 00 Tidy the feedback into `docs/feedbacks/`, move the images ([task](tasks/00-feedback-docs.md))
 - [x] 01 Giải mã hình: rename, several rows in Vòng 1, distinct values ([task](tasks/01-giai-ma-hinh.md))

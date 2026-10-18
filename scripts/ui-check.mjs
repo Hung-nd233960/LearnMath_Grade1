@@ -1907,6 +1907,11 @@ await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, voicePack:
 
 // ---------- 20. A phone sideways (round 2): the wide 1240×600 stage ----------
 // iPhone 15 sideways is 852×393. Controls must stay about 44 CSS px or more after the stage is scaled to fit.
+// the earlier sections used up the child's play time and shrank the limits: start the phone section with a fresh day so a break or the "done for today" screen cannot get in the way
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, limits: { ...d.settings.limits, sessionMin: 30, dailyMin: 60 } } }))`);
+await ev(`__app.store.updateProfile(p => ({ ...p, usage: { ...p.usage, playedMs: 0, sessionMs: 0, bonusMs: 0, lockedEarly: false, breakUntil: null, warned: false } }))`);
+await ev(`__app.time.reload()`);
+await ev(`__app.time.endBreak()`);
 await viewport(852, 393);
 await sleep(400);
 await ev(`__app.go('home')`); await sleep(500);
@@ -1954,20 +1959,24 @@ await ev(`__app.go('home')`); await sleep(400);
 await click(".tile[data-game=pattern]");
 await patReady(0);
 for (let i = 0; i < 5; i++) {
+  await sleep(600); // let the question finish drawing before touching it
   pq = await readPattern();
   await pickOption(patternFits(pq)[0]);
+  if (!(await waitFor(`!!document.querySelector('.pt-blank.filled')`, 1500))) await pickOption(patternFits(pq)[0]); // (a tap that landed on a moving card)
   await click("#xong");
   check(`phone: Quy luật question ${i + 1} is judged right`, (await overlayKind()) === "correct");
   if (i === 2) { await sleep(700); pp = await phoneProblems(); check("phone: the feedback card is inside the stage and its button is big enough", pp.out.length === 0 && pp.small.length === 0, JSON.stringify(pp)); await shot("ui-20-phone-feedback"); }
   await closeOverlay();
   if (i < 4) await patReady(i + 1);
 }
-check("phone: the star screen after a set fits", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await sleep(900), (await phoneProblems()).out.length === 0));
+await waitFor(`!!document.querySelector('.screen-stars')`); await sleep(1200); pp = await phoneProblems();
+check("phone: the star screen after a set fits", !!(await ev(`!!document.querySelector('.screen-stars')`)) && pp.out.length === 0, JSON.stringify([pp, await ev(`JSON.stringify({ hash: location.hash, overlay: document.querySelector('.overlay')?.dataset.kind ?? null, dots: document.querySelectorAll('.dots .done').length, mode: __app.time.snapshot()?.mode, lock: __app.time.snapshot()?.lockDue })`)]));
 await shot("ui-20-phone-stars");
 await click("#back-home");
 await click(".tile[data-game=equations]");
 await eqReady();
 for (let i = 0; i < 5; i++) {
+  await sleep(800); // the board pops in for half a second: touching it earlier lands on a moving box
   const eq = await readEq();
   await fillEq(JSON.parse([...solveEq(eq)][0]));
   await click("#xong");
@@ -1975,7 +1984,8 @@ for (let i = 0; i < 5; i++) {
   await closeOverlay();
   if (i < 4) await eqReady();
 }
-check("phone: the second star screen fits too", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await sleep(900), (await phoneProblems()).out.length === 0));
+await waitFor(`!!document.querySelector('.screen-stars')`); await sleep(1200); pp = await phoneProblems();
+check("phone: the second star screen fits too", !!(await ev(`!!document.querySelector('.screen-stars')`)) && pp.out.length === 0, JSON.stringify(pp));
 await click("#back-home");
 
 // dragging fruit works with the scaled stage
@@ -2001,6 +2011,35 @@ pp = await phoneProblems();
 check("phone: the guide card is inside the stage and its buttons are big enough", pp.out.length === 0 && pp.small.length === 0 && (await ev(`(() => { const c = document.querySelector('.guide-card').getBoundingClientRect(), s = document.querySelector('.stage').getBoundingClientRect(); return c.top >= s.top - 1 && c.bottom <= s.bottom + 1; })()`)), JSON.stringify(pp));
 await shot("ui-20-phone-guide");
 await click(".guide-card .btn-primary");
+
+// round-2 QC from a real iPhone 15 window: the registration form, Mèo's size, the profile picture, the chosen blank
+await ev(`__app.go('who')`); await sleep(500);
+await click("#add-friend");
+await sleep(600);
+check("phone: the registration form fits — every picture is inside the card, none cut off", await ev(`(() => { const c = document.querySelector('.add-card').getBoundingClientRect(); return [...document.querySelectorAll('.av-opt')].every(o => { const r = o.getBoundingClientRect(); return r.left >= c.left && r.right <= c.right && r.top >= c.top && r.bottom <= c.bottom; }) && c.bottom <= document.querySelector('.stage').getBoundingClientRect().bottom; })()`));
+check("phone: the chosen picture has a bold ring and a tick, and every picture is a big enough target", (await ev(`getComputedStyle(document.querySelector('.av-opt.on')).borderTopWidth`)) === "5px" && (await ev(`getComputedStyle(document.querySelector('.av-opt.on'), '::after').content`)).includes("✓") && (await ev(`Math.min(...[...document.querySelectorAll('.av-opt')].map(o => Math.min(o.getBoundingClientRect().width, o.getBoundingClientRect().height)))`)) >= 43);
+await shot("ui-20-phone-register");
+await click(".add-card .btn-secondary");
+await sleep(300);
+await ev(`__app.go('home')`); await sleep(500);
+check("phone: the profile picture in the home chip is centred in its circle (the emoji is smaller than the circle)", await ev(`(() => { const a = document.querySelector('.me-chip .av').getBoundingClientRect(), i = document.querySelector('.me-chip .av img').getBoundingClientRect(); return i.width < a.width * 0.85 && Math.abs((i.left + i.width / 2) - (a.left + a.width / 2)) < 1.5 && Math.abs((i.top + i.height / 2) - (a.top + a.height / 2)) < 1.5; })()`));
+check("phone: Mèo on the home screen is not too big (at most a quarter of the stage height)", await ev(`document.querySelector('.hero .meo').offsetHeight <= 150`));
+await ev(`import('/src/ui/soundPanel.ts').then(m => m.openSoundPanel(__app))`);
+await sleep(500);
+check("phone: in the volume control Mèo's little icon stays small, every row lines up (icons, sliders, switches) and the whole panel fits", (await ev(`document.querySelector('.snd-row .meo').offsetHeight`)) <= 56 && (await ev(`new Set([...document.querySelectorAll('.snd-main')].map(e => Math.round(e.getBoundingClientRect().left))).size`)) === 1 && (await ev(`new Set([...document.querySelectorAll('.snd-sw i')].map(e => Math.round(e.getBoundingClientRect().left))).size`)) === 1 && (await ev(`[...document.querySelectorAll('.snd-sw i')].every(i => i.offsetWidth >= 70 && i.offsetWidth - 5 >= 30 + 32)`)) && // the knob (5 + 30 slide + 32 wide) stays inside its pill
+ await ev(`(() => { const c = document.querySelector('.snd-card').getBoundingClientRect(), s = document.querySelector('.stage').getBoundingClientRect(); return c.top >= s.top - 1 && c.bottom <= s.bottom + 1; })()`));
+await shot("ui-20-phone-volume");
+await click("#snd-done");
+await sleep(300);
+await ev(`__app.go('dev/pattern/1/1/3')`); await waitFor(`!!document.querySelector('.pt-opt')`); await sleep(500);
+await click('.pt-opt[data-i="0"]');
+check("phone: the picture picked for the blank sits exactly in the middle of it and inside its border", await ev(`(() => { const b = document.querySelector('.pt-blank'), k = b.querySelector('.pt-tok'); const br = b.getBoundingClientRect(), kr = k.getBoundingClientRect(); return b.classList.contains('filled') && Math.abs((kr.left + kr.width / 2) - (br.left + br.width / 2)) < 1.5 && Math.abs((kr.top + kr.height / 2) - (br.top + br.height / 2)) < 1.5 && k.offsetWidth <= b.clientWidth; })()`));
+await shot("ui-20-phone-blank");
+await ev(`__app.go('dev/pattern/2/1/2')`); await waitFor(`!!document.querySelector('.pt-opt')`); await sleep(500);
+await click('.pt-opt[data-i="1"]');
+check("phone: a number picked for the blank is centred in it too", await ev(`(() => { const b = document.querySelector('.pt-blank'), k = b.querySelector('.pt-tok'); const br = b.getBoundingClientRect(), kr = k.getBoundingClientRect(); return Math.abs((kr.left + kr.width / 2) - (br.left + br.width / 2)) < 1.5 && Math.abs((kr.top + kr.height / 2) - (br.top + br.height / 2)) < 1.5; })()`));
+await ev(`__app.go('dev/equations/1/2/4')`); await sleep(600);
+check("phone: the answer box that takes the digits is highlighted clearly (bold green border and a halo)", (await ev(`getComputedStyle(document.querySelector('.answer-box.active')).borderTopWidth`)) === "5px" && (await ev(`getComputedStyle(document.querySelector('.answer-box.active')).boxShadow`)).includes('rgba(47, 138, 76'));
 
 // portrait on a phone still asks to turn it
 await viewport(393, 852);
