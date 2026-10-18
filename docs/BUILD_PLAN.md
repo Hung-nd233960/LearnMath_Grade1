@@ -144,7 +144,8 @@ The teachers' second round (2026-10-18). Each item has a detailed task file in [
   - Game id `scale` kept. `games/scale/{balance,compare,infer}.ts` hold the three kinds (`kind` tag); `logic.ts` dispatches. Views: `ui/games/scale.ts` picks `scale/{balance,compare,infer}.ts`; the big scale is one `mountBalance()` shared by Vòng 1 and the inference (drawn at 76%, left pan locked).
   - `compare` is gone from `GAME_IDS`; `pattern` is in, as a stub with `ready: false` (task 03). `SCHEMA` is 2: `games.compare` is dropped, history kept, a scale seed past Vòng 1 step 2 restarts there. Mango emoji added (Fluent, MIT).
   - Guide steps for the scale were re-worded (`guide_scale_1…4`), so the voice packs need those clips regenerated (task 09). `scripts/guide-shots.mjs` and `guide-content.mjs` still mention `compare` (task 10).
-- [ ] 03 Quy luật: new game `pattern` ([task](tasks/03-quy-luat.md))
+- [x] 03 Quy luật: new game `pattern` ([task](tasks/03-quy-luat.md))
+  - `games/pattern/logic.ts`: four kinds (repeat, number, rotate, grid), each question proven to have exactly one fitting option (`fittingOptions`, tested for every position × 300 seeds). View `ui/games/pattern.ts`: tap or drag a choice onto the blank. The tile art is a placeholder (task 07).
 - [ ] 04 Daily plan: games per day, one at a time, replay for no credit ([task](tasks/04-daily-plan.md))
 - [ ] 05 Chia quả: rename, "cần thêm" and "bằng nhau" modes ([task](tasks/05-chia-qua.md))
 - [ ] 06 Mấy và mấy: garden scene with animals ([task](tasks/06-may-va-may-garden.md))

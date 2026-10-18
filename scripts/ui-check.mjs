@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Giải mã hình (step 4), Giỏ trái cây (step 5), Thăng bằng (steps 6 and 8), Rô-bốt (step 7), screen time (step 9), the teacher area (step 10), the guide (step 11) Mèo's worked examples, voice packs, sound mixer and music (step 13).
+// then plays whole sets of Mấy và mấy (step 3), Giải mã hình (step 4), Giỏ trái cây (step 5), Thăng bằng (steps 6 and 8), Quy luật (task 03), Rô-bốt (step 7), screen time (step 9), the teacher area (step 10), the guide (step 11) Mèo's worked examples, voice packs, sound mixer and music (step 13).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -226,7 +226,7 @@ await click(`.kid[data-profile="${binhId}"]`);
 check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
 const chips = async () => (await ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`)).replace(/còn \d+ phút/, 'còn N phút');
 check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn N phút", await chips());
-check("home: six tiles; five games are playable and Quy luật says it is coming soon", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 1 && document.querySelector('.tile[data-game=pattern]').classList.contains('soon') && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Thăng bằng,Rô-bốt,Giỏ trái cây,Giải mã hình,Mấy và mấy,Quy luật'`));
+check("home: six tiles; all six games are playable", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 0 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Thăng bằng,Rô-bốt,Giỏ trái cây,Giải mã hình,Mấy và mấy,Quy luật'`));
 check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
 check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
 await shot("ui-5-home");
@@ -1056,6 +1056,106 @@ check("dev: Vòng 3 step 2 has a chain: one clue scale with only fruit, one with
 await click("#dev-solve");
 await sleep(4600);
 check("dev: 'Giải' puts the right number of cam on the empty pan", (await ev(`document.querySelector('#dev-status').textContent`)) === "revealed" && (await ev(`document.querySelectorAll('.sc-pan.R [data-item]').length`)) === [...inferAnswers(iq)][0]);
+
+// ---------- 11b. Quy luật ----------
+const readPattern = () => ev(`(() => ({
+  kind: document.querySelector('.pt').dataset.kind,
+  tier: document.querySelector('.tier-badge').textContent,
+  cells: [...document.querySelectorAll('.pt-board > .pt-item, .pt-board > .pt-blank')].map(c => c.classList.contains('pt-blank') ? null : c.dataset.k),
+  options: [...document.querySelectorAll('.pt-opt')].map(o => o.dataset.k) }))()`);
+/** The options that keep the rule going, worked out from what is on screen (not from the game's own code). */
+const patternFits = (q) => q.options.filter((opt) => {
+  const row = q.cells.map((c) => c ?? opt), n = row.length;
+  const part = (k) => k.split(":");
+  if (q.kind === "repeat") { for (let p = 1; p <= Math.floor((n - 2) / 2); p++) if (row.every((k, j) => j + p >= n || row[j + p] === k)) return true; return false; }
+  if (q.kind === "number") { const v = row.map((k) => +part(k)[1]); return v.slice(1).every((x, i) => x - v[i] === v[1] - v[0]); }
+  if (q.kind === "rotate") { const c = row.map((k) => +part(k)[2]); const s = c.slice(1).map((x, i) => (x - c[i] + 4) % 4); return s.every((x) => x === s[0]) && s[0] !== 0; }
+  const cells = row.map((k) => part(k)); // grid: every row and column has each outer and each inner shape once
+  for (let r = 0; r < 3; r++) for (const ids of [[0, 1, 2].map((c) => r * 3 + c), [0, 1, 2].map((c) => c * 3 + r)]) for (const f of [1, 2]) if (new Set(ids.map((i) => cells[i][f])).size !== 3) return false;
+  return true;
+});
+const patReady = (idx) => waitFor(`!document.querySelector('.overlay') && !!document.querySelector('.pt') && document.querySelectorAll('.dots .done').length === ${idx} && !document.querySelector('.pt-blank.right, .pt-blank.wrong')`);
+const pickOption = (k) => click(`.pt-opt[data-k="${k}"]`);
+
+await ev(`location.hash = '#/home'`); await sleep(400);
+check("home: the Quy luật tile is playable", await ev(`!document.querySelector('.tile[data-game=pattern]').classList.contains('soon')`));
+await click(".tile[data-game=pattern]");
+await patReady(0);
+await shot("ui-11b-pattern-first");
+let pq = await readPattern();
+check("pattern Vòng 1: a repeating row of fruit with the blank at the end and three choices", pq.tier === "Vòng 1" && pq.kind === "repeat" && pq.cells[pq.cells.length - 1] === null && pq.options.length === 3 && pq.cells.every((c) => c === null || c.startsWith("fruit:")));
+await click("#xong");
+check("pattern: Xong with nothing chosen is a nudge, not an answer", (await ev(`!document.querySelector('.overlay')`)) && (await questionIndex()) === 0);
+
+// drag a choice onto the blank, then change my mind by tapping another
+const [ox, oy] = await center(`.pt-opt[data-i="0"]`);
+const [bx, by] = await center(".pt-blank");
+await mouse("mousePressed", ox, oy);
+for (let i = 1; i <= 6; i++) { await mouse("mouseMoved", ox + ((bx - ox) * i) / 6, oy + ((by - oy) * i) / 6); await sleep(16); }
+await mouse("mouseReleased", bx, by); await sleep(200);
+check("pattern: a choice can be dragged onto the blank", (await ev(`document.querySelector('.pt-blank').dataset.k`)) === pq.options[0] && (await ev(`document.querySelector('.pt-opt[data-i="0"]').classList.contains('picked')`)));
+await pickOption(pq.options[1]);
+check("pattern: tapping another choice changes the answer", (await ev(`document.querySelector('.pt-blank').dataset.k`)) === pq.options[1] && (await ev(`document.querySelectorAll('.pt-opt.picked').length`)) === 1);
+
+// --- set 1: all correct, solved from the screen ---
+const ptKinds = [], ptFits = [];
+for (let i = 0; i < 5; i++) {
+  pq = await readPattern();
+  ptKinds.push(`${pq.tier}:${pq.kind}`);
+  const fits = patternFits(pq);
+  ptFits.push(fits.length);
+  await pickOption(fits[0]);
+  await click("#xong");
+  check(`pattern set, question ${i + 1} (${pq.tier} ${pq.kind}): the right choice is praised`, (await overlayKind()) === "correct");
+  if (i === 1) await shot("ui-11b-pattern-feedback");
+  await closeOverlay();
+  if (i < 4) await patReady(i + 1);
+}
+check("pattern: exactly one choice fits on every question of the set", ptFits.every((n) => n === 1), ptFits.join());
+check("pattern: the set starts in Vòng 1 and rises", ptKinds[0].startsWith("Vòng 1") && ptKinds[1].startsWith("Vòng 2"), ptKinds.join());
+check("pattern: star screen, saved", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await profileOf(anId)).games.pattern.sets === 1);
+await click("#back-home");
+
+// --- set 2: wrong then right; wrong twice → reveal ---
+await click(".tile[data-game=pattern]");
+await patReady(0);
+pq = await readPattern();
+let good = patternFits(pq)[0];
+await pickOption(pq.options.find((k) => k !== good));
+await click("#xong");
+check("pattern: a wrong choice → retry card, the blank turns red", (await overlayKind()) === "retry" && (await ev(`!!document.querySelector('.pt-blank.wrong')`)));
+await closeOverlay();
+check("pattern: after a wrong try the blank is empty again and the choices can be tapped", (await ev(`!document.querySelector('.pt-blank.filled, .pt-blank.wrong') && !document.querySelector('.pt-opt.wrong, .pt-opt.picked')`)));
+await pickOption(good);
+await click("#xong");
+check("pattern: right on the retry is praised", (await overlayKind()) === "correct");
+await closeOverlay();
+await patReady(1);
+pq = await readPattern();
+good = patternFits(pq)[0];
+const bad = pq.options.find((k) => k !== good);
+await pickOption(bad); await click("#xong"); await overlayKind(); await closeOverlay();
+await pickOption(bad); await click("#xong");
+check("pattern: wrong twice → the answer is revealed", (await overlayKind()) === "reveal");
+check("pattern: the reveal fills the blank with the right choice", (await ev(`document.querySelector('.pt-blank').dataset.k`)) === good && (await ev(`!!document.querySelector('.pt-blank.right')`)));
+await closeOverlay();
+await ev(`location.hash = '#/home'`); await sleep(300);
+
+// --- the dev route: every kind of puzzle can be solved from the screen ---
+for (const [route, kind, round] of [["dev/pattern/2/0/5", "repeat", "Vòng 2"], ["dev/pattern/2/1/2", "number", "Vòng 2"], ["dev/pattern/3/0/4", "rotate", "Vòng 3"], ["dev/pattern/3/1/8", "rotate", "Vòng 3"], ["dev/pattern/3/2/6", "grid", "Vòng 3"]]) {
+  await devAt(route, round);
+  pq = await readPattern();
+  check(`dev ${route}: a ${kind} puzzle with exactly one fitting choice`, pq.kind === kind && patternFits(pq).length === 1, `${pq.kind} ${patternFits(pq).length}`);
+  if (kind === "grid") await shot("ui-11b-pattern-grid");
+  if (kind === "rotate") await shot("ui-11b-pattern-rotate");
+  await pickOption(patternFits(pq)[0]);
+  await click("#xong");
+  check(`dev ${route}: the fitting choice is judged right`, await waitFor(`document.querySelector('#dev-status').textContent === '✔ right'`));
+}
+await devAt("dev/pattern/2/1/2", "Vòng 2");
+await click("#dev-solve");
+await sleep(2000);
+check("dev: 'Giải' fills the blank with the right choice", (await ev(`document.querySelector('#dev-status').textContent`)) === "revealed" && (await ev(`!!document.querySelector('.pt-blank.right')`)));
 
 // ---------- 12. screen time (step 9) ----------
 // Tiny limits (seconds, not minutes) let the real clock be tested end to end.

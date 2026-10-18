@@ -85,6 +85,15 @@ export const CLIP_GROUPS = {
     split_hint_sum: "Hai phần cộng lại phải bằng số ở trên.",
     split_ok: "Em đếm rất cẩn thận!",
   },
+  "Quy luật": {
+    pattern_prompt: "Tìm hình còn thiếu nhé!",
+    pattern_number: "Tìm số còn thiếu nhé!",
+    pattern_hint_repeat: "Em xem mấy hình đầu lặp lại thế nào nhé.",
+    pattern_hint_number: "Mỗi lần số tăng hay giảm mấy?",
+    pattern_hint_rotate: "Em xem chấm xanh đi theo chiều nào nhé.",
+    pattern_hint_grid: "Mỗi hàng có đủ ba hình, không hình nào lặp lại.",
+    pattern_ok: "Đúng rồi! Em tìm ra quy luật rồi!",
+  },
   "Hướng dẫn (i)": {
     guide_split_1: "Nhìn lọ hoa: có hai loại hoa, khác nhau về hình dạng và màu sắc.",
     guide_split_2: "Chạm vào từng bông để đánh dấu, đếm không sót bông nào.",

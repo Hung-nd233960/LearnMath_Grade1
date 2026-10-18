@@ -11,7 +11,7 @@ export const DECOR_SETS: Record<string, string[]> = {
   basket: ["tangerine", "banana", "red_apple", "sparkles", "strawberry", "tangerine"],
   equations: ["red_apple", "pear", "watermelon", "sparkles", "input_numbers", "star"],
   split: ["tulip", "sunflower", "cherry_blossom", "hibiscus", "tulip", "sparkles"],
-  pattern: ["wrapped_gift", "star", "wrapped_gift", "sparkles", "balance_scale", "glowing_star"],
+  pattern: ["red_apple", "star", "pear", "sparkles", "tangerine", "glowing_star"],
   break: ["star", "sparkles", "glowing_star", "star", "sparkles", "seedling"],
   locked: ["star", "sparkles", "glowing_star", "star", "sparkles", "seedling"],
 };

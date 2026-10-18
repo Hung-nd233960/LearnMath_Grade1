@@ -9,6 +9,7 @@ import { basketLogic, BAG_SIZE, MAX_LOOSE, MIN_LOOSE } from "../src/games/basket
 import * as basketText from "../src/games/basket/text.ts";
 import { countSolutions, distinctValues, equationsLogic, isChainSolvable, questionRepeatsClue, rowsAreUnique } from "../src/games/equations/logic.ts";
 import { GAMES } from "../src/games/index.ts";
+import { fittingOptions, patternLogic, smallestPeriod, tokenKey, type PatternQuestion } from "../src/games/pattern/logic.ts";
 import { DEMOS } from "../src/ui/games/demos.ts";
 import { robotLogic, shortestPath, simulate } from "../src/games/robot/logic.ts";
 import { inferWeight, possibleAnswers, scaleLogic, UNIT, weightOf, type BalanceAnswer, type BalanceQuestion, type CompareQuestion, type InferQuestion } from "../src/games/scale/logic.ts";
@@ -295,6 +296,88 @@ describe("split", () => {
     const q = { mode: "picture+bond", scene: "vase", whole: 6, a: 4, b: 2, blanks: ["a", "b"], layout: [] } as never;
     expect(splitLogic.check(q, { a: 2, b: 4 }).reason).toBe("swapped");
     expect(splitText.prompt({ ...(q as object), mode: "bond", blanks: ["b"], whole: 7, a: 3, b: 4 } as never).text).toBe("Bảy gồm ba và mấy?");
+  });
+});
+
+describe("pattern (Quy luật)", () => {
+  const eachQ = (fn: (q: PatternQuestion, p: Position) => void, seeds = 300) => {
+    for (const p of POSITIONS) for (let s = 1; s <= seeds; s++) fn(patternLogic.generate(p, createRng(s)), p);
+  };
+  const keys = (q: PatternQuestion) => q.items.map((t) => (t ? tokenKey(t) : "?"));
+
+  it("exactly one option fits the rule, and it is the intended one (every position × 300 seeds)", () => {
+    eachQ((q) => expect(fittingOptions(q)).toEqual([q.answer]));
+  });
+  it("options are all different, 3–4 of them, and the answer is one of them", () => {
+    eachQ((q) => {
+      expect(new Set(q.options.map(tokenKey)).size).toBe(q.options.length);
+      expect(q.options.length).toBeGreaterThanOrEqual(3);
+      expect(q.options.length).toBeLessThanOrEqual(4);
+      expect(q.items.filter((t) => t === null)).toHaveLength(1);
+      expect(q.answer).toBeGreaterThanOrEqual(0);
+      expect(q.answer).toBeLessThan(q.options.length);
+    });
+  });
+  it("the answer is never visible as a loose guess: it is not the only token that already appears", () => {
+    // a repeating row shows the answer's picture somewhere else, which is what makes the rule readable
+    eachQ((q) => { if (q.kind === "repeat") expect(keys(q)).toContain(tokenKey(q.options[q.answer]!)); });
+  });
+  it("repeat: the unit is not itself a repeat, and two full cycles plus one are shown", () => {
+    eachQ((q) => {
+      if (q.kind !== "repeat") return;
+      const u = q.period!;
+      const full = q.items.map((t) => t ?? q.options[q.answer]!).map(tokenKey);
+      expect(smallestPeriod(full.slice(0, u))).toBe(u); // AA would be a repeat of A, not a unit of 2
+      expect(full.length).toBeGreaterThanOrEqual(2 * u + 2);
+      expect(q.items.filter((t) => t !== null).length).toBeGreaterThanOrEqual(2 * u + 1);
+    });
+  });
+  it("rounds use the kinds they should", () => {
+    eachQ((q, p) => {
+      if (p.tier === 1) { expect(q.kind).toBe("repeat"); expect(q.items[q.items.length - 1]).toBeNull(); }
+      if (p.tier === 2 && p.step === 0) { expect(q.kind).toBe("repeat"); expect(q.items[q.items.length - 1]).not.toBeNull(); expect(q.items[0]).not.toBeNull(); }
+      if (p.tier === 2 && p.step === 1) expect(q.kind).toBe("number");
+      if (p.tier === 2 && p.step === 2) expect(["number", "repeat"]).toContain(q.kind);
+      if (p.tier === 3 && p.step < 2) expect(q.kind).toBe("rotate");
+      if (p.tier === 3 && p.step === 2) expect(q.kind).toBe("grid");
+    });
+  });
+  it("numbers stay within range: 0–20, tens up to 100", () => {
+    eachQ((q) => {
+      if (q.kind !== "number") return;
+      const all = [...q.items.filter((t) => t), q.options[q.answer]!].map((t) => (t && t.kind === "num" ? t.n : NaN));
+      all.forEach((n) => { expect(n).toBeGreaterThanOrEqual(0); expect(n).toBeLessThanOrEqual(100); });
+      q.options.forEach((o) => expect(o.kind === "num" && o.n >= 0).toBe(true));
+    });
+  });
+  it("rotate: at least five frames; the blank is at the end in step 0", () => {
+    eachQ((q, p) => {
+      if (q.kind !== "rotate") return;
+      expect(q.items.length).toBe(6);
+      if (p.step === 0) expect(q.items[5]).toBeNull();
+      expect(q.options).toHaveLength(4);
+    });
+  });
+  it("grid: three rows and columns, and every other cell already follows the rule", () => {
+    eachQ((q) => {
+      if (q.kind !== "grid") return;
+      expect(q.items).toHaveLength(9);
+      expect(q.cols).toBe(3);
+    });
+  });
+  it("check: right, wrong pick, and a bad index", () => {
+    const q = patternLogic.generate({ tier: 1, step: 0 }, createRng(4));
+    expect(patternLogic.check(q, q.answer).correct).toBe(true);
+    const wrong = (q.answer + 1) % q.options.length;
+    expect(patternLogic.check(q, wrong)).toMatchObject({ correct: false, reason: "wrongPick", data: { picked: wrong } });
+    expect(patternLogic.check(q, -1).reason).toBe("empty");
+    expect(patternLogic.check(q, 99).reason).toBe("empty");
+  });
+  it("two options are never both right: a hand-made ambiguous row is rejected", () => {
+    const apple = { kind: "fruit", fruit: "red_apple" } as const, pear = { kind: "fruit", fruit: "pear" } as const;
+    // A B A ? A B A B has period 2 only with a pear in the blank
+    const q: PatternQuestion = { kind: "repeat", period: 2, items: [apple, pear, apple, null, apple, pear, apple, pear], options: [pear, apple], answer: 0 };
+    expect(fittingOptions(q)).toEqual([0]);
   });
 });
 

@@ -41,7 +41,8 @@ function tileArt(id: GameId): HTMLElement {
       break;
     }
     case "pattern":
-      art.append(emoji("wrapped_gift", 66), emoji("wrapped_gift", 84, "gift-b"), emoji("wrapped_gift", 66, "gift-g"));
+      art.classList.add("eqart");
+      art.append(emoji("red_apple", 56), emoji("pear", 56), emoji("red_apple", 56), "?");
       break;
   }
   return art;

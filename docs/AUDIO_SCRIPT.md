@@ -154,6 +154,18 @@ Mẹo thu âm:
 | `split_hint_sum.mp3` | Hai phần cộng lại phải bằng số ở trên. |
 | `split_ok.mp3` | Em đếm rất cẩn thận! |
 
+## Quy luật
+
+| Tên tệp | Câu cần đọc |
+| --- | --- |
+| `pattern_prompt.mp3` | Tìm hình còn thiếu nhé! |
+| `pattern_number.mp3` | Tìm số còn thiếu nhé! |
+| `pattern_hint_repeat.mp3` | Em xem mấy hình đầu lặp lại thế nào nhé. |
+| `pattern_hint_number.mp3` | Mỗi lần số tăng hay giảm mấy? |
+| `pattern_hint_rotate.mp3` | Em xem chấm xanh đi theo chiều nào nhé. |
+| `pattern_hint_grid.mp3` | Mỗi hàng có đủ ba hình, không hình nào lặp lại. |
+| `pattern_ok.mp3` | Đúng rồi! Em tìm ra quy luật rồi! |
+
 ## Hướng dẫn (i)
 
 | Tên tệp | Câu cần đọc |
@@ -199,4 +211,4 @@ Mẹo thu âm:
 | `demo_scale_light.mp3` | Đĩa này nhẹ hơn, nên Mèo thêm quả vào đây. |
 | `demo_scale_done.mp3` | Hai đĩa đã nặng bằng nhau. Mèo bấm Xong! |
 
-Tổng cộng: **138** tệp.
+Tổng cộng: **145** tệp.
