@@ -71,7 +71,7 @@ export const TRACKS: Record<TrackId, Track> = {
   robot: { id: "robot", bpm: 116, beats: 4, root: 64, scale: MAJOR_PENT, progression: [0, 2, 3, 1], rhythms: [[0, 0.5, 1, 1.5, 2, 3], [0, 1, 1.5, 2, 2.5, 3], [0, 0.5, 2, 2.5, 3, 3.5], [0, 0.5, 1, 2, 2.5, 3.5]], rest: 0.12, maxLen: 0.75, lead: "pluck", comp: "strum", strumAt: [0.5, 1.5, 2.5, 3.5], bass: [0, 1, 2, 3], perc: "block", sparkleAt: [3.5], seed: 37 },
   // Giỏ trái cây: bouncy and a little off the beat, like a ukulele
   basket: { id: "basket", bpm: 108, beats: 4, root: 65, scale: MAJOR_PENT, progression: [0, 2, 3, 4], rhythms: [[0, 1.5, 2, 3.5], [0, 0.5, 1.5, 2.5, 3], [0, 1, 1.5, 3, 3.5], [0.5, 1.5, 2, 3, 3.5]], rest: 0.1, maxLen: 1, lead: "pluck", comp: "strum", strumAt: [0.5, 1, 2.5, 3], bass: [0, 2], perc: "shaker", sparkleAt: [1.5, 3.5], seed: 41 },
-  // Tính theo hình: a curious, skipping tune, sparkly and light
+  // Giải mã hình: a curious, skipping tune, sparkly and light
   equations: { id: "equations", bpm: 96, beats: 4, root: 55, scale: MAJOR_PENT, progression: [0, 3, 1, 4], rhythms: [[0, 1, 1.5, 2.5, 3], [0, 0.5, 1.5, 2, 3.5], [0.5, 1, 2, 2.5, 3.5], [0, 1.5, 2, 3, 3.5]], rest: 0.15, maxLen: 1.25, lead: "box", comp: "strum", strumAt: [1, 2, 3], bass: [0, 2], perc: "block", sparkleAt: [0.5, 2.5], seed: 53 },
   // Mấy và mấy: a cheerful waltz in three
   split: { id: "split", bpm: 112, beats: 3, root: 57, scale: MAJOR_PENT, progression: [0, 3, 2, 4], rhythms: [[0, 1, 1.5, 2], [0, 0.5, 1, 2], [0, 1, 2, 2.5], [0, 1.5, 2, 2.5]], rest: 0.1, maxLen: 1.5, lead: "box", comp: "strum", strumAt: [1, 2], bass: [0], perc: "shaker", sparkleAt: [1.5, 2.5], seed: 67 },

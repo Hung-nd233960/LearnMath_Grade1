@@ -8,7 +8,8 @@ export interface NumpadOptions {
   scope: HTMLElement;
   /** Most digits per box; 2 covers every number up to 20. */
   maxDigits?: number;
-  onChange?: () => void;
+  /** Called after every key, with the box that changed. */
+  onChange?: (box: HTMLElement) => void;
 }
 
 export interface Numpad {
@@ -51,7 +52,7 @@ export function createNumpad(container: HTMLElement, { scope, maxDigits = 2, onC
     if (key === "del") v = v.slice(0, -1);
     else if (v.length < maxDigits) v = v === "0" ? key : v + key;
     setBox(active, v);
-    onChange?.();
+    onChange?.(active);
   };
 
   const onBoxClick = (e: Event) => {

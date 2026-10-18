@@ -30,14 +30,14 @@ export const SECTIONS = [
         "**Little Math Detectives** is a set of six small math games for grade 1 children (age 6). The children help a detective cat, **Mèo Smarty**, solve \"cases\": each case is a set of 5 short math questions."],
       ["ul",
         [
-          "Sáu trò chơi: **Cái cân**, **Rô-bốt**, **Giỏ trái cây**, **Tính theo hình**, **Mấy và mấy**, **So sánh cân**. Cùng luyện đếm, cảm nhận về số, cộng trừ trong phạm vi 10 (về sau 20) và tư duy logic đầu tiên.",
+          "Sáu trò chơi: **Cái cân**, **Rô-bốt**, **Giỏ trái cây**, **Giải mã hình**, **Mấy và mấy**, **So sánh cân**. Cùng luyện đếm, cảm nhận về số, cộng trừ trong phạm vi 10 (về sau 20) và tư duy logic đầu tiên.",
           "Theo chương trình **2018** (Kết nối tri thức), bắt đầu từ các số 0–10.",
           "Mọi lời nói và chữ trên màn hình dành cho các em đều bằng **tiếng Việt**, được Mèo Smarty **đọc to** vì các em còn đang học đọc.",
           "**Không cần mạng** sau lần mở đầu tiên, **không cần tài khoản**. Tiến trình lưu ngay trên thiết bị.",
           "Độ khó **tự điều chỉnh** theo từng em (ba \"Vòng\"), có sao thưởng, chuỗi ngày chơi, giới hạn thời gian và khu vực riêng cho người lớn.",
         ],
         [
-          "Six games: **Cái cân** (the balance scale), **Rô-bốt** (the robot), **Giỏ trái cây** (fruit baskets), **Tính theo hình** (picture sums), **Mấy và mấy** (splitting numbers) and **So sánh cân** (comparing scales). Together they practise counting, number sense, adding and subtracting within 10 (later 20) and first logical reasoning.",
+          "Six games: **Cái cân** (the balance scale), **Rô-bốt** (the robot), **Giỏ trái cây** (fruit baskets), **Giải mã hình** (picture sums), **Mấy và mấy** (splitting numbers) and **So sánh cân** (comparing scales). Together they practise counting, number sense, adding and subtracting within 10 (later 20) and first logical reasoning.",
           "Aligned with the **2018** curriculum (Kết nối tri thức), starting from the numbers 0–10.",
           "Everything a child reads or hears is in **Vietnamese**. Mèo Smarty **reads it aloud**, because the children are still learning to read.",
           "**No network** needed after the first visit, **no accounts**. Progress is saved on the device.",
@@ -238,8 +238,8 @@ export const SECTIONS = [
   },
   {
     id: "game-equations",
-    vi: "Tính theo hình",
-    en: "Tính theo hình (picture sums)",
+    vi: "Giải mã hình",
+    en: "Giải mã hình (picture sums)",
     level: 3,
     body: [
       ["p",
@@ -247,20 +247,20 @@ export const SECTIONS = [
         "**What it teaches:** each picture stands for a number; substituting into a sum; reasoning backwards to find an unknown."],
       ["ul",
         [
-          "**Vòng 1:** **Bảng số** cho biết mỗi quả là số mấy (ví dụ táo = 1); em thay số vào rồi cộng.",
+          "**Vòng 1:** **Bảng số** cho biết mỗi quả là số mấy (ví dụ táo = 1, chuối = 0); em tính **từng dòng**, mỗi dòng một ô trả lời. Mỗi loại quả có một số riêng.",
           "**Vòng 2:** tổng ba số hạng và suy luận ngược (táo + táo = 2, vậy táo = ?).",
           "**Vòng 3:** một chuỗi **manh mối**; em tìm manh mối chỉ có **một** loại quả chưa biết, giải nó trước, rồi thay vào manh mối tiếp theo.",
           "Mỗi bước luôn chỉ có **một ẩn số**: không bao giờ phải giải hai phương trình cùng lúc, và đáp án là **duy nhất**.",
           "Em chạm số trên bàn phím rồi bấm \"Xong\".",
         ],
         [
-          "**Vòng 1:** the **\"Bảng số\"** (number key) shows what each fruit is (for example apple = 1); the child substitutes and adds.",
+          "**Vòng 1:** the **\"Bảng số\"** (number key) shows what each fruit is (for example apple = 1); the child fills in several rows, one answer box each. Every fruit has its own number.",
           "**Vòng 2:** sums with three terms and reverse reasoning (apple + apple = 2, so apple = ?).",
           "**Vòng 3:** a chain of **clues**; the child finds the clue with only **one** unknown fruit, solves it first, then substitutes into the next clue.",
           "Every step has exactly **one unknown**: the child never has to solve two equations together, and the answer is **unique**.",
           "The child taps a number on the keypad, then presses \"Xong\".",
         ]],
-      ["imgs", ["game-equations-v1", "game-equations-v3"], "Tính theo hình: Vòng 1 (trái) và Vòng 3 (phải).", "Tính theo hình: Vòng 1 (left) and Vòng 3 (right)."],
+      ["imgs", ["game-equations-v1", "game-equations-v3"], "Giải mã hình: Vòng 1 (trái) và Vòng 3 (phải).", "Giải mã hình: Vòng 1 (left) and Vòng 3 (right)."],
     ],
   },
   {

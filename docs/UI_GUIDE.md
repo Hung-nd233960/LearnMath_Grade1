@@ -74,7 +74,7 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `games/robot.ts` | The Rô-bốt screen: an animated result in `playResult` driven by `simulate()`, a program the child edits, `reveal` that fills and walks the solution, and a document-level key listener removed in `unmount`. |
 | `games/scale.ts` | The Cái cân screen: live tilt vs the padlock, fixed vs movable items, `playResult` that animates the outcome and `reset` that re-locks. |
 | `games/basket.ts`, `games/art.ts` | The Giỏ trái cây screen: the model for views that draw their own prompt (`ownPrompt`), move items with `dragTap`, and react to wrong tries / the mute switch. `art.ts` holds SVG drawings shared by several games. |
-| `games/equations.ts` | The Tính theo hình screen (second game screen; simpler than split, a good second example). |
+| `games/equations.ts` | The Giải mã hình screen (second game screen; simpler than split, a good second example). |
 | `games/split.ts`, `games/bond.ts`, `games/splitLayout.ts` | The first game screen (Mấy và mấy): the model for the others. `bond.ts` is the number-bond widget; `splitLayout.ts` is pure and tested. |
 | `screens/addProfile.ts` | `openAddProfile(ctx, onAdded)`: the "Thêm bạn mới" form (name + picture); `openEditProfile(ctx, profile, onSaved)` reuses it to rename a child. |
 | `audio/packs.ts`, `audio/voice.ts` | Voice packs: `choosePack(selected, packs)` decides the folder (the teacher's choice, else the first complete pack, else `"device"`); `voice.setPack(id)` applies it (`applySettings` in `app.ts` does so on every settings change); `voice.play(speech, pack?, force?)` can audition another pack. `ctx.voicePacks` holds the list read from `audio/packs.json`. |
@@ -132,7 +132,7 @@ Per game, the question fields to draw and the answer to submit:
 | scale | `left/right` fixed fruit, `tray`, `key` (weight table), `liveTilt` (padlock when false), `showCounts` (+ `compareSign()`) | `{ addedLeft, addedRight }` | scale.html (brass scale) |
 | robot | `size`, `start`, `goal`, `blocks`, `walls`, `maxSteps` | `Dir[]`; animate with `simulate(q, program).cells`, stop at `crashAt` | robot.html |
 | basket | `loose`, `bags` (bags of 10 = tangerines), `order`, `showCounts`; prompt from `text.prompt(q)` | `{ loose, bags }` currently in Mèo's basket | basket.html (teal basket) |
-| equations | `known` (Bảng số), `clues` (Manh mối 1..n), `ask` (question row) | number | equations.html |
+| equations | `known` (Bảng số), `clues` (Manh mối 1..n), `asks` (rows to fill) | number[] (one per row) | equations.html |
 | split | `mode`, `scene` (`SCENES`), `layout` (kind index per item), `blanks`; sentence segments from `text.sentence(q)` | `{ whole?, a?, b? }` | split.html (ceramic vase, number bond) |
 | compare | `items`, `weighings` (mini brass scales), `mode`, `BOXES[box].hue` | box or `Box[]` (order) | compare.html |
 

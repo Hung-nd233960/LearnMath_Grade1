@@ -59,11 +59,13 @@ export const CLIP_GROUPS = {
     basket_loose_ten: "Mười quả lẻ cũng là một chục đấy! Lần sau em thử đưa cả túi nhé.",
     basket_ok: "Mèo nhận đủ rồi. Cảm ơn em nhé!",
   },
-  "Tính theo hình": {
+  "Giải mã hình": {
     eq_t1: "Mỗi quả là một con số. Cộng lại bằng mấy?",
     eq_find: "Đọc manh mối và tìm xem quả này là số mấy?",
     eq_hint_first: "Em tìm manh mối chỉ có một loại quả chưa biết, rồi giải nó trước nhé.",
     eq_hint_add: "Em xem bảng số rồi cộng lại nhé.",
+    eq_multi: "Em tính từng dòng nhé!",
+    eq_hint_rows: "Có dòng chưa đúng. Em xem lại bảng số nhé!",
     eq_ok: "Đúng rồi! Em là thám tử giải mã giỏi lắm!",
   },
   "Mấy và mấy": {

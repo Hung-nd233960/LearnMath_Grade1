@@ -139,7 +139,7 @@
 ## 14. Feedback round 2 ☐
 The teachers' second round (2026-10-18). Each item has a detailed task file in [docs/tasks/](tasks/README.md); do them in order. Where a task file disagrees with CLAUDE.md, the task file wins until task 10 updates CLAUDE.md.
 - [x] 00 Tidy the feedback into `docs/feedbacks/`, move the images ([task](tasks/00-feedback-docs.md))
-- [ ] 01 Giải mã hình: rename, several rows in Vòng 1, distinct values ([task](tasks/01-giai-ma-hinh.md))
+- [x] 01 Giải mã hình: rename, several rows in Vòng 1, distinct values ([task](tasks/01-giai-ma-hinh.md))
 - [ ] 02 Thăng bằng: merge Cái cân + So sánh cân, inference in Vòng 3, `SCHEMA` 2 ([task](tasks/02-thang-bang.md))
 - [ ] 03 Quy luật: new game `pattern` ([task](tasks/03-quy-luat.md))
 - [ ] 04 Daily plan: games per day, one at a time, replay for no credit ([task](tasks/04-daily-plan.md))

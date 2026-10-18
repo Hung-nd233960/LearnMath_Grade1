@@ -122,7 +122,7 @@ Mẹo thu âm:
 | `basket_loose_ten.mp3` | Mười quả lẻ cũng là một chục đấy! Lần sau em thử đưa cả túi nhé. |
 | `basket_ok.mp3` | Mèo nhận đủ rồi. Cảm ơn em nhé! |
 
-## Tính theo hình
+## Giải mã hình
 
 | Tên tệp | Câu cần đọc |
 | --- | --- |
@@ -130,6 +130,8 @@ Mẹo thu âm:
 | `eq_find.mp3` | Đọc manh mối và tìm xem quả này là số mấy? |
 | `eq_hint_first.mp3` | Em tìm manh mối chỉ có một loại quả chưa biết, rồi giải nó trước nhé. |
 | `eq_hint_add.mp3` | Em xem bảng số rồi cộng lại nhé. |
+| `eq_multi.mp3` | Em tính từng dòng nhé! |
+| `eq_hint_rows.mp3` | Có dòng chưa đúng. Em xem lại bảng số nhé! |
 | `eq_ok.mp3` | Đúng rồi! Em là thám tử giải mã giỏi lắm! |
 
 ## Mấy và mấy
@@ -198,4 +200,4 @@ Mẹo thu âm:
 | `demo_scale_light.mp3` | Đĩa này nhẹ hơn, nên Mèo thêm quả vào đây. |
 | `demo_scale_done.mp3` | Hai đĩa đã nặng bằng nhau. Mèo bấm Xong! |
 
-Tổng cộng: **132** tệp.
+Tổng cộng: **134** tệp.

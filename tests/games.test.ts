@@ -8,7 +8,7 @@ import type { Position } from "../src/core/types.ts";
 import { basketLogic, BAG_SIZE, MAX_LOOSE, MIN_LOOSE } from "../src/games/basket/logic.ts";
 import * as basketText from "../src/games/basket/text.ts";
 import { compareLogic } from "../src/games/compare/logic.ts";
-import { countSolutions, equationsLogic, isChainSolvable } from "../src/games/equations/logic.ts";
+import { countSolutions, distinctValues, equationsLogic, isChainSolvable, questionRepeatsClue, rowsAreUnique } from "../src/games/equations/logic.ts";
 import { GAMES } from "../src/games/index.ts";
 import { DEMOS } from "../src/ui/games/demos.ts";
 import { robotLogic, shortestPath, simulate } from "../src/games/robot/logic.ts";
@@ -129,31 +129,79 @@ describe("basket: the chục reading is spoken as well as shown", () => {
 });
 
 describe("equations", () => {
+  const sums = (q: ReturnType<typeof equationsLogic.generate>) => q.asks.map((a) => a.terms.reduce((s, f) => s + q.values[f]!, 0));
   it("every puzzle is chain-solvable, unique, and within 20", () => {
     each((p, s) => equationsLogic.generate(p, createRng(s)), (q, p) => {
       expect(isChainSolvable(q)).toBe(true);
       expect(countSolutions(q)).toBe(1);
-      expect(q.answer).toBeLessThanOrEqual(20);
+      q.asks.forEach((a) => expect(a.answer).toBeLessThanOrEqual(p.tier === 1 ? 10 : 20));
       q.clues.forEach((c) => expect(c.total).toBeLessThanOrEqual(20));
       if (p.tier === 1) expect(q.clues).toHaveLength(0);
       if (p.tier === 3) expect(q.clues.length).toBeGreaterThanOrEqual(3);
     });
   });
+  it("tier 1 has several rows (2, 2 or 3 by step); tiers 2–3 have one", () => {
+    each((p, s) => equationsLogic.generate(p, createRng(s)), (q, p) => {
+      if (p.tier === 1) {
+        expect(q.asks).toHaveLength([2, 2, 3][p.step]!);
+        if (p.step > 0) expect(q.asks.some((a) => a.terms.length === 3)).toBe(true);
+        // every fruit of the value table is used by some row
+        q.known.forEach((k) => expect(q.asks.some((a) => a.terms.includes(k.fruit))).toBe(true));
+      } else {
+        expect(q.asks).toHaveLength(1);
+      }
+    });
+  });
+  it("every row's answer is the sum of its fruit; rows are all different", () => {
+    each((p, s) => equationsLogic.generate(p, createRng(s)), (q) => {
+      expect(q.asks.map((a) => a.answer)).toEqual(sums(q));
+      expect(rowsAreUnique(q)).toBe(true);
+    });
+  });
+  it("no two fruits of a puzzle share a value, and every shown value matches the truth", () => {
+    each((p, s) => equationsLogic.generate(p, createRng(s)), (q) => {
+      expect(distinctValues(q)).toBe(true);
+      q.known.forEach((k) => expect(q.values[k.fruit]).toBe(k.value));
+    });
+  });
+  it("tier 1 can contain a fruit worth 0 from step 1 on", () => {
+    let zero = 0;
+    for (let seed = 1; seed <= SEEDS; seed++) {
+      const q = equationsLogic.generate({ tier: 1, step: 1 }, createRng(seed));
+      if (q.known.some((k) => k.value === 0)) zero++;
+      const q0 = equationsLogic.generate({ tier: 1, step: 0 }, createRng(seed));
+      expect(q0.known.every((k) => k.value >= 1)).toBe(true);
+    }
+    expect(zero).toBeGreaterThan(0);
+  });
   it("the question is never a clue repeated (the answer must not be on screen)", () => {
-    const key = (terms: readonly string[]) => [...terms].sort().join(",");
     let checked = 0;
     for (const p of POSITIONS) {
       for (let seed = 1; seed <= 400; seed++) {
         const q = equationsLogic.generate(p, createRng(seed));
         checked++;
-        for (const c of q.clues) expect(key(c.terms), `seed ${seed} at ${p.tier}.${p.step}`).not.toBe(key(q.ask));
+        expect(questionRepeatsClue(q), `seed ${seed} at ${p.tier}.${p.step}`).toBe(false);
       }
     }
     expect(checked).toBe(POSITIONS.length * 400);
   });
   it("detects puzzles that need two clues at once", () => {
-    const q = { known: [], clues: [{ terms: ["red_apple", "pear"], total: 3 }, { terms: ["red_apple", "red_apple", "pear"], total: 4 }], ask: ["pear"], answer: 2 } as never;
+    const q = { known: [], clues: [{ terms: ["red_apple", "pear"], total: 3 }, { terms: ["red_apple", "red_apple", "pear"], total: 4 }], asks: [{ terms: ["pear"], answer: 2 }], values: {} } as never;
     expect(isChainSolvable(q)).toBe(false);
+  });
+  it("check: all rows right; one wrong row is named; a blank row is 'empty'", () => {
+    const q = equationsLogic.generate({ tier: 1, step: 2 }, createRng(5));
+    const right = equationsLogic.solve!(q);
+    expect(equationsLogic.check(q, right).correct).toBe(true);
+    const off = right.map((x, i) => (i === 1 ? (x as number) + 1 : x));
+    const r = equationsLogic.check(q, off);
+    expect(r.correct).toBe(false);
+    expect(r.reason).toBe("wrongSum");
+    expect(r.data?.wrongRows).toEqual([1]);
+    const blank = equationsLogic.check(q, right.map((x, i) => (i === 2 ? null : x)));
+    expect(blank.reason).toBe("empty");
+    expect(blank.data?.missing).toEqual([2]);
+    expect(equationsLogic.check(q, [1]).reason).toBe("empty");
   });
 });
 
