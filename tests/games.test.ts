@@ -13,7 +13,7 @@ import { fittingOptions, patternLogic, smallestPeriod, tokenKey, type PatternQue
 import { DEMOS } from "../src/ui/games/demos.ts";
 import { robotLogic, shortestPath, simulate } from "../src/games/robot/logic.ts";
 import { inferWeight, possibleAnswers, scaleLogic, UNIT, weightOf, type BalanceAnswer, type BalanceQuestion, type CompareQuestion, type InferQuestion } from "../src/games/scale/logic.ts";
-import { splitLogic } from "../src/games/split/logic.ts";
+import { SCENES, splitLogic } from "../src/games/split/logic.ts";
 import * as splitText from "../src/games/split/text.ts";
 import { numberWords } from "../src/i18n/numbers.ts";
 import { numberClips, say } from "../src/i18n/speech.ts";
@@ -369,6 +369,29 @@ describe("split", () => {
       expect(q.blanks).toEqual(p.tier === 1 ? ["whole"] : p.tier === 2 ? ["a", "b"] : [expect.stringMatching(/^[ab]$/)]);
       expect(q.whole).toBeLessThanOrEqual(20);
     });
+  });
+  it("every scene has two different kinds (they differ by shape, not only by colour); the garden is animals", () => {
+    for (const [id, s] of Object.entries(SCENES)) {
+      expect(s.kinds[0], id).not.toBe(s.kinds[1]);
+      expect(s.names[0], id).not.toBe(s.names[1]);
+    }
+    expect(SCENES.garden.kinds).toEqual(["rabbit", "baby_chick"]);
+  });
+  it("the garden comes up about half the time, and the other scenes still appear", () => {
+    const seen: Record<string, number> = {};
+    for (let seed = 1; seed <= 400; seed++) {
+      const q = splitLogic.generate({ tier: 1, step: 1 }, createRng(seed));
+      seen[q.scene] = (seen[q.scene] ?? 0) + 1;
+    }
+    expect(seen.garden).toBeGreaterThan(150);
+    expect(seen.garden).toBeLessThan(250);
+    expect(seen.vase).toBeGreaterThan(30);
+    expect(seen.basket).toBeGreaterThan(60);
+  });
+  it("the garden sentence reads naturally", () => {
+    const q = { mode: "picture+bond", scene: "garden", whole: 5, a: 3, b: 2, blanks: ["a", "b"], layout: [] } as never;
+    const text = splitText.sentence(q).map((x) => ("text" in x ? x.text : "☐")).join(" ");
+    expect(text).toBe("Trong vườn có ☐ con, trong đó có ☐ con thỏ và ☐ con gà con.");
   });
   it("swapped parts get their own hint", () => {
     const q = { mode: "picture+bond", scene: "vase", whole: 6, a: 4, b: 2, blanks: ["a", "b"], layout: [] } as never;

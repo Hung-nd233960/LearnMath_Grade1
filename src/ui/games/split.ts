@@ -10,9 +10,9 @@ import { sentence } from "../../games/split/text.ts";
 import { emoji, h, html, wait } from "../dom.ts";
 import { ICON } from "../icons.ts";
 import { boxValue, createNumpad, setBox, type Numpad } from "../numpad.ts";
-import { BASKET_ART, TABLE_ART } from "./art.ts";
+import { BASKET_ART, GARDEN_ART, TABLE_ART } from "./art.ts";
 import { createBond, type Bond } from "./bond.ts";
-import { basketSpots, ITEM, vaseSpots } from "./splitLayout.ts";
+import { basketSpots, gardenSpots, ITEM, vaseSpots } from "./splitLayout.ts";
 import type { GameView } from "./types.ts";
 import "./split.css";
 
@@ -49,8 +49,10 @@ export function createSplitView(): GameView<SplitQuestion, SplitAnswer> {
   function pictureScene(): HTMLElement {
     const scene = SCENES[q.scene];
     const el = h("div", { class: "sp-scene card", "data-mode": q.mode, "data-scene": q.scene });
-    const spots = q.scene === "vase" ? vaseSpots(q.whole) : basketSpots(q.whole);
-    const tipText = q.scene === "vase" ? STR.countTipFlowers : STR.countTipFruit;
+    const spots = q.scene === "vase" ? vaseSpots(q.whole) : q.scene === "garden" ? gardenSpots(q.whole) : basketSpots(q.whole);
+    const tipText = q.scene === "vase" ? STR.countTipFlowers : q.scene === "garden" ? STR.countTipAnimals : STR.countTipFruit;
+    // the garden is a backdrop behind the animals; the vase and the basket are drawn in front of their items
+    if (q.scene === "garden") el.append(html(`<svg width="460" height="608" style="pointer-events:none">${GARDEN_ART}</svg>`));
     el.append(h("div", { class: "sp-tip" }, tipText));
 
     if (q.scene === "vase") {
@@ -73,7 +75,7 @@ export function createSplitView(): GameView<SplitQuestion, SplitAnswer> {
       item.style.top = `${s.y - ITEM / 2}px`;
       el.append(item);
     });
-    el.append(html(q.scene === "vase"
+    if (q.scene !== "garden") el.append(html(q.scene === "vase"
       ? `<svg width="460" height="608" style="pointer-events:none">${VASE_ART}</svg>`
       : `<svg width="460" height="608" style="pointer-events:none">${TABLE_ART}<g transform="translate(20 400) scale(0.875)">${BASKET_ART}</g></svg>`));
     el.addEventListener("click", (e) => {

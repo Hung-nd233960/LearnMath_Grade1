@@ -26,6 +26,23 @@ export function vaseSpots(n: number): Spot[] {
   return spots;
 }
 
+/**
+ * Animals standing on the lawn: one row up to 4, two rows up to 8, three rows up to 10. Rows are evenly filled
+ * (the bottom row gets any extra) and every other row is shifted a little, so it looks like a group and not a grid.
+ */
+export function gardenSpots(n: number): Spot[] {
+  const rows = n <= 4 ? 1 : n <= 8 ? 2 : 3;
+  const rowY = rows === 1 ? [470] : rows === 2 ? [420, 520] : [340, 430, 520];
+  const sizes: number[] = [];
+  for (let r = 0; r < rows; r++) sizes.push(Math.floor(n / rows) + (r >= rows - (n % rows) ? 1 : 0));
+  const spots: Spot[] = [];
+  sizes.forEach((m, r) => {
+    const shift = r % 2 === 0 ? -22 : 22;
+    for (let j = 0; j < m; j++) spots.push({ x: CX + shift + (j - (m - 1) / 2) * 96, y: rowY[r]! });
+  });
+  return spots;
+}
+
 /** Fruit heaped in a basket, filled from the bottom row up (5, 4, 3, 2, 1 per row). */
 export function basketSpots(n: number): Spot[] {
   const spots: Spot[] = [];

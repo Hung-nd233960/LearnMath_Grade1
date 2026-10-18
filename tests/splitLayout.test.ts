@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { basketSpots, ITEM, SCENE_H, SCENE_W, vaseSpots, type Spot } from "../src/ui/games/splitLayout.ts";
+import { basketSpots, gardenSpots, ITEM, SCENE_H, SCENE_W, vaseSpots, type Spot } from "../src/ui/games/splitLayout.ts";
 
 function check(spots: Spot[], n: number) {
   expect(spots).toHaveLength(n);
@@ -23,6 +23,16 @@ describe("split picture layout", () => {
   });
   it("basket: 1..15 fruit fit and do not overlap", () => {
     for (let n = 1; n <= 15; n++) check(basketSpots(n), n);
+  });
+  it("garden: 1..10 animals fit and do not overlap", () => {
+    for (let n = 1; n <= 10; n++) check(gardenSpots(n), n);
+  });
+  it("garden: the animals stand on the lawn (feet below the horizon), in at most three rows", () => {
+    for (let n = 1; n <= 10; n++) {
+      const spots = gardenSpots(n);
+      for (const s of spots) expect(s.y + ITEM / 2 - 20).toBeGreaterThanOrEqual(340);
+      expect(new Set(spots.map((s) => s.y)).size).toBeLessThanOrEqual(3);
+    }
   });
   it("flowers stay above the vase mouth", () => {
     for (let n = 1; n <= 10; n++) for (const s of vaseSpots(n)) expect(s.y + ITEM / 2).toBeLessThan(400);

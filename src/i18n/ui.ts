@@ -51,6 +51,7 @@ export const STR = {
   score: (score: number, total: number) => `Em trả lời đúng ${score}/${total} câu`,
   countTipFlowers: "Chạm vào hoa để đánh dấu đã đếm",
   countTipFruit: "Chạm vào quả để đánh dấu đã đếm",
+  countTipAnimals: "Chạm vào con vật để đánh dấu đã đếm",
   devSolve: "Giải",
 
   eqKnown: "Bảng số:",

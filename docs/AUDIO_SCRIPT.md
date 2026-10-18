@@ -186,8 +186,8 @@ Mẹo thu âm:
 
 | Tên tệp | Câu cần đọc |
 | --- | --- |
-| `guide_split_1.mp3` | Nhìn lọ hoa: có hai loại hoa, khác nhau về hình dạng và màu sắc. |
-| `guide_split_2.mp3` | Chạm vào từng bông để đánh dấu, đếm không sót bông nào. |
+| `guide_split_1.mp3` | Nhìn bức tranh: có hai loại, khác nhau về hình dạng và màu sắc. |
+| `guide_split_2.mp3` | Chạm vào từng cái để đánh dấu, đếm không sót cái nào. |
 | `guide_split_3.mp3` | Số ở trên là tất cả, gồm hai số ở dưới là hai phần. |
 | `guide_split_4.mp3` | Chạm vào ô trống, chọn số trên bàn phím, rồi bấm Xong. |
 | `guide_scale_1.mp3` | Vòng một: kéo quả từ khay vào đĩa nhẹ hơn cho hai đĩa nặng bằng nhau. |

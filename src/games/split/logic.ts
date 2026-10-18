@@ -9,6 +9,8 @@ export type Slot = "whole" | "a" | "b";
 export const SCENES = {
   vase: { container: "vase", kinds: ["tulip", "sunflower"], names: ["hoa đỏ", "hoa vàng"], unit: "bông hoa" },
   basket: { container: "basket", kinds: ["tangerine", "red_apple"], names: ["quả cam", "quả táo"], unit: "quả" },
+  /** Animals free in a garden (never in cages or behind fences). A rabbit and a chick: different shapes at a glance. */
+  garden: { container: "garden", kinds: ["rabbit", "baby_chick"], names: ["con thỏ", "con gà con"], unit: "con" },
 } as const;
 export type SceneId = keyof typeof SCENES;
 
@@ -41,7 +43,8 @@ export const splitLogic: GameLogic<SplitQuestion, SplitAnswer> = {
 
   generate(pos: Position, rng: Rng): SplitQuestion {
     const step = Math.min(pos.step, 2);
-    const scene: SceneId = rng.chance(0.7) ? "vase" : "basket";
+    const pickScene = rng.next();
+    const scene: SceneId = pickScene < 0.5 ? "garden" : pickScene < 0.7 ? "vase" : "basket";
     let whole: number, a: number, b: number, blanks: Slot[];
     if (pos.tier === 1) {
       whole = rng.int(3, T1[step]!);

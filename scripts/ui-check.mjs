@@ -411,6 +411,13 @@ check("dev route: tier 2 question, same every time", await ev(`document.querySel
 await click("#dev-solve");
 await sleep(1500);
 check("dev route: 'Giải' fills the correct answer", (await ev(`document.querySelector('#dev-status').textContent`)) === "revealed" && (await ev(`document.querySelectorAll('.answer-box.right').length`)) === 2);
+// the garden: animals free on a lawn (a rabbit and a chick differ by shape), tap to mark each one
+await ev(`location.hash = '#/dev/split/2/2/9'`); await sleep(500);
+check("garden: the picture is a lawn with 9 animals, one picture each", (await ev(`document.querySelector('.sp-scene').dataset.scene`)) === "garden" && (await ev(`document.querySelectorAll('.sp-item').length`)) === 9);
+check("garden: two different kinds of animal (different pictures), and the sentence starts 'Trong vườn có'", (await ev(`new Set([...document.querySelectorAll('.sp-item img')].map(i => i.getAttribute('src'))).size`)) === 2 && /^Trong vườn có/.test(await ev(`document.querySelector('.sp-sent').textContent.trim()`)) && (await ev(`[...document.querySelectorAll('.sp-item img')].every(i => /rabbit|baby_chick/.test(i.getAttribute('src')))`)));
+await click(".sp-item");
+check("garden: tapping an animal marks it as counted", (await ev(`document.querySelectorAll('.sp-item.counted').length`)) === 1);
+await shot("ui-3-split-garden");
 await ev(`location.hash = '#/dev/split/1/2/5'`); await sleep(500);
 await typeNumber(1);
 await click("#xong");

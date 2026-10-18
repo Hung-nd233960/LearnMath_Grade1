@@ -14,7 +14,7 @@ export function prompt(q: SplitQuestion): Speech {
 export function sentence(q: SplitQuestion): ({ text: string } | { slot: "whole" | "a" | "b"; kind?: 0 | 1 })[] {
   const s = SCENES[q.scene];
   if (q.mode === "bond") return [{ slot: "whole" }, { text: "gồm" }, { slot: "a" }, { text: "và" }, { slot: "b" }];
-  const where = s.container === "vase" ? "Trong lọ có" : "Trong giỏ có";
+  const where = s.container === "vase" ? "Trong lọ có" : s.container === "garden" ? "Trong vườn có" : "Trong giỏ có";
   return [
     { text: where }, { slot: "whole" }, { text: `${s.unit}, trong đó có` },
     { slot: "a", kind: 0 }, { text: `${s.names[0]} và` }, { slot: "b", kind: 1 }, { text: `${s.names[1]}.` },
