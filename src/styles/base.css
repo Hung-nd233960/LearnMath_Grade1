@@ -16,11 +16,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 a { color: inherit; }
 .emo { display: block; pointer-events: none; }
 
-/* The stage is always 1180×820 and is scaled to fit the window (--s is set by stage.ts). */
+/* The stage is 1180×820 (1240×600 on a phone sideways: body.wide) and is scaled to fit the window (--s, --stage-w/h are set by stage.ts). */
 .stage {
   position: absolute;
   left: calc(50% + var(--ox, 0px)); top: calc(50% + var(--oy, 0px));
-  width: 1180px; height: 820px;
+  width: var(--stage-w, 1180px); height: var(--stage-h, 820px);
   transform: translate(-50%, -50%) scale(var(--s, 1));
   border-radius: 32px;
   overflow: hidden;

@@ -1,0 +1,210 @@
+/* The wide stage: 1240×600, used when the screen is short and wide (a phone sideways; see computeLayout in ui/stage.ts).
+   Every screen has its own layout here, under body.wide, so the normal 1180×820 layouts are untouched.
+   Rules of thumb:
+   - the stage is scaled to about 0.65 on an iPhone 15, so a control needs about 68 stage px to be 44 CSS px (--tap-min);
+   - the top 72 px hold the top bar and the prompt in one row, the game gets the rest (y 84 to 592);
+   - pictures may shrink (they are not touched); buttons, boxes, number keys and fruit you pick up stay big. */
+body.wide { --tap-min: 68px; }
+
+/* ---------- Top bar and prompt: one row ---------- */
+body.wide .topbar { top: 6px; left: 12px; right: 12px; height: 72px; justify-content: flex-start; gap: 12px; }
+body.wide .topbar .right { margin-left: auto; gap: 10px; }
+body.wide .topbar .mid { gap: 10px; font-size: 18px; }
+body.wide .btn-round { width: var(--tap-min); height: var(--tap-min); }
+body.wide .btn-round svg { width: 32px; height: 32px; }
+body.wide .btn-round.info { font-size: 32px; }
+body.wide .tier-badge { font-size: 18px; padding: 4px 14px 2px; }
+body.wide .dots { gap: 6px; }
+body.wide .dots span { width: 18px; height: 18px; border-width: 3px; }
+body.wide .screen-play .prompt { top: 6px; left: 330px; right: 172px; height: 72px; font-size: 22px; line-height: 1.12; justify-content: flex-start; text-align: left; gap: 10px; }
+body.wide .prompt .replay { width: 60px; height: 60px; }
+body.wide .btn { font-size: 26px; padding: 12px 32px 8px; min-height: var(--tap-min); }
+body.wide .numpad { gap: 10px; grid-template-columns: repeat(4, 72px); }
+body.wide .numpad button { height: var(--tap-min); font-size: 32px; }
+body.wide .answer-box { min-width: 76px; height: 76px; font-size: 40px; }
+body.wide .gate-btn { right: 12px; bottom: 6px; }
+
+/* ---------- Home ---------- */
+body.wide .screen-home .top { top: 6px; left: 16px; right: 16px; height: 68px; gap: 10px; }
+body.wide .screen-home .top h1 { font-size: 30px; }
+body.wide .screen-home .top > img { width: 44px; height: 44px; }
+body.wide .screen-home .me-chip { font-size: 22px; padding: 4px 16px 4px 6px; }
+body.wide .screen-home .me-chip img { width: 52px; height: 52px; }
+body.wide .screen-home .hero { top: 80px; left: 16px; right: 16px; height: 130px; padding: 0 22px 0 14px; gap: 14px; }
+body.wide .screen-home .hero .meo { width: 118px; height: 118px; margin-top: -4px; }
+body.wide .screen-home .hero h2 { font-size: 30px; }
+body.wide .screen-home .hero p { font-size: 17px; margin: 2px 0 8px; }
+body.wide .screen-home .chip { font-size: 18px; padding: 3px 12px 2px 5px; gap: 6px; }
+body.wide .screen-home .chip img { width: 28px; height: 28px; }
+body.wide .screen-home .week-card { padding: 8px 12px; }
+body.wide .screen-home .week-card b { font-size: 16px; }
+body.wide .screen-home .week { margin-top: 6px; }
+body.wide .screen-home .week span { width: 30px; height: 30px; font-size: 14px; }
+body.wide .screen-home .grid { top: 222px; left: 16px; right: 16px; gap: 14px; }
+body.wide .screen-home .tile { height: 178px; padding-top: 24px; }
+body.wide .screen-home .tile .art { height: 92px; margin-top: 0; }
+body.wide .screen-home .tile .art img.emo { max-height: 84px; width: auto; }
+body.wide .screen-home .tile .art > svg { height: 88px; width: auto; }
+body.wide .screen-home .tile .sign { bottom: 8px; padding: 0 18px; }
+body.wide .screen-home .tile .sign h3 { font-size: 24px; }
+body.wide .screen-home .tile .peek { width: 74px; height: 74px; left: -22px; }
+body.wide .screen-home .tile .state, body.wide .screen-home .tile .lvl, body.wide .screen-home .tile .new { font-size: 15px; }
+
+/* ---------- Who is playing ---------- */
+body.wide .screen-who .head { left: 24px; right: 24px; top: 8px; gap: 16px; }
+body.wide .screen-who .head .meo { width: 96px; height: 96px; }
+body.wide .screen-who .head h1 { font-size: 34px; }
+body.wide .screen-who .head p { font-size: 17px; margin: 0; }
+body.wide .screen-who .pager { top: 18px; right: 24px; }
+body.wide .screen-who .pager .btn-round { width: var(--tap-min); height: var(--tap-min); }
+body.wide .screen-who .kids { left: 24px; right: 24px; top: 116px; gap: 14px; }
+body.wide .screen-who .kid { height: 220px; gap: 8px; }
+body.wide .screen-who .kid > img, body.wide .screen-who .kid > .av { transform: scale(0.74); margin: -14px 0; }
+body.wide .screen-who .kid b { font-size: 26px; }
+body.wide .screen-who .kid.add .plus { width: 100px; height: 100px; font-size: 56px; }
+body.wide .screen-who .note { bottom: 2px; font-size: 14px; }
+
+/* ---------- Star screen, break, locked ---------- */
+body.wide .screen-stars .center, body.wide .screen-break .center, body.wide .screen-locked .center { gap: 6px; }
+body.wide .screen-stars .meo, body.wide .screen-break .meo, body.wide .screen-locked .meo { width: 124px; height: 124px; }
+body.wide .screen-stars h1, body.wide .screen-break h1, body.wide .screen-locked h1 { font-size: 40px; }
+body.wide .screen-stars .star-row { margin: 0; gap: 12px; }
+body.wide .screen-stars .star-row img { width: 82px; height: 82px; }
+body.wide .screen-stars .score { font-size: 24px; }
+body.wide .screen-stars .chips { margin-bottom: 6px; }
+body.wide .screen-stars .chip { font-size: 18px; }
+body.wide .screen-stars .plan-note { font-size: 20px; }
+body.wide .screen-break p, body.wide .screen-locked p { font-size: 18px; margin: 0 0 4px; max-width: 900px; line-height: 1.3; }
+body.wide .screen-break .clock { font-size: 40px; padding: 6px 26px 4px 12px; }
+body.wide .screen-break .clock img { width: 44px; height: 44px; }
+body.wide .screen-break .tips, body.wide .screen-locked .tips { margin-top: 8px; gap: 12px; }
+body.wide .screen-break .tips div, body.wide .screen-locked .tips div { font-size: 16px; padding: 8px 14px; }
+body.wide .other-kid { margin-top: 8px; font-size: 18px; padding: 10px 22px 7px; }
+
+/* ---------- Overlays, toast, sound mixer, worked examples ---------- */
+body.wide .overlay .card { width: 720px; padding: 18px 26px 20px; gap: 18px; }
+body.wide .overlay .meo { width: 112px; height: 112px; }
+body.wide .overlay h2 { font-size: 32px; }
+body.wide .overlay p { font-size: 19px; margin: 4px 0 12px; line-height: 1.3; }
+body.wide .overlay .stars img { width: 44px; }
+body.wide .overlay ol { font-size: 18px; line-height: 1.35; margin: 4px 0 12px; }
+body.wide .overlay .guide-card { width: 900px; }
+body.wide .overlay .guide-replay { font-size: 20px; }
+body.wide .overlay .guide-actions { gap: 10px; }
+body.wide .toast { bottom: 10px; font-size: 22px; padding: 6px 22px 6px 10px; }
+body.wide .toast .meo { width: 60px; height: 60px; }
+body.wide .pause-card { width: 700px; }
+body.wide .overlay .card.snd-card { width: 720px; padding: 14px 28px 16px; gap: 2px; }
+body.wide .snd-card h2 { font-size: 28px; }
+body.wide .snd-row { padding: 2px 4px; }
+body.wide .snd-main b { font-size: 21px; }
+body.wide .snd-main input[type="range"] { height: 40px; }
+body.wide .snd-card .btn { margin-top: 6px; font-size: 22px; }
+body.wide .demo-bar { left: 12px; right: 12px; top: 6px; min-height: 76px; padding: 6px 16px 6px 10px; gap: 12px; }
+body.wide .demo-bar .meo { width: 60px; height: 60px; }
+body.wide .demo-text { font-size: 20px; }
+body.wide .demo-actions .btn { font-size: 18px; padding: 8px 16px 5px; }
+body.wide .overlay.overlay-top { padding-top: 6px; }
+body.wide .overlay .add-card { width: 800px; gap: 8px; padding: 14px 30px 16px; }
+body.wide .name-input { font-size: 30px; padding: 6px 14px 3px; }
+body.wide .add-label { font-size: 16px; margin: 0; }
+body.wide .av-grid { grid-template-columns: repeat(10, 1fr); gap: 4px; }
+body.wide .av-opt img { width: 52px; height: 52px; }
+body.wide .add-actions { margin-top: 2px; }
+
+/* ---------- Teacher area ---------- */
+body.wide .screen-teacher .t-back { left: 12px; top: 6px; }
+body.wide .t-gate-card { width: 520px; padding: 14px 30px 14px; }
+body.wide .t-gate-card h2 { font-size: 28px; }
+body.wide .pin-dots { margin: 8px 0 10px; }
+body.wide .pin-keys { grid-template-columns: repeat(3, 84px); }
+body.wide .t-head { left: 12px; right: 12px; top: 6px; height: 72px; }
+body.wide .t-head h1 { font-size: 28px; }
+body.wide .t-lock { padding: 8px 18px 5px; font-size: 18px; }
+body.wide .t-nav { left: 12px; top: 84px; width: 190px; gap: 6px; }
+body.wide .t-nav button { padding: 8px 12px 6px; font-size: 19px; }
+body.wide .t-nav img { width: 28px; height: 28px; }
+body.wide .t-panel { left: 214px; right: 12px; top: 84px; bottom: 8px; padding: 16px 22px; }
+body.wide .t-panel h2 { font-size: 26px; }
+body.wide .rng { grid-template-columns: 1fr 90px 240px; padding: 4px 2px; }
+body.wide .rng input { height: 40px; }
+body.wide .sw { padding: 6px 2px; }
+body.wide .sw i { width: 64px; height: 38px; }
+
+/* ======================= The games ======================= */
+/* A "wrapper" game keeps its normal 1180×820 coordinates inside a box that is scaled and moved:
+   .sc (balance), .cp (compare) and .pt (patterns). Only the pieces take clicks, as in the inference view. */
+body.wide .sc:not(.infer), body.wide .cp, body.wide .pt { position: absolute; left: 0; top: 0; width: 1180px; height: 820px; transform-origin: 0 0; pointer-events: none; }
+body.wide .sc:not(.infer) > *, body.wide .cp > *, body.wide .pt > * { pointer-events: auto; }
+body.wide .sc:not(.infer) { transform: translate(48px, -60px) scale(0.84); }
+body.wide .cp { transform: translate(136px, -60px) scale(0.82); }
+body.wide .pt { transform: translate(148px, -68px) scale(0.8); }
+
+/* ---------- Thăng bằng: balance (the tray's fruit stay big enough to pick up) ---------- */
+body.wide .sc:not(.infer) .sc-tray .sc-fruit { width: 82px; height: 82px; }
+body.wide .sc:not(.infer) .sc-tray .sc-fruit img { width: 80px; height: 80px; }
+body.wide .sc:not(.infer) .sc-tray .sc-fruit[data-k="watermelon"] img { width: 86px; height: 86px; }
+/* the tray's caption goes: the fruit need the room, and the picture says what to do */
+body.wide .sc .sc-tray .lbl { display: none; }
+/* a button inside a scaled game is made taller so it is still about 44 px on the phone */
+body.wide .sc:not(.infer) .btn { min-height: 84px; }
+body.wide .cp .btn { min-height: 86px; }
+body.wide .pt .btn { min-height: 88px; }
+
+/* ---------- Thăng bằng: inference ---------- */
+body.wide .in-clues { left: 16px; top: 82px; transform: scale(0.95); transform-origin: 0 0; }
+body.wide .in-scale { left: 188px; top: -54px; transform: scale(0.8); }
+body.wide .in-scale .sc-tray .sc-fruit { width: 88px; height: 88px; }
+body.wide .in-scale .sc-tray .sc-fruit img { width: 86px; height: 86px; }
+body.wide .in-scale .btn { min-height: 88px; }
+
+/* ---------- Mấy và mấy ---------- */
+body.wide .sp-scene { left: 16px; top: 84px; transform: scale(0.835); transform-origin: 0 0; }
+body.wide .sp-right { left: 420px; right: 16px; top: 84px; bottom: 8px; display: grid; grid-template-columns: 330px 1fr; grid-template-rows: auto 1fr; gap: 10px 16px; }
+body.wide .sp-sent { grid-column: 1 / -1; font-size: 26px; line-height: 2.75; padding: 6px 20px; }
+body.wide .sp-sent .answer-box { min-width: 68px; height: 68px; }
+body.wide .sp-sent .given { min-width: 54px; height: 54px; }
+body.wide .sp-bottom { display: contents; }
+body.wide .sp-bottom #numpad { grid-column: 1; grid-row: 2; align-self: end; }
+body.wide .sp-bottom .btn { grid-column: 2; grid-row: 2; align-self: end; justify-self: end; }
+body.wide .sp-bond { grid-column: 2; grid-row: 2; align-self: start; justify-self: center; }
+
+/* ---------- Giải mã hình ---------- */
+body.wide .eq-board { left: 12px; top: 84px; bottom: 8px; width: 780px; padding: 14px 24px; gap: 10px; }
+body.wide .eq-row { min-height: 88px; font-size: 42px; }
+body.wide .eq-side { left: 812px; right: 12px; top: 84px; bottom: 8px; gap: 12px; padding-top: 0; }
+body.wide .eq-side .numpad { grid-template-columns: repeat(3, 96px); }
+body.wide .eq-side .numpad button { height: 74px; font-size: 36px; }
+
+/* ---------- Chia quả: the request is in the top row; the baskets are a little smaller, the fruit is not ---------- */
+body.wide .bk-ask { top: 6px; left: 316px; right: 164px; height: 72px; gap: 8px; }
+body.wide .bk-ask .meo { width: 72px; height: 72px; }
+body.wide .bk-ask .bubble { font-size: 20px; padding: 8px 16px 5px; line-height: 1.2; border-radius: 22px; gap: 10px; }
+body.wide .bk-ask .bubble::before { left: -14px; top: 22px; }
+body.wide .bkv.long .bk-ask { right: 164px; }
+body.wide .bkv.long .bk-ask .bubble { font-size: 19px; line-height: 1.2; }
+body.wide .bk-ask .replay { width: 56px; height: 56px; }
+body.wide .bk-panel { top: 88px; padding: 8px 18px; }
+body.wide .bk-panel .grp { font-size: 44px; }
+body.wide .bk-basket { top: 84px; transform: scale(0.95); }
+body.wide .bk-basket.L { left: 12px; transform-origin: 0 0; }
+body.wide .bk-basket.R { right: 12px; transform-origin: 100% 0; }
+body.wide .bk-fruit { width: 70px; height: 70px; }
+body.wide .bk-fruit img { width: 68px; height: 68px; }
+body.wide .bk-done { bottom: 8px; padding: 10px 24px 7px; }
+body.wide .bk-said { left: 462px; top: 190px; width: 316px; }
+body.wide .bk-said > .lbl:nth-of-type(2) { display: none; }
+body.wide .bk-said .answer-box { height: 70px; }
+body.wide .bk-said .numpad { grid-template-columns: repeat(4, 68px); gap: 6px; }
+body.wide .bk-said .numpad button { height: 68px; }
+body.wide .bk-said .numpad [data-n="0"] { grid-column: auto; }
+
+/* ---------- Rô-bốt ---------- */
+body.wide .rb-board { left: 16px; top: 84px; transform: scale(0.84); transform-origin: 0 0; }
+body.wide .rb-side { left: 536px; right: 16px; top: 84px; bottom: 8px; gap: 10px; }
+body.wide .rb-prog { padding: 10px 16px 12px; }
+body.wide .rb-prog h3 { font-size: 20px; margin-bottom: 6px; }
+body.wide .rb-slots { grid-template-columns: repeat(6, 60px); gap: 8px; }
+body.wide .rb-slot { width: 60px; height: 60px; }
+body.wide .rb-pad { grid-template-columns: repeat(3, 92px); grid-template-rows: repeat(2, 92px); gap: 10px; }
+body.wide .rb-actions { gap: 14px; }

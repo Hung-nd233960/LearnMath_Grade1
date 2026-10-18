@@ -5,7 +5,7 @@ import { GATE_HOLD_MS } from "../src/ui/adultGate.ts";
 import { clampPage, paginate } from "../src/ui/paginate.ts";
 import { parseRoute } from "../src/ui/router.ts";
 import { COUNTING_ROUTES, formatClock, gateFor } from "../src/ui/timekeeper.ts";
-import { computeScale, isPortrait, STAGE_H, STAGE_W } from "../src/ui/stage.ts";
+import { computeLayout, computeScale, isPortrait, STAGE_H, STAGE_W, WIDE_H, WIDE_W } from "../src/ui/stage.ts";
 
 describe("parseRoute", () => {
   it("splits name and params", () => {
@@ -28,8 +28,29 @@ describe("stage geometry", () => {
   it("scales the 1180×820 stage to fit", () => {
     expect(computeScale(STAGE_W, STAGE_H)).toBe(1);
     expect(computeScale(2360, 1640)).toBe(2);
-    expect(computeScale(1180, 400)).toBeCloseTo(400 / 820); // height is the limit
+    expect(computeScale(1180, 700)).toBeCloseTo(700 / 820); // height is the limit
+    expect(computeScale(1180, 400)).toBeCloseTo(400 / 600); // short and wide: the wide stage
     expect(computeScale(590, 2000)).toBe(0.5); // width is the limit
+  });
+  it("picks the wide 1240×600 stage for a phone sideways, and keeps 1180×820 for tablets and desktops", () => {
+    const iphone15 = computeLayout(852, 393);
+    expect(iphone15).toMatchObject({ wide: true, stageW: WIDE_W, stageH: WIDE_H });
+    expect(iphone15.scale).toBeCloseTo(393 / 600); // height is the limit: about 0.65 instead of 0.48
+    expect(computeLayout(932, 430)).toMatchObject({ wide: true });
+    expect(computeLayout(852 - 59, 393)).toMatchObject({ wide: true }); // with the notch taken off
+    expect(computeLayout(1180, 820)).toMatchObject({ wide: false, stageW: STAGE_W, stageH: STAGE_H, scale: 1 }); // iPad landscape
+    expect(computeLayout(1366, 1024).wide).toBe(false); // iPad Pro
+    expect(computeLayout(1920, 1080).wide).toBe(false); // desktop (wide, but not short)
+    expect(computeLayout(1000, 600).wide).toBe(false); // 600 px high is tall enough for the normal stage
+    expect(computeLayout(1100, 540).wide).toBe(true); // a short, wide desktop window gets it too
+    expect(computeLayout(0, 0).wide).toBe(false);
+  });
+  it("the wide stage always fits the window", () => {
+    for (const [w, h] of [[852, 393], [932, 430], [740, 372], [800, 360]] as const) {
+      const l = computeLayout(w, h);
+      expect(l.stageW * l.scale).toBeLessThanOrEqual(w + 0.001);
+      expect(l.stageH * l.scale).toBeLessThanOrEqual(h + 0.001);
+    }
   });
   it("asks only portrait screens to turn the device sideways: phones in landscape are let in", () => {
     expect(isPortrait(820, 1180)).toBe(true); // iPad upright

@@ -1726,10 +1726,9 @@ await click(".btn-round.info");
 await sleep(250);
 const lit = () => ev(`[...document.querySelectorAll('.guide-card li')].findIndex(li => li.classList.contains('now'))`);
 check("guide: the first step is marked while it is read", (await lit()) === 0);
-await sleep(650);
-check("guide: then the second", (await lit()) === 1);
-await sleep(650);
-check("guide: then the third", (await lit()) === 2);
+const litIs = (n) => waitFor(`[...document.querySelectorAll('.guide-card li')].findIndex(li => li.classList.contains('now')) === ${n}`, 3000); // (the fake voice reads each step for 0.6 s; a slow machine needs a little more)
+check("guide: then the second", await litIs(1));
+check("guide: then the third", await litIs(2));
 check("guide: the spoken order is the written order", (await ev(`window.__spoken.slice(-3).join(',')`)) === "guide_robot_1,guide_robot_2,guide_robot_3");
 const stops0 = await ev(`window.__stops`);
 await click(".guide-card .btn-primary");
@@ -1904,6 +1903,112 @@ check("time: +10 lets the child play again", !(await ev(`document.querySelector(
 await leaveArea();
 check("time: and the child is back on the home screen", await waitFor(`!!document.querySelector('.screen-home')`, 3000));
 await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, voicePack: null } }))`);
+
+// ---------- 20. A phone sideways (round 2): the wide 1240×600 stage ----------
+// iPhone 15 sideways is 852×393. Controls must stay about 44 CSS px or more after the stage is scaled to fit.
+await viewport(852, 393);
+await sleep(400);
+await ev(`__app.go('home')`); await sleep(500);
+const stageBox = () => ev(`(() => { const r = document.querySelector('.stage').getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom, w: document.querySelector('.stage').clientWidth, h: document.querySelector('.stage').clientHeight }; })()`);
+let sb = await stageBox();
+check("phone: the wide stage (1240×600) is used, fills the height, and fits the window", (await ev(`document.body.classList.contains('wide') && !document.body.classList.contains('portrait')`)) && sb.w === 1240 && sb.h === 600 && sb.r - sb.l <= 853 && sb.b - sb.t <= 394 && sb.b - sb.t >= 380, JSON.stringify(sb));
+/** Visible controls that stick out of the stage, and the smallest tap target among the ones that must be big (CSS px, as seen on the phone). */
+const phoneProblems = (tapSelectors = ".btn-round, .btn, .numpad button, .answer-box, .pt-opt, .cp-choice, .rb-pad button, .tile, .kid, .sc-tray .sc-fruit, .bk-fruit") => ev(`(() => {
+  const stage = document.querySelector('.stage').getBoundingClientRect();
+  const visible = (e) => { const r = e.getBoundingClientRect(); const s = getComputedStyle(e); return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none' && s.opacity !== '0' && !e.closest('.dev-bar'); };
+  const out = [], small = [];
+  for (const e of document.querySelectorAll('.screen button, .screen .answer-box, .screen [data-item], .overlay button')) {
+    if (!visible(e)) continue;
+    const r = e.getBoundingClientRect();
+    if (r.left < stage.left - 2 || r.right > stage.right + 2 || r.top < stage.top - 2 || r.bottom > stage.bottom + 2) out.push((e.id || e.className || e.tagName).toString().slice(0, 40));
+    if (e.matches(${JSON.stringify(tapSelectors)}) && !e.closest('.pt-board, .sp-scene, .in-clues') && Math.min(r.width, r.height) < 43) small.push((e.id || e.className || e.tagName).toString().slice(0, 40) + ' ' + Math.round(Math.min(r.width, r.height)));
+  }
+  return { out: [...new Set(out)], small: [...new Set(small)] };
+})()`);
+let pp = await phoneProblems();
+check("phone: home — nothing sticks out of the stage and every control is at least 44 px", pp.out.length === 0 && pp.small.length === 0, JSON.stringify(pp));
+await shot("ui-20-phone-home");
+check("phone: the six tiles fit on one screen (two rows of three)", (await ev(`new Set([...document.querySelectorAll('.tile')].map(t => Math.round(t.getBoundingClientRect().top))).size`)) === 2);
+
+// every kind of screen: controls inside the stage, and big enough
+for (const [route, label] of [["dev/split/2/2/9", "Mấy và mấy (picture + bond)"], ["dev/split/3/1/3", "Mấy và mấy (bond)"], ["dev/equations/1/2/4", "Giải mã hình (3 rows)"], ["dev/equations/3/1/9", "Giải mã hình (chain)"],
+    ["dev/basket/1/1/3", "Chia quả (give)"], ["dev/basket/2/1/3", "Chia quả (bags)"], ["dev/basket/3/1/4", "Chia quả (cần thêm)"], ["dev/basket/3/2/3", "Chia quả (bằng nhau)"],
+    ["dev/scale/1/0/3", "Thăng bằng (balance, live)"], ["dev/scale/1/2/6", "Thăng bằng (balance, 3 kinds)"], ["dev/scale/2/2/4", "Thăng bằng (order)"], ["dev/scale/2/1/9", "Thăng bằng (compare)"], ["dev/scale/3/1/5", "Thăng bằng (inference)"], ["dev/scale/3/2/7", "Thăng bằng (two chains)"],
+    ["dev/robot/2/0/2", "Rô-bốt"], ["dev/robot/3/2/5", "Rô-bốt (Vòng 3)"], ["dev/pattern/1/0/3", "Quy luật (row)"], ["dev/pattern/2/1/2", "Quy luật (numbers)"], ["dev/pattern/3/2/6", "Quy luật (grid)"]]) {
+  await ev(`__app.go('${route}')`);
+  await waitFor(`!!document.querySelector('#dev-status') && !!document.querySelector('.game-body > *')`);
+  await sleep(450);
+  pp = await phoneProblems();
+  check(`phone: ${label} — controls inside the stage and at least 44 px`, pp.out.length === 0 && pp.small.length === 0, JSON.stringify(pp));
+  if (route === "dev/basket/3/1/4") await shot("ui-20-phone-basket");
+  if (route === "dev/scale/3/1/5") await shot("ui-20-phone-infer");
+}
+
+// the prompt and the top bar share one row
+await ev(`__app.go('dev/equations/1/2/4')`); await sleep(500);
+check("phone: the prompt sits in the top row, beside the progress dots", await ev(`(() => { const p = document.querySelector('.screen-play .prompt').getBoundingClientRect(), d = document.querySelector('.dots').getBoundingClientRect(), b = document.querySelector('.eq-board').getBoundingClientRect(); return p.left >= d.right - 1 && p.bottom <= document.querySelector('.stage').getBoundingClientRect().top + 90 * 0.66 && b.top >= p.bottom - 2; })()`));
+
+// whole sets, played on the phone
+await ev(`__app.go('home')`); await sleep(400);
+await click(".tile[data-game=pattern]");
+await patReady(0);
+for (let i = 0; i < 5; i++) {
+  pq = await readPattern();
+  await pickOption(patternFits(pq)[0]);
+  await click("#xong");
+  check(`phone: Quy luật question ${i + 1} is judged right`, (await overlayKind()) === "correct");
+  if (i === 2) { await sleep(700); pp = await phoneProblems(); check("phone: the feedback card is inside the stage and its button is big enough", pp.out.length === 0 && pp.small.length === 0, JSON.stringify(pp)); await shot("ui-20-phone-feedback"); }
+  await closeOverlay();
+  if (i < 4) await patReady(i + 1);
+}
+check("phone: the star screen after a set fits", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await sleep(900), (await phoneProblems()).out.length === 0));
+await shot("ui-20-phone-stars");
+await click("#back-home");
+await click(".tile[data-game=equations]");
+await eqReady();
+for (let i = 0; i < 5; i++) {
+  const eq = await readEq();
+  await fillEq(JSON.parse([...solveEq(eq)][0]));
+  await click("#xong");
+  check(`phone: Giải mã hình question ${i + 1} (number keys) is judged right`, (await overlayKind()) === "correct");
+  await closeOverlay();
+  if (i < 4) await eqReady();
+}
+check("phone: the second star screen fits too", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await sleep(900), (await phoneProblems()).out.length === 0));
+await click("#back-home");
+
+// dragging fruit works with the scaled stage
+await ev(`__app.go('dev/basket/1/1/3')`); await sleep(600);
+const [dragFx, dragFy] = await center(".bk-basket.L .bk-fruit");
+const [dragTx, dragTy] = await center(".bk-basket.R");
+await mouse("mousePressed", dragFx, dragFy);
+for (let i = 1; i <= 6; i++) { await mouse("mouseMoved", dragFx + ((dragTx - dragFx) * i) / 6, dragFy + ((dragTy - dragFy) * i) / 6); await sleep(16); }
+await mouse("mouseReleased", dragTx, dragTy); await sleep(200);
+check("phone: a fruit can be dragged into Mèo's basket", (await ev(`document.querySelectorAll('.bk-basket.R [data-item]').length`)) === 1);
+// …and tap-then-tap on the balance
+await ev(`__app.go('dev/scale/1/1/2')`); await sleep(600);
+await click(".sc-tray .sc-fruit");
+await click(".sc-pan.L");
+check("phone: tap a fruit, then tap a pan, on the scale", (await ev(`document.querySelectorAll('.sc-pan [data-item]:not([data-fixed])').length`)) === 1);
+
+// the guide card
+await ev(`__app.go('play/equations')`); await eqReady();
+await click(".btn-round.info");
+await waitFor(`!!document.querySelector('.guide-card')`);
+await sleep(500);
+pp = await phoneProblems();
+check("phone: the guide card is inside the stage and its buttons are big enough", pp.out.length === 0 && pp.small.length === 0 && (await ev(`(() => { const c = document.querySelector('.guide-card').getBoundingClientRect(), s = document.querySelector('.stage').getBoundingClientRect(); return c.top >= s.top - 1 && c.bottom <= s.bottom + 1; })()`)), JSON.stringify(pp));
+await shot("ui-20-phone-guide");
+await click(".guide-card .btn-primary");
+
+// portrait on a phone still asks to turn it
+await viewport(393, 852);
+await sleep(200);
+check("phone: upright, the 'turn sideways' screen is shown", await ev(`document.body.classList.contains('portrait') && getComputedStyle(document.querySelector('#rotate')).display === 'flex'`));
+await viewport(1180, 820);
+await sleep(300);
+check("phone: back on a tablet the normal 1180×820 stage returns", await ev(`!document.body.classList.contains('wide') && document.querySelector('.stage').clientWidth === 1180 && document.querySelector('.stage').clientHeight === 820`));
+await ev(`__app.go('home')`); await sleep(300);
 
 check("no console errors", consoleErrors.length === 0, JSON.stringify(consoleErrors));
 

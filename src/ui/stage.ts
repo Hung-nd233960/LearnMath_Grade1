@@ -7,9 +7,33 @@ import { mascot } from "./mascot.ts";
 
 export const STAGE_W = 1180;
 export const STAGE_H = 820;
+/** The stage on a short, wide screen (a phone sideways): 1240×600. Every screen has its own layout for it (styles/wide.css). */
+export const WIDE_W = 1240;
+export const WIDE_H = 600;
+
+export interface Layout {
+  /** The wide stage is in use (body.wide). */
+  wide: boolean;
+  stageW: number;
+  stageH: number;
+  /** How much the stage is scaled to fit the window. */
+  scale: number;
+}
+
+/**
+ * Which stage to draw in a window of this size (after the notch and the home indicator are taken off).
+ * Short and wide (aspect 1.75 or more, under 600 px high: an iPhone sideways) gets the wide stage, so the
+ * stage fills the screen instead of leaving bars at the sides; everything else keeps the 1180×820 stage.
+ */
+export function computeLayout(width: number, height: number): Layout {
+  const wide = height > 0 && width / height >= 1.75 && height < 600;
+  const stageW = wide ? WIDE_W : STAGE_W;
+  const stageH = wide ? WIDE_H : STAGE_H;
+  return { wide, stageW, stageH, scale: Math.min(width / stageW, height / stageH) };
+}
 
 export function computeScale(width: number, height: number): number {
-  return Math.min(width / STAGE_W, height / STAGE_H);
+  return computeLayout(width, height).scale;
 }
 
 /** Portrait: ask for the device to be turned sideways. (Phones used to be refused as too small; they are let in now.) */
@@ -30,7 +54,7 @@ export function safeInsets(): Insets {
 }
 
 export interface Stage {
-  /** The 1180×820 element. Overlays, confetti and sparkles are appended here. */
+  /** The stage element (1180×820, or 1240×600 on a phone sideways). Overlays, confetti and sparkles are appended here. */
   el: HTMLElement;
   /** Replace the current screen with a fresh empty one and return it. Also closes overlays. */
   newScreen(): HTMLElement;
@@ -51,7 +75,11 @@ export function createStage(host: HTMLElement): Stage {
   const fit = () => {
     const inset = safeInsets();
     const root = document.documentElement.style;
-    root.setProperty("--s", String(computeScale(innerWidth - inset.left - inset.right, innerHeight - inset.top - inset.bottom)));
+    const layout = computeLayout(innerWidth - inset.left - inset.right, innerHeight - inset.top - inset.bottom);
+    root.setProperty("--s", String(layout.scale));
+    root.setProperty("--stage-w", `${layout.stageW}px`);
+    root.setProperty("--stage-h", `${layout.stageH}px`);
+    document.body.classList.toggle("wide", layout.wide);
     // the stage is centred in what is left of the window, not in the whole window
     root.setProperty("--ox", `${(inset.left - inset.right) / 2}px`);
     root.setProperty("--oy", `${(inset.top - inset.bottom) / 2}px`);
