@@ -2,7 +2,8 @@
 // Everything an adult can change lives here and nowhere on a child's screen. The PIN keeps children
 // out; it is not real security (docs/RULES.md).
 import { choosePack, coverage, DEVICE_PACK } from "../../audio/packs.ts";
-import { FX_PRESETS, matchingPreset, type Fx, type FxPreset } from "../../core/settings.ts";
+import { nextGame } from "../../core/dailyPlan.ts";
+import { FX_PRESETS, matchingPreset, MAX_DAILY_GAMES, type DailyOrder, type DailySettings, type Fx, type FxPreset } from "../../core/settings.ts";
 import { streakToday } from "../../core/profiles.ts";
 import { checkPin, makePin } from "../../core/pin.ts";
 import {
@@ -246,11 +247,36 @@ export const teacherScreen: ScreenDef = {
         return h("div", null,
           h("h2", null, T.timeTitle), h("p", { class: "sub" }, T.timeSub),
           todayBox(),
+          dailyBox(),
           slider("sessionMin", T.sessionLabel, T.minutes),
           slider("breakMin", T.breakLabel, T.minutes),
           slider("dailyMin", T.dailyLabel, T.minutes),
           slider("idleNudgeSec", T.idleLabel, T.seconds),
           h("label", { class: "sw" }, h("span", null, h("b", null, T.weekendTitle), h("small", null, T.weekendSub)), weekend, h("i")));
+      };
+
+      /** How many games a child plays per day, and in what order (core/dailyPlan.ts). */
+      const dailyBox = (): HTMLElement => {
+        const daily = () => ctx.store.data.settings.daily;
+        const set = (patch: Partial<DailySettings>) => {
+          ctx.store.update((d) => ({ ...d, settings: { ...d.settings, daily: { ...d.settings.daily, ...patch } } }));
+          draw();
+        };
+        const counts = Array.from({ length: MAX_DAILY_GAMES + 1 }, (_, n) =>
+          h("button", { class: "t-seg", "data-daily": n, onclick: () => set({ gamesPerDay: n }) }, n === 0 ? T.dailyOff : String(n)));
+        const orderButton = (value: DailyOrder, title: string, sub: string) =>
+          h("button", { class: "t-opt", "data-order": value, onclick: () => set({ order: value }) }, h("b", null, title), h("small", null, sub));
+        const orders = [orderButton("warmup", T.orderWarm, T.orderWarmSub), orderButton("random", T.orderRandom, T.orderRandomSub)];
+        const note = h("p", { class: "note", id: "t-daily-note" });
+        const draw = () => {
+          const d = daily();
+          counts.forEach((b) => b.classList.toggle("on", Number(b.dataset.daily) === d.gamesPerDay));
+          orders.forEach((b) => { b.classList.toggle("on", b.dataset.order === d.order); b.disabled = d.gamesPerDay === 0; });
+          note.textContent = d.gamesPerDay === 0 ? T.dailyOffNote : T.dailyOn(d.gamesPerDay);
+        };
+        draw();
+        return h("div", { class: "t-daily" }, h("h3", null, T.dailyTitle), h("p", { class: "sub" }, T.dailySub),
+          h("div", { class: "t-segs" }, ...counts), note, h("h3", null, T.orderTitle), h("div", { class: "t-opts" }, ...orders));
       };
 
       /** The child who is playing now: how long they have played, and the adult's extra-time buttons. */
@@ -291,6 +317,17 @@ export const teacherScreen: ScreenDef = {
       // ---- Học sinh
       const kidsTab = (): HTMLElement => {
         const { profiles, order, settings } = ctx.store.data;
+        /** Today's games for one child: finished ones ticked, the one open now marked. Nothing if the plan is off or not made yet. */
+        const planCells = (p: (typeof profiles)[string]): Child[] => {
+          const plan = p.plan && p.plan.day === ctx.today() && settings.daily.gamesPerDay > 0 ? p.plan : null;
+          if (!plan) return ["—"];
+          const next = nextGame(plan);
+          return plan.games.map((id) => {
+            const g = GAMES.find((x) => x.id === id);
+            const state = plan.done.includes(id) ? "done" : id === next ? "next" : "later";
+            return h("span", { class: `pl ${state}`, "data-game": id, title: g?.title ?? id }, emoji(g?.art[0] ?? "star", 26), state === "done" ? "✓" : state === "next" ? "▶" : "");
+          });
+        };
         const rows = order.map((id) => {
           const p = profiles[id]!;
           const streak = streakToday(p, ctx.today(), settings);
@@ -299,6 +336,7 @@ export const teacherScreen: ScreenDef = {
             h("td", null, p.stars),
             h("td", null, streak),
             ...GAMES.map((g) => { const t = p.games[g.id].seed.tier; return h("td", null, h("span", { class: `v v${t}` }, T.tierShort(t))); }),
+            h("td", { class: "t-plan", "data-plan": id }, ...planCells(p)),
             h("td", { class: "t-row-actions" },
               h("button", { class: "t-mini", "data-edit": id, onclick: () => openEditProfile(ctx, p, renderTab) }, T.edit),
               h("button", { class: "t-mini danger", "data-remove": id, onclick: () => void remove(id) }, T.remove)));
@@ -322,6 +360,7 @@ export const teacherScreen: ScreenDef = {
           h("th", { title: T.colStars }, emoji("glowing_star", 26)),
           h("th", { title: T.colStreak }, emoji("fire", 26)),
           ...GAMES.map((g) => h("th", { title: g.title }, emoji(g.art[0]!, 30))),
+          h("th", null, T.colToday),
           h("th"));
         return h("div", null,
           h("h2", null, T.kidsTitle), h("p", { class: "sub" }, T.kidsSub),

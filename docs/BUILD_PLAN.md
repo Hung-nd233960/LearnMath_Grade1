@@ -146,7 +146,8 @@ The teachers' second round (2026-10-18). Each item has a detailed task file in [
   - Guide steps for the scale were re-worded (`guide_scale_1…4`), so the voice packs need those clips regenerated (task 09). `scripts/guide-shots.mjs` and `guide-content.mjs` still mention `compare` (task 10).
 - [x] 03 Quy luật: new game `pattern` ([task](tasks/03-quy-luat.md))
   - `games/pattern/logic.ts`: four kinds (repeat, number, rotate, grid), each question proven to have exactly one fitting option (`fittingOptions`, tested for every position × 300 seeds). View `ui/games/pattern.ts`: tap or drag a choice onto the blank. The tile art is a placeholder (task 07).
-- [ ] 04 Daily plan: games per day, one at a time, replay for no credit ([task](tasks/04-daily-plan.md))
+- [x] 04 Daily plan: games per day, one at a time, replay for no credit ([task](tasks/04-daily-plan.md))
+  - Pure rules in `core/dailyPlan.ts` (least-recently-played games, warm-up or random order, `ensurePlan` / `tileState` / `markDone`); `Profile.plan`, `Settings.daily` and `recordPractice` are additive, so `SCHEMA` stays 2. `ctx.dailyPlan()` makes today's plan on first use; the router guard sends a waiting or not-today game back to home (the address bar keeps the typed address, as with the break screen). The teacher area has the controls under "Thời gian chơi" and each child's plan under "Học sinh". `ui:check` runs with the plan switched off, except its own section 11c.
 - [ ] 05 Chia quả: rename, "cần thêm" and "bằng nhau" modes ([task](tasks/05-chia-qua.md))
 - [ ] 06 Mấy và mấy: garden scene with animals ([task](tasks/06-may-va-may-garden.md))
 - [ ] 07 Living tile scenes (swaying leaves, clouds, sparkles) and Mèo's new look ([task](tasks/07-art.md))

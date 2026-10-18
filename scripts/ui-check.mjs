@@ -206,6 +206,9 @@ await sleep(150);
 await click(".add-card .btn-secondary");
 check("add form: Huỷ closes without adding", (await names()) === "Bình,An" && await ev(`!document.querySelector('.overlay')`));
 
+// the daily plan has its own section (11c, and the teacher tab): everything else is tested with every game open
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, daily: { ...d.settings.daily, gamesPerDay: 0 } } }))`);
+
 // seed different progress for the two children (what the play loop will do in step 3)
 await ev(`(async () => {
   const { recordSet } = await import('/src/core/profiles.ts');
@@ -1157,6 +1160,110 @@ await click("#dev-solve");
 await sleep(2000);
 check("dev: 'Giải' fills the blank with the right choice", (await ev(`document.querySelector('#dev-status').textContent`)) === "revealed" && (await ev(`!!document.querySelector('.pt-blank.right')`)));
 
+// ---------- 11c. The daily plan ----------
+// Everything above ran with the plan switched off (every game open). Now a fresh child gets a plan of three.
+await ev(`(() => { const p = __app.store.addProfile('Kế hoạch', 'kite'); __app.store.setActive(p.id); })()`);
+const planId = await ev(`__app.store.data.activeId`);
+await markGuidesSeen(planId);
+const setDaily = (patch) => ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, daily: { ...d.settings.daily, ...${JSON.stringify(patch)} } } }))`);
+const states = () => ev(`Object.fromEntries([...document.querySelectorAll('.tile')].map(t => [t.dataset.game, t.dataset.state]))`);
+const countOf = (st, s) => Object.values(st).filter((v) => v === s).length;
+await setDaily({ gamesPerDay: 3, order: "warmup" });
+await ev(`__app.go('home')`); await sleep(500);
+let st = await states();
+check("plan: a new child gets three games: one open, two waiting, three not today", countOf(st, "next") === 1 && countOf(st, "later") === 2 && countOf(st, "notToday") === 3, JSON.stringify(st));
+check("plan: the chip says how many games are done today", (await ev(`document.querySelector('.chip.plan').textContent.trim()`)) === "Hôm nay 0/3 trò");
+check("plan: the plan is saved in the profile, for today", (await ev(`JSON.stringify(Object.keys(__app.store.activeProfile.plan).sort())`)) === `["day","done","games"]` && (await ev(`__app.store.activeProfile.plan.day === __app.today()`)));
+
+// a plan we know: Quy luật first, then the scale, then the robot
+await ev(`__app.store.updateProfile(p => ({ ...p, plan: { day: __app.today(), games: ['pattern', 'scale', 'robot'], done: [] } }))`);
+await ev(`__app.go('home')`); await sleep(500);
+st = await states();
+check("plan: tiles follow the plan (next / later / not today)", st.pattern === "next" && st.scale === "later" && st.robot === "later" && st.basket === "notToday" && st.equations === "notToday" && st.split === "notToday", JSON.stringify(st));
+check("plan: the open tile says 'Chơi tiếp' and a waiting one has a padlock", /Chơi tiếp/.test(await ev(`document.querySelector('.tile[data-game=pattern] .state').textContent`)) && (await ev(`!!document.querySelector('.tile[data-game=scale] .state.later img')`)));
+await shot("ui-11c-plan-home");
+await click(".tile[data-game=scale]");
+await sleep(300);
+check("plan: tapping a waiting game stays on home, Mèo explains, and the open game lights up", (await ev(`!!document.querySelector('.screen-home')`)) && (await ev(`document.querySelector('.toast > span')?.textContent`)) === "Bé hoàn thành trò trước đã nhé!" && (await ev(`document.querySelector('.tile[data-game=pattern]').classList.contains('nudge')`)));
+await click(".tile[data-game=basket]");
+await sleep(300);
+check("plan: tapping a game that is not today's says it opens another day", (await ev(`!!document.querySelector('.screen-home')`)) && (await ev(`document.querySelector('.toast > span')?.textContent`)) === "Trò này sẽ mở vào hôm khác nhé!");
+await ev(`__app.go('play/scale')`); await sleep(400);
+check("plan: a waiting game cannot be opened by its address either (home is shown instead)", (await ev(`!!document.querySelector('.screen-home') && !document.querySelector('.screen-play')`)));
+await ev(`__app.go('play/basket')`); await sleep(400);
+check("plan: nor can a game that is not in today's plan", (await ev(`!!document.querySelector('.screen-home') && !document.querySelector('.screen-play')`)));
+
+// leaving half-way changes nothing
+const histBefore = (await profileOf(planId)).history.length;
+await click(".tile[data-game=pattern]");
+await patReady(0);
+pq = await readPattern();
+await pickOption(patternFits(pq)[0]); await click("#xong"); await overlayKind(); await closeOverlay();
+await click(".topbar .btn-round:first-child");
+await sleep(400);
+st = await states();
+check("plan: leaving a set half-way keeps the same game open and saves nothing", st.pattern === "next" && st.scale === "later" && (await profileOf(planId)).history.length === histBefore && (await profileOf(planId)).games.pattern.sets === 0, JSON.stringify(st));
+
+// a whole set finishes the game and opens the next one
+await click(".tile[data-game=pattern]");
+await patReady(0);
+for (let i = 0; i < 5; i++) {
+  pq = await readPattern();
+  await pickOption(patternFits(pq)[0]);
+  await click("#xong");
+  await overlayKind(); await closeOverlay();
+  if (i < 4) await patReady(i + 1);
+}
+check("plan: the star screen after a finished game shows the stars as usual", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await ev(`document.querySelectorAll('.star-row img:not(.dim)').length`)) === 3 && (await ev(`!document.querySelector('#plan-note')`)));
+await click("#back-home");
+await sleep(400);
+st = await states();
+check("plan: the finished game is done and the next one opens", st.pattern === "done" && st.scale === "next" && st.robot === "later", JSON.stringify(st));
+check("plan: the chip counts it (1 of 3)", (await ev(`document.querySelector('.chip.plan').textContent.trim()`)) === "Hôm nay 1/3 trò");
+const afterSet = await profileOf(planId);
+check("plan: the set was credited once", afterSet.games.pattern.sets === 1 && afterSet.stars === 3 && JSON.stringify(afterSet.plan.done) === `["pattern"]`, JSON.stringify([afterSet.games.pattern.sets, afterSet.stars, afterSet.plan]));
+
+// a finished game can be replayed for no credit
+await click(".tile[data-game=pattern]");
+await patReady(0);
+for (let i = 0; i < 5; i++) {
+  pq = await readPattern();
+  await pickOption(patternFits(pq)[0]);
+  await click("#xong");
+  await overlayKind(); await closeOverlay();
+  if (i < 4) await patReady(i + 1);
+}
+check("plan: a replay shows the score and a friendly line, but no stars", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await ev(`document.querySelectorAll('.star-row').length`)) === 0 && (await ev(`document.querySelector('#plan-note').textContent`)) === "Chơi lại cho vui thôi nhé!" && !(await ev(`document.querySelector('.chip.star')`)));
+const afterReplay = await profileOf(planId);
+check("plan: a replay changes nothing but the history", afterReplay.stars === afterSet.stars && afterReplay.games.pattern.sets === 1 && JSON.stringify(afterReplay.games.pattern.seed) === JSON.stringify(afterSet.games.pattern.seed) && JSON.stringify(afterReplay.streak) === JSON.stringify(afterSet.streak) && JSON.stringify(afterReplay.starsByDay) === JSON.stringify(afterSet.starsByDay) && afterReplay.history.length === afterSet.history.length + 1 && afterReplay.history.at(-1).practice === true, JSON.stringify([afterReplay.stars, afterReplay.history.length]));
+await click("#back-home");
+await sleep(400);
+st = await states();
+check("plan: after the replay the plan is as it was (the scale is still next)", st.pattern === "done" && st.scale === "next", JSON.stringify(st));
+
+// the last game of the day says so, and everything played today stays open for replays
+await ev(`__app.store.updateProfile(p => ({ ...p, plan: { ...p.plan, done: ['pattern', 'scale'] } }))`);
+await ev(`__app.go('home')`); await sleep(400);
+check("plan: finishing the last game (set directly) leaves all three done, the rest locked", await (async () => { const s = await states(); return s.pattern === "done" && s.scale === "done" && s.robot === "next" && s.split === "notToday"; })());
+
+// a new day brings a new plan
+await ev(`window.__realToday = __app.today; __app.today = () => '2099-01-01'`);
+await ev(`__app.go('who')`); await sleep(200);
+await ev(`__app.go('home')`); await sleep(500);
+st = await states();
+check("plan: the next day brings a new plan with nothing done", countOf(st, "next") === 1 && countOf(st, "later") === 2 && countOf(st, "notToday") === 3 && countOf(st, "done") === 0 && (await ev(`__app.store.activeProfile.plan.day`)) === "2099-01-01", JSON.stringify(st));
+check("plan: it prefers games not played yet (the pattern game was played, so it is not in it)", st.pattern === "notToday", JSON.stringify(st));
+await ev(`__app.today = window.__realToday`);
+
+// switching the plan off opens every game again
+await setDaily({ gamesPerDay: 0 });
+await ev(`__app.go('who')`); await sleep(200);
+await ev(`__app.go('home')`); await sleep(500);
+st = await states();
+check("plan: switched off, every tile is open again and there is no chip", Object.values(st).every((v) => v === "open") && (await ev(`!document.querySelector('.chip.plan')`)));
+await ev(`__app.store.setActive(${JSON.stringify(anId)}); __app.store.removeProfile(${JSON.stringify(planId)})`);
+await ev(`__app.go('home')`); await sleep(300);
+
 // ---------- 12. screen time (step 9) ----------
 // Tiny limits (seconds, not minutes) let the real clock be tested end to end.
 const setLimits = (o) => ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, limits: { ...d.settings.limits, ...${JSON.stringify(o)} } } }))`);
@@ -1332,6 +1439,25 @@ check("time: weekend switch saved", (await ev(`__app.store.data.settings.skipWee
 await click(".sw:has(#t-weekend)");
 check("time: the playing child is named with today's time", /An/.test(await ev(`document.querySelector('.t-today h3').textContent`)) && /còn \d+ phút/.test(await ev(`document.querySelector('#t-status').textContent`)));
 check("time: the break button is hidden when there is no break", await ev(`getComputedStyle(document.querySelector('#t-end-break')).display === 'none'`));
+// --- Số trò mỗi ngày (the daily plan) ---
+check("daily: the controls show what is saved (the run switched the plan off)", (await ev(`document.querySelector('[data-daily].on')?.dataset.daily`)) === "0" && /mọi trò/.test(await ev(`document.querySelector('#t-daily-note').textContent`)));
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, daily: { gamesPerDay: 3, order: 'warmup' } } }))`);
+await openTab("fx"); await openTab("time");
+check("daily: after a re-open the controls show 3 games a day in warm-up order", (await ev(`document.querySelector('[data-daily].on').dataset.daily`)) === "3" && (await ev(`document.querySelector('[data-order].on').dataset.order`)) === "warmup");
+await click('[data-daily="5"]');
+check("daily: choosing 5 games is saved at once", (await ev(`__app.store.data.settings.daily.gamesPerDay`)) === 5 && (await ev(`document.querySelector('[data-daily].on').dataset.daily`)) === "5" && /5 trò/.test(await ev(`document.querySelector('#t-daily-note').textContent`)));
+await ev(`document.querySelector('[data-order="random"]').scrollIntoView({ block: 'center' })`);
+await click('[data-order="random"]');
+check("daily: choosing the random order is saved", (await ev(`__app.store.data.settings.daily.order`)) === "random" && (await ev(`document.querySelector('[data-order].on').dataset.order`)) === "random");
+await ev(`document.querySelector('[data-daily="0"]').scrollIntoView({ block: 'center' })`);
+await click('[data-daily="0"]');
+check("daily: 'Tắt' switches the plan off and greys out the order", (await ev(`__app.store.data.settings.daily.gamesPerDay`)) === 0 && (await ev(`[...document.querySelectorAll('[data-order]')].every(b => b.disabled)`)) && /mọi trò/.test(await ev(`document.querySelector('#t-daily-note').textContent`)));
+await shot("ui-13-daily");
+await ev(`document.querySelector('[data-daily="3"]').scrollIntoView({ block: 'center' })`);
+await click('[data-daily="3"]');
+await ev(`document.querySelector('[data-order="warmup"]').scrollIntoView({ block: 'center' })`);
+await click('[data-order="warmup"]');
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, daily: { gamesPerDay: 0, order: 'warmup' } } }))`); // back to "off" for the rest of this run
 
 // --- Học sinh ---
 await openTab("kids");

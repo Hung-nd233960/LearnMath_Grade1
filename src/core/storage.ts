@@ -5,7 +5,7 @@
 import { dayKey } from "./dates.ts";
 import { START_POSITION, fromIndex, toIndex } from "./difficulty.ts";
 import { createProfile, repairProfile, type Profile } from "./profiles.ts";
-import { defaultSettings, sanitizeMix, type Settings } from "./settings.ts";
+import { defaultSettings, sanitizeDaily, sanitizeMix, type Settings } from "./settings.ts";
 import { DEFAULT_LIMITS } from "./config.ts";
 import { defaultLimits, type Limits } from "./screentime.ts";
 
@@ -99,6 +99,7 @@ export function migrate(raw: unknown, now = Date.now()): AppData | null {
       pin: s.pin && typeof s.pin.hash === "string" ? s.pin : base.settings.pin,
       // added after the first release: older saves have none, which means "the best available"
       voicePack: typeof s.voicePack === "string" ? s.voicePack : null,
+      daily: sanitizeDaily(s.daily),
     },
   };
 }

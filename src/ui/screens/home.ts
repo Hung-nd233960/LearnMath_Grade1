@@ -1,4 +1,5 @@
 // Home: shows the active child's stars, streak, time left, this week, and the game tiles.
+import { tileState, type TileState } from "../../core/dailyPlan.ts";
 import { streakToday, weekStrip } from "../../core/profiles.ts";
 import type { GameId } from "../../core/types.ts";
 import { GAMES } from "../../games/index.ts";
@@ -8,6 +9,7 @@ import { mountAdultGate } from "../adultGate.ts";
 import { avatarBadge } from "../avatars.ts";
 import { emoji, h } from "../dom.ts";
 import { mascot } from "../mascot.ts";
+import { showToast } from "../notices.ts";
 import type { ScreenDef } from "../router.ts";
 import { speakerButton } from "../topbar.ts";
 import "./home.css";
@@ -48,6 +50,16 @@ function tileArt(id: GameId): HTMLElement {
   return art;
 }
 
+/** The small label that tells a child what a tile is doing today (see core/dailyPlan.ts). */
+function stateBadge(state: TileState): HTMLElement {
+  switch (state) {
+    case "next": return h("span", { class: "state next" }, emoji("magnifying_glass_tilted_left", 18), STR.tileNext);
+    case "done": return h("span", { class: "state done" }, "✓", STR.tileDone);
+    case "later": return h("span", { class: "state later" }, emoji("locked", 18), STR.tileLater);
+    default: return h("span", { class: "state notToday" }, emoji("locked", 18), STR.tileNotToday);
+  }
+}
+
 export const homeScreen: ScreenDef = {
   bg: "--home-bg",
   mount({ ctx, screen }) {
@@ -59,6 +71,7 @@ export const homeScreen: ScreenDef = {
     screen.classList.add("screen-home");
     const settings = ctx.store.data.settings;
     const today = ctx.today();
+    const plan = ctx.dailyPlan();
     const minutesLeft = Math.ceil(ctx.time.dailyLeftMs() / 60000);
     // Dev only: "?allready" shows every tile as playable to review how ready tiles look.
     const allReady = import.meta.env.DEV && location.search.includes("allready");
@@ -84,11 +97,27 @@ export const homeScreen: ScreenDef = {
           timeChip)),
       h("div", { class: "week-card" }, h("b", null, STR.thisWeek), h("div", { class: "week" }, ...week)));
 
+    // a game that has to wait: Mèo says why, and the game that is open lights up
+    let nudgeTimer = 0;
+    const explainLocked = (state: TileState) => {
+      const line = say(state === "later" ? "plan_wait" : "plan_tomorrow");
+      showToast(ctx.stage.el, line.text, "think", 5000);
+      void ctx.voice.play(line);
+      if (state === "later") {
+        const next = screen.querySelector<HTMLElement>(".tile[data-state=next]");
+        next?.classList.add("nudge");
+        clearTimeout(nudgeTimer);
+        nudgeTimer = window.setTimeout(() => next?.classList.remove("nudge"), 1800);
+      }
+    };
     const tiles = GAMES.map((g) => {
       const progress = profile.games[g.id];
       const ready = g.ready || allReady;
-      const tile = h("button", { class: `tile${ready ? "" : " soon"}`, "data-game": g.id, "aria-disabled": ready ? null : "true" },
+      const state: TileState = ready ? tileState(plan, g.id) : "open";
+      const waiting = state === "later" || state === "notToday";
+      const tile = h("button", { class: `tile${ready ? "" : " soon"} state-${state}`, "data-game": g.id, "data-state": state, "aria-disabled": ready && !waiting ? null : "true" },
         h("span", { class: "lvl" }, STR.tier(progress.seed.tier)));
+      if (ready && state !== "open") tile.append(stateBadge(state));
       tile.style.background = `var(${g.tileVar})`;
       if (!ready) {
         tile.append(h("span", { class: "soon-badge" }, emoji("locked", 18), STR.tileSoon));
@@ -98,12 +127,13 @@ export const homeScreen: ScreenDef = {
         tile.append(h("span", { class: "got" }, ...[0, 1, 2].map((i) => emoji("star", 26, i < progress.bestStars ? "" : "dim"))));
       }
       tile.append(tileArt(g.id), h("h3", null, g.title));
-      if (ready) tile.addEventListener("click", () => ctx.go(`play/${g.id}`));
+      if (ready) tile.addEventListener("click", () => (waiting ? explainLocked(state) : ctx.go(`play/${g.id}`)));
       return tile;
     });
 
     screen.append(
-      h("header", { class: "top" }, emoji("magnifying_glass_tilted_left", 52), h("h1", null, STR.appTitle), meChip, speakerButton()),
+      h("header", { class: "top" }, emoji("magnifying_glass_tilted_left", 52), h("h1", null, STR.appTitle),
+        plan ? chip("plan", "magnifying_glass_tilted_left", STR.planChip(plan.done.length, plan.games.length)) : null, meChip, speakerButton()),
       hero,
       h("nav", { class: "grid" }, ...tiles),
     );
@@ -114,6 +144,7 @@ export const homeScreen: ScreenDef = {
       if (timeChip.lastChild && timeChip.lastChild.textContent !== text) timeChip.lastChild.textContent = text;
     });
     return () => {
+      clearTimeout(nudgeTimer);
       unsubscribe();
       stopGate();
       ctx.voice.stop();

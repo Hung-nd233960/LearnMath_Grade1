@@ -67,6 +67,27 @@ export function channelVolume(s: Pick<Settings, "fx" | "mix" | "muted">, channel
   return on ? s.mix.master * s.mix[channel] : 0;
 }
 
+/** How the day's games are put in order: lowest level first ("Khởi động"), or shuffled. */
+export type DailyOrder = "warmup" | "random";
+
+/** The daily plan (see dailyPlan.ts): how many games a child plays per day (0 = no plan, every game is open) and in what order. */
+export interface DailySettings {
+  gamesPerDay: number;
+  order: DailyOrder;
+}
+
+export const DEFAULT_DAILY: DailySettings = { gamesPerDay: 3, order: "warmup" };
+export const MAX_DAILY_GAMES = 6;
+
+/** Make anything read from storage or a backup into valid daily settings. */
+export function sanitizeDaily(d: Partial<DailySettings> | undefined): DailySettings {
+  const n = d?.gamesPerDay;
+  return {
+    gamesPerDay: typeof n === "number" && Number.isInteger(n) && n >= 0 && n <= MAX_DAILY_GAMES ? n : DEFAULT_DAILY.gamesPerDay,
+    order: d?.order === "random" || d?.order === "warmup" ? d.order : DEFAULT_DAILY.order,
+  };
+}
+
 export interface Settings {
   fx: Fx;
   limits: Limits;
@@ -78,6 +99,8 @@ export interface Settings {
   mix: Mix;
   /** Voice pack chosen in the teacher area (a folder in public/audio, or "device"); null = the best available. */
   voicePack: string | null;
+  /** Games per day and their order. Added after the first release: older saves get the defaults. */
+  daily: DailySettings;
   pin: PinRecord;
 }
 
@@ -90,6 +113,7 @@ export function defaultSettings(reducedMotion = false): Settings {
     muted: false,
     mix: { ...DEFAULT_MIX },
     voicePack: null,
+    daily: { ...DEFAULT_DAILY },
     pin: makePin(DEFAULT_PIN, "default"),
   };
 }

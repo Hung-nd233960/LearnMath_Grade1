@@ -2,6 +2,7 @@ import type { sfx } from "../audio/sfx.ts";
 import type { VoicePack } from "../audio/packs.ts";
 import type { Bgm } from "../audio/bgm.ts";
 import type { Voice } from "../audio/voice.ts";
+import type { DailyPlan } from "../core/dailyPlan.ts";
 import type { DayKey } from "../core/dates.ts";
 import type { SetSummary } from "../core/session.ts";
 import type { Store } from "../core/storage.ts";
@@ -17,6 +18,10 @@ export interface SetResult {
   streak: number;
   /** This set earned the first star of the day (the streak just grew or started). */
   firstStarToday: boolean;
+  /** A replay of a finished game: no stars were earned (the star screen says so). */
+  practice?: boolean;
+  /** This set finished the last of today's games. */
+  planDone?: boolean;
 }
 
 /** Everything a screen needs. Built once by startApp() and passed to every screen. */
@@ -31,6 +36,8 @@ export interface AppContext {
   stage: Stage;
   /** Screen-time clock: usage, breaks, locks, idle. */
   time: Timekeeper;
+  /** Today's games for the child who is playing (made on first use, kept all day), or null while the plan is off. */
+  dailyPlan(): DailyPlan | null;
   /** Navigate: go("home"), go("play/split"), go("teacher"). */
   go(path: string): void;
   /** Result of the last finished set; read by the star screen. */

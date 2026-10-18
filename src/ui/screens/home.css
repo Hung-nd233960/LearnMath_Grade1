@@ -45,3 +45,17 @@
 .screen-home .eqart { display: flex; align-items: center; gap: 2px; font-family: "Baloo 2"; font-weight: 800; font-size: 40px; }
 .screen-home .gift-b { filter: hue-rotate(200deg); }
 .screen-home .gift-g { filter: hue-rotate(110deg); }
+
+/* The daily plan: only the next game is bright; the others wait, or are not today's. */
+.screen-home .chip.plan { background: #e1f5e7; }
+.screen-home .tile .state { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; border-radius: 999px; padding: 3px 12px 1px 8px; font-family: "Baloo 2"; font-weight: 700; font-size: 16px; white-space: nowrap; z-index: 1; }
+.screen-home .tile .state.next { background: var(--green); color: #fff; }
+.screen-home .tile .state.done { background: #d8f5df; color: var(--green); }
+.screen-home .tile .state.later, .screen-home .tile .state.notToday { background: var(--navy); color: #fff; }
+.screen-home .tile.state-later, .screen-home .tile.state-notToday { filter: saturate(0.35); opacity: 0.8; }
+.screen-home .tile.state-next { box-shadow: 0 0 0 5px var(--green), 0 8px 0 rgba(30, 42, 74, 0.1); }
+.fx-anim .screen-home .tile.state-next { animation: tile-pulse 1.8s ease-in-out infinite; }
+@keyframes tile-pulse { 50% { transform: translateY(-4px) scale(1.015); } }
+.screen-home .tile.nudge { box-shadow: 0 0 0 9px var(--green), 0 8px 0 rgba(30, 42, 74, 0.1); }
+.fx-anim .screen-home .tile.nudge { animation: tile-nudge 0.5s ease 3; }
+@keyframes tile-nudge { 25% { transform: rotate(-2deg) scale(1.03); } 75% { transform: rotate(2deg) scale(1.03); } }

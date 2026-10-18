@@ -6,9 +6,13 @@ import { Bgm } from "../audio/bgm.ts";
 import { trackForRoute } from "../audio/music.ts";
 import { choosePack, loadPacks, type VoicePack } from "../audio/packs.ts";
 import { Voice } from "../audio/voice.ts";
+import { ensurePlan, tileState } from "../core/dailyPlan.ts";
 import { dayKey } from "../core/dates.ts";
+import { createRng, randomSeed } from "../core/rng.ts";
 import { browserKV, Store } from "../core/storage.ts";
 import { channelVolume, type Fx, type Settings } from "../core/settings.ts";
+import type { GameId } from "../core/types.ts";
+import { GAMES } from "../games/index.ts";
 import { say } from "../i18n/speech.ts";
 import type { AppContext } from "./context.ts";
 import { showPause, showToast } from "./notices.ts";
@@ -82,6 +86,14 @@ export function startApp(host: HTMLElement): AppContext {
     stage,
     time,
     go: (path) => router.go(path),
+    dailyPlan() {
+      const p = store.activeProfile;
+      if (!p) return null;
+      const eligible = GAMES.filter((g) => g.ready).map((g) => g.id);
+      const plan = ensurePlan(p, store.data.settings.daily, ctx.today(), eligible, createRng(randomSeed()));
+      if (plan !== p.plan) store.updateProfile((x) => ({ ...x, plan }));
+      return plan;
+    },
     lastSet: null,
     now: () => Date.now(),
     today: () => dayKey(new Date()),
@@ -142,7 +154,14 @@ export function startApp(host: HTMLElement): AppContext {
     home: "home",
     guard: (r) => {
       if (!store.activeProfile) return OPEN_ROUTES.has(r.name) ? null : "who";
-      return time.gate(r.name);
+      const gate = time.gate(r.name);
+      if (gate) return gate;
+      // the daily plan: a game that is not the next one (or not today's at all) is not opened by typing its address either
+      if (r.name === "play") {
+        const state = tileState(ctx.dailyPlan(), r.params[0] as GameId);
+        if (state === "later" || state === "notToday") return "home";
+      }
+      return null;
     },
     onRoute: (r) => {
       route = r.name;

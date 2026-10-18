@@ -6,7 +6,8 @@
 // This file knows nothing about any particular game: the view draws and returns answers,
 // logic.check() judges, text.hint() words the hint.
 import { createRng, randomSeed } from "../../core/rng.ts";
-import { markGuideSeen, recordSet, starsToday, streakToday } from "../../core/profiles.ts";
+import { planComplete, tileState } from "../../core/dailyPlan.ts";
+import { completeInPlan, markGuideSeen, recordPractice, recordSet, starsToday, streakToday } from "../../core/profiles.ts";
 import { SetRunner, type AnswerFeedback } from "../../core/session.ts";
 import type { GameId } from "../../core/types.ts";
 import { GAMES } from "../../games/index.ts";
@@ -34,6 +35,8 @@ export const playScreen: ScreenDef = {
       return;
     }
     const game = meta;
+    // a game that is already finished today can be played again for fun: nothing is earned or saved but the history
+    const practice = tileState(ctx.dailyPlan(), game.id) === "done";
     screen.classList.add("screen-play");
     ctx.stage.setBackground(game.bgVar);
     mountDecor(screen, game.id);
@@ -140,9 +143,18 @@ export const playScreen: ScreenDef = {
       const summary = runner.summary();
       const today = ctx.today();
       const settings = ctx.store.data.settings;
+      if (practice) {
+        ctx.store.updateProfile((p) => recordPractice(p, game.id, summary, ctx.now(), today));
+        ctx.lastSet = { game: game.id, summary, streak: streakToday(ctx.store.activeProfile!, today, settings), firstStarToday: false, practice: true };
+        ctx.go("stars");
+        return;
+      }
       const firstStarToday = starsToday(ctx.store.activeProfile!, today) === 0;
-      ctx.store.updateProfile((p) => recordSet(p, game.id, summary, settings, ctx.now(), today));
-      ctx.lastSet = { game: game.id, summary, streak: streakToday(ctx.store.activeProfile!, today, settings), firstStarToday };
+      const planBefore = ctx.dailyPlan();
+      ctx.store.updateProfile((p) => completeInPlan(recordSet(p, game.id, summary, settings, ctx.now(), today), game.id, today));
+      const planAfter = ctx.store.activeProfile!.plan;
+      const planDone = !!planBefore && !!planAfter && !planComplete(planBefore) && planComplete(planAfter);
+      ctx.lastSet = { game: game.id, summary, streak: streakToday(ctx.store.activeProfile!, today, settings), firstStarToday, planDone };
       ctx.go("stars");
     };
 

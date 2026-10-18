@@ -21,6 +21,7 @@ export const starsScreen: ScreenDef = {
     ctx.stage.setBackground(game.bgVar);
     const { summary } = result;
 
+    const practice = !!result.practice;
     const stars = h("div", { class: "star-row" },
       ...[0, 1, 2].map((i) => {
         const img = emoji("glowing_star", 112, i < summary.stars ? "" : "dim");
@@ -31,18 +32,21 @@ export const starsScreen: ScreenDef = {
       h("span", { class: "chip star" }, emoji("glowing_star", 30), `+${summary.stars}`),
       result.streak > 0 ? h("span", { class: "chip fire" }, emoji("fire", 30), STR.streakChip(result.streak)) : null);
 
+    // a replay earns nothing: just the score and a friendly line; finishing the last game of the day says so
+    const note = practice ? say("plan_replay") : result.planDone ? say("plan_all_done") : null;
     screen.append(h("div", { class: "center" },
       mascot("happy"),
       h("h1", null, STR.setDone),
-      stars,
+      practice ? null : stars,
       h("p", { class: "score" }, STR.score(summary.score, summary.total)),
-      chips,
+      note ? h("p", { class: "plan-note", id: "plan-note" }, note.text) : null,
+      practice ? null : chips,
       h("button", { class: "btn btn-primary", id: "back-home", onclick: () => ctx.go("home") }, STR.backHome)));
 
-    confetti(ctx.stage.el);
-    void ctx.voice.play(say("set_done"));
+    if (!practice) confetti(ctx.stage.el);
+    void ctx.voice.play(practice ? say("plan_replay") : result.planDone ? say("set_done", "plan_all_done") : say("set_done"));
     // one chime per earned star, in step with the pop-in animation
-    const timers = Array.from({ length: summary.stars }, (_, i) => window.setTimeout(() => ctx.sfx.play("star"), 450 + i * 380));
+    const timers = practice ? [] : Array.from({ length: summary.stars }, (_, i) => window.setTimeout(() => ctx.sfx.play("star"), 450 + i * 380));
 
     return () => {
       timers.forEach(clearTimeout);

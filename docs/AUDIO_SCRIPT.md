@@ -85,6 +85,10 @@ Mẹo thu âm:
 | `daily_warn.mp3` | Còn hai phút nữa là hết giờ chơi hôm nay rồi. |
 | `daily_done.mp3` | Hôm nay mình chơi đủ rồi! Hẹn gặp lại em ngày mai nhé. |
 | `rotate.mp3` | Em hãy xoay ngang máy nhé! |
+| `plan_wait.mp3` | Bé hoàn thành trò trước đã nhé! |
+| `plan_tomorrow.mp3` | Trò này sẽ mở vào hôm khác nhé! |
+| `plan_replay.mp3` | Chơi lại cho vui thôi nhé! |
+| `plan_all_done.mp3` | Hôm nay em đã giải xong các vụ án rồi! Em có thể chơi lại cho vui. |
 
 ## Thăng bằng
 
@@ -211,4 +215,4 @@ Mẹo thu âm:
 | `demo_scale_light.mp3` | Đĩa này nhẹ hơn, nên Mèo thêm quả vào đây. |
 | `demo_scale_done.mp3` | Hai đĩa đã nặng bằng nhau. Mèo bấm Xong! |
 
-Tổng cộng: **145** tệp.
+Tổng cộng: **149** tệp.

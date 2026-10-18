@@ -13,3 +13,5 @@
 .screen-stars .chip { display: flex; align-items: center; gap: 8px; border-radius: 999px; padding: 5px 16px 3px 8px; font: 800 22px "Baloo 2"; }
 .screen-stars .chip.fire { background: #ffe3d6; }
 .screen-stars .chip.star { background: #fff4cc; }
+
+.screen-stars .plan-note { font-family: "Baloo 2"; font-weight: 700; font-size: 26px; color: var(--navy-soft); max-width: 720px; text-align: center; margin: 0; }

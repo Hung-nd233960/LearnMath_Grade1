@@ -33,6 +33,10 @@ export const CLIP_GROUPS = {
     daily_warn: "Còn hai phút nữa là hết giờ chơi hôm nay rồi.",
     daily_done: "Hôm nay mình chơi đủ rồi! Hẹn gặp lại em ngày mai nhé.",
     rotate: "Em hãy xoay ngang máy nhé!",
+    plan_wait: "Bé hoàn thành trò trước đã nhé!",
+    plan_tomorrow: "Trò này sẽ mở vào hôm khác nhé!",
+    plan_replay: "Chơi lại cho vui thôi nhé!",
+    plan_all_done: "Hôm nay em đã giải xong các vụ án rồi! Em có thể chơi lại cho vui.",
   },
   "Thăng bằng": {
     scale_t1: "Thêm táo vào đĩa nhẹ hơn để hai đĩa bằng nhau nhé!",

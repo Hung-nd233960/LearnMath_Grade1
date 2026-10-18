@@ -2,6 +2,7 @@
 // Shapes are kept JSON-friendly so a backend can sync them later without changes.
 import { SESSION_HISTORY_MAX } from "./config.ts";
 import { addDays, weekdayIndex, isWeekend, type DayKey } from "./dates.ts";
+import { markDone, type DailyPlan } from "./dailyPlan.ts";
 import { START_POSITION, normalize } from "./difficulty.ts";
 import { currentStreak, EMPTY_STREAK, recordStarDay, type Streak } from "./rewards.ts";
 import { newUsage, type Usage } from "./screentime.ts";
@@ -28,6 +29,8 @@ export interface SessionRecord {
   total: number;
   stars: 1 | 2 | 3;
   peakTier: number;
+  /** A replay of a finished game: it earned nothing and moved nothing. */
+  practice?: boolean;
 }
 
 export interface Profile {
@@ -43,6 +46,8 @@ export interface Profile {
   games: Record<GameId, GameProgress>;
   history: SessionRecord[];
   usage: Usage;
+  /** Today's games (see dailyPlan.ts); null until the home screen has made one, or while the plan is off. */
+  plan: DailyPlan | null;
 }
 
 export const AVATARS = ["rocket", "rainbow", "strawberry", "soccer_ball", "sun_with_face", "kite", "cherry_blossom", "star", "teddy_bear", "seedling"] as const;
@@ -71,7 +76,18 @@ export function createProfile(name: string, avatar: string, now: number, today: 
     games: emptyGames(),
     history: [],
     usage: newUsage(today, now),
+    plan: null,
   };
+}
+
+/** A stored plan is kept only if it still makes sense (known games, finished ones are among today's games). */
+function repairPlan(plan: unknown): DailyPlan | null {
+  if (!plan || typeof plan !== "object") return null;
+  const x = plan as Partial<DailyPlan>;
+  if (typeof x.day !== "string" || !Array.isArray(x.games) || !Array.isArray(x.done)) return null;
+  const known = (g: unknown): g is GameId => (GAME_IDS as readonly unknown[]).includes(g);
+  const games = [...new Set(x.games.filter(known))];
+  return { day: x.day, games, done: [...new Set(x.done.filter(known))].filter((g) => games.includes(g)) };
 }
 
 /** Fill missing fields of a stored profile (older save, partial import). */
@@ -90,6 +106,7 @@ export function repairProfile(p: Partial<Profile> & { id: string }, now: number,
     games,
     history: Array.isArray(p.history) ? p.history : [],
     usage: p.usage ?? base.usage,
+    plan: repairPlan(p.plan),
   } as Profile;
 }
 
@@ -110,6 +127,17 @@ export function recordSet(p: Profile, game: GameId, s: SetSummary, settings: Set
     },
     history: [...p.history, record].slice(-SESSION_HISTORY_MAX),
   };
+}
+
+/** A finished game replayed for fun: it goes into the history, and nothing else changes (no stars, no streak, no new level). */
+export function recordPractice(p: Profile, game: GameId, s: SetSummary, now: number, today: DayKey): Profile {
+  const record: SessionRecord = { game, day: today, at: now, seed: s.seed, score: s.score, total: s.total, stars: s.stars, peakTier: s.peakTier, practice: true };
+  return { ...p, history: [...p.history, record].slice(-SESSION_HISTORY_MAX) };
+}
+
+/** Tick a game off today's plan (only the next game counts, and only when the plan is today's). */
+export function completeInPlan(p: Profile, game: GameId, today: DayKey): Profile {
+  return p.plan && p.plan.day === today ? { ...p, plan: markDone(p.plan, game) } : p;
 }
 
 export function markGuideSeen(p: Profile, game: GameId): Profile {
