@@ -53,3 +53,42 @@ describe("voice pack setting", () => {
     expect(migrate(JSON.parse(JSON.stringify(junk)))!.settings.voicePack).toBeNull();
   });
 });
+
+/** The packs that really ship: every folder of public/audio, as the build lists them (see vite.config.ts). */
+const mp3 = import.meta.glob("../public/audio/*/*.mp3", { query: "?url", import: "default" });
+const meta = import.meta.glob("../public/audio/*/pack.json", { eager: true, import: "default" }) as Record<string, { name?: string; note?: string; order?: number }>;
+function shippedPacks(): VoicePack[] {
+  const folderOf = (path: string) => path.split("/").slice(-2)[0]!;
+  const folders = [...new Set([...Object.keys(mp3), ...Object.keys(meta)].map(folderOf))];
+  return folders.map((id) => {
+    const m = Object.entries(meta).find(([p]) => folderOf(p) === id)?.[1] ?? {};
+    const clips = Object.keys(mp3).filter((p) => folderOf(p) === id).map((p) => p.split("/").pop()!.replace(/.mp3$/, ""));
+    return { id, name: m.name ?? id, note: m.note ?? "", order: m.order ?? 10, clips };
+  });
+}
+
+describe("the voice packs that ship", () => {
+  const packs = shippedPacks();
+  it("on a fresh device the app speaks with Nam Minh (the Northern voice) until the teacher's recordings are complete", () => {
+    expect(choosePack(null, packs)).toBe("nam-minh");
+    const nam = packs.find((p) => p.id === "nam-minh")!;
+    expect(nam.name).toMatch(/miền Bắc/);
+    expect(nam.order).toBeLessThan(packs.find((p) => p.id === "hoai-my")!.order); // the Southern voice is not preferred
+  });
+  it("the teacher's own recordings still come first once they are complete", () => {
+    const teacher = packs.find((p) => p.id === "teacher")!;
+    expect(teacher.order).toBeLessThan(packs.find((p) => p.id === "nam-minh")!.order);
+    const complete = { ...teacher, clips: Object.keys(CLIPS) };
+    expect(choosePack(null, packs.map((p) => (p.id === "teacher" ? complete : p)))).toBe("teacher");
+  });
+  it("every placeholder pack covers every clip of the app, so no sentence falls back to the device voice", () => {
+    for (const id of ["nam-minh", "hoai-my", "piper"]) {
+      const p = packs.find((x) => x.id === id)!;
+      const c = coverage(p);
+      expect(c.have, id).toBe(c.total);
+    }
+  });
+  it("no pack keeps clips the app no longer has (the old So sánh cân guide)", () => {
+    for (const p of packs) expect(p.clips.filter((c) => c.startsWith("guide_cmp_")), p.id).toEqual([]);
+  });
+});

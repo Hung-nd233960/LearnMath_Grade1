@@ -116,8 +116,9 @@ console.log(`${all.filter((c) => exists(c.id)).length} of ${all.length} clips pr
 if (flag("install", false)) {
   // become a voice pack the teacher can choose: public/audio/<pack>/<id>.mp3 + pack.json (see src/audio/packs.ts)
   const NAMES = {
-    "edge-vi-VN-HoaiMyNeural": { id: "hoai-my", name: "Hoài My (nữ, giọng máy)", note: "Giọng nữ tổng hợp (thử nghiệm), nghe như giọng miền Nam.", order: 10 },
-    "edge-vi-VN-NamMinhNeural": { id: "nam-minh", name: "Nam Minh (nam, giọng máy)", note: "Giọng nam tổng hợp (thử nghiệm), nghe như giọng miền Bắc.", order: 11 },
+    "edge-vi-VN-HoaiMyNeural": { id: "hoai-my", name: "Hoài My (nữ, giọng máy)", note: "Giọng nữ tổng hợp (thử nghiệm), nghe như giọng miền Nam.", order: 11 },
+    // the Northern voice the teachers asked for: the default until the teacher's own recordings are complete (order 0)
+    "edge-vi-VN-NamMinhNeural": { id: "nam-minh", name: "Nam Minh (giọng miền Bắc)", note: "Giọng nam tổng hợp (thử nghiệm), giọng miền Bắc. Đây là giọng mặc định cho đến khi có bản thu của giáo viên.", order: 1 },
     "piper-vais1000": { id: "piper", name: "Piper (giọng máy, chạy ngoại tuyến)", note: "Giọng tổng hợp mã nguồn mở (thử nghiệm), không cần mạng khi tạo.", order: 12 },
   };
   const meta = NAMES[`${engine}-${voice}`] ?? { id: `${engine}-${voice}`.toLowerCase(), name: `${engine} ${voice}`, note: "Giọng tổng hợp (thử nghiệm).", order: 20 };

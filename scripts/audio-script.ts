@@ -18,6 +18,14 @@ const lines: string[] = [
   "- Các số và từ nối (“và”, “chục”, “nhé!”) được ghép với nhau, nên đọc chúng với giọng đều, không lên xuống quá nhiều.",
   "",
 ];
+// Clips added or re-worded in feedback round 2 (October 2026). A teacher who recorded the rest earlier records only these.
+const ROUND_2_NEW = ["plan_wait","plan_tomorrow","plan_replay","plan_all_done","infer_one","infer_hint_few","infer_hint_many","infer_ok","basket_meo_has","basket_meo_wants","basket_give_more","basket_how_many_more","basket_hint_said","basket_you_have","basket_meo_basket_has","basket_meo_empty","basket_make_equal","basket_hint_childmore","basket_hint_meomore","basket_equal_ok","eq_multi","eq_hint_rows","pattern_prompt","pattern_number","pattern_hint_repeat","pattern_hint_number","pattern_hint_rotate","pattern_hint_grid","pattern_ok","guide_pattern_1","guide_pattern_2","guide_pattern_3","guide_pattern_4"];
+const ROUND_2_CHANGED = ["guide_split_1","guide_split_2","guide_scale_1","guide_scale_2","guide_scale_3","guide_scale_4"];
+const everyClip = Object.assign({}, ...Object.values(CLIP_GROUPS)) as Record<string, string>;
+lines.push("## Mới trong đợt góp ý thứ hai", "", "Nếu cô/thầy đã thu các tệp cũ, chỉ cần thu thêm những tệp dưới đây (mới thêm hoặc đã đổi lời). Các tệp `guide_cmp_*` không còn dùng nữa.", "", "| Tên tệp | Câu cần đọc | |", "| --- | --- | --- |");
+for (const id of ROUND_2_NEW) lines.push("| `" + id + ".mp3` | " + everyClip[id] + " | mới |");
+for (const id of ROUND_2_CHANGED) lines.push("| `" + id + ".mp3` | " + everyClip[id] + " | đổi lời |");
+lines.push("");
 let total = 0;
 for (const [group, clips] of Object.entries(CLIP_GROUPS)) {
   lines.push(`## ${group}`, "", "| Tên tệp | Câu cần đọc |", "| --- | --- |");

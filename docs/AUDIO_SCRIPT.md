@@ -11,6 +11,52 @@ Mẹo thu âm:
 - Định dạng `.mp3`, mono, 44.1 kHz là đủ.
 - Các số và từ nối (“và”, “chục”, “nhé!”) được ghép với nhau, nên đọc chúng với giọng đều, không lên xuống quá nhiều.
 
+## Mới trong đợt góp ý thứ hai
+
+Nếu cô/thầy đã thu các tệp cũ, chỉ cần thu thêm những tệp dưới đây (mới thêm hoặc đã đổi lời). Các tệp `guide_cmp_*` không còn dùng nữa.
+
+| Tên tệp | Câu cần đọc | |
+| --- | --- | --- |
+| `plan_wait.mp3` | Bé hoàn thành trò trước đã nhé! | mới |
+| `plan_tomorrow.mp3` | Trò này sẽ mở vào hôm khác nhé! | mới |
+| `plan_replay.mp3` | Chơi lại cho vui thôi nhé! | mới |
+| `plan_all_done.mp3` | Hôm nay em đã giải xong các vụ án rồi! Em có thể chơi lại cho vui. | mới |
+| `infer_one.mp3` | Nhìn các cân nhỏ. Em đặt bao nhiêu quả cam để cân thăng bằng? | mới |
+| `infer_hint_few.mp3` | Đĩa cam còn nhẹ quá. Em xem lại các cân nhỏ nhé! | mới |
+| `infer_hint_many.mp3` | Nhiều cam quá rồi! Em xem lại các cân nhỏ nhé. | mới |
+| `infer_ok.mp3` | Đúng rồi! Em suy luận giỏi lắm! | mới |
+| `basket_meo_has.mp3` | Trong giỏ của Mèo có | mới |
+| `basket_meo_wants.mp3` | Mèo muốn có tất cả | mới |
+| `basket_give_more.mp3` | Em đưa thêm cho Mèo nhé! | mới |
+| `basket_how_many_more.mp3` | Em đã đưa thêm mấy quả? | mới |
+| `basket_hint_said.mp3` | Em đếm lại số quả em vừa đưa thêm nhé! | mới |
+| `basket_you_have.mp3` | Giỏ của em có | mới |
+| `basket_meo_basket_has.mp3` | Giỏ của Mèo có | mới |
+| `basket_meo_empty.mp3` | Giỏ của Mèo chưa có quả nào | mới |
+| `basket_make_equal.mp3` | Em chuyển sang giỏ của Mèo để hai giỏ bằng nhau nhé! | mới |
+| `basket_hint_childmore.mp3` | Giỏ của em còn nhiều hơn. Em chuyển thêm sang giỏ của Mèo nhé. | mới |
+| `basket_hint_meomore.mp3` | Giỏ của Mèo nhiều hơn rồi. Em lấy bớt ra nhé. | mới |
+| `basket_equal_ok.mp3` | Hai giỏ bằng nhau rồi! Giỏi quá! | mới |
+| `eq_multi.mp3` | Em tính từng dòng nhé! | mới |
+| `eq_hint_rows.mp3` | Có dòng chưa đúng. Em xem lại bảng số nhé! | mới |
+| `pattern_prompt.mp3` | Tìm hình còn thiếu nhé! | mới |
+| `pattern_number.mp3` | Tìm số còn thiếu nhé! | mới |
+| `pattern_hint_repeat.mp3` | Em xem mấy hình đầu lặp lại thế nào nhé. | mới |
+| `pattern_hint_number.mp3` | Mỗi lần số tăng hay giảm mấy? | mới |
+| `pattern_hint_rotate.mp3` | Em xem chấm xanh đi theo chiều nào nhé. | mới |
+| `pattern_hint_grid.mp3` | Mỗi hàng có đủ ba hình, không hình nào lặp lại. | mới |
+| `pattern_ok.mp3` | Đúng rồi! Em tìm ra quy luật rồi! | mới |
+| `guide_pattern_1.mp3` | Mỗi hàng có một quy luật: các hình lặp lại theo một thứ tự. | mới |
+| `guide_pattern_2.mp3` | Nhìn kỹ xem những hình đầu lặp lại như thế nào. | mới |
+| `guide_pattern_3.mp3` | Tìm hình còn thiếu ở ô có dấu hỏi. | mới |
+| `guide_pattern_4.mp3` | Chạm vào hình đúng, rồi bấm Xong. | mới |
+| `guide_split_1.mp3` | Nhìn bức tranh: có hai loại, khác nhau về hình dạng và màu sắc. | đổi lời |
+| `guide_split_2.mp3` | Chạm vào từng cái để đánh dấu, đếm không sót cái nào. | đổi lời |
+| `guide_scale_1.mp3` | Vòng một: kéo quả từ khay vào đĩa nhẹ hơn cho hai đĩa nặng bằng nhau. | đổi lời |
+| `guide_scale_2.mp3` | Vòng hai: đọc các cân nhỏ. Bên nào hạ xuống là bên nặng hơn. | đổi lời |
+| `guide_scale_3.mp3` | Vòng ba: các cân nhỏ cho biết mỗi quả nặng bằng mấy quả cam. Em đặt cam vào đĩa trống cho cân thăng bằng. | đổi lời |
+| `guide_scale_4.mp3` | Chạm quả rồi chạm đĩa, hoặc kéo thả. Bấm Xong để xem kết quả. | đổi lời |
+
 ## Số đếm
 
 | Tên tệp | Câu cần đọc |

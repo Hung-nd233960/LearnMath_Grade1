@@ -1,5 +1,5 @@
 {
-  "name": "Nam Minh (nam, giọng máy)",
-  "note": "Giọng nam tổng hợp (thử nghiệm), nghe như giọng miền Bắc.",
-  "order": 11
+  "name": "Nam Minh (giọng miền Bắc)",
+  "note": "Giọng nam tổng hợp (thử nghiệm), giọng miền Bắc. Đây là giọng mặc định cho đến khi có bản thu của giáo viên.",
+  "order": 1
 }

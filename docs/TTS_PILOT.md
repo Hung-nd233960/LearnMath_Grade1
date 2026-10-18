@@ -1,8 +1,16 @@
 # Text-to-speech pilot: placeholder voices for Mèo
 
-**Why.** The final voice is the teacher's own recording (see [AUDIO_SCRIPT.md](AUDIO_SCRIPT.md), 132 short clips). Until it exists, the app needs *something* better than silence. The project rule (CLAUDE.md): synthetic clips are allowed during development, they use the same file names as the real ones, and **nothing is generated at run time**. This pilot tried the realistic options on the real clip list and turned the working ones into **voice packs** the teacher can switch between (teacher area, tab **Giọng nói**).
+**Why.** The final voice is the teacher's own recording (see [AUDIO_SCRIPT.md](AUDIO_SCRIPT.md), 161 short clips as of round 2). Until it exists, the app needs *something* better than silence. The project rule (CLAUDE.md): synthetic clips are allowed during development, they use the same file names as the real ones, and **nothing is generated at run time**. This pilot tried the realistic options on the real clip list and turned the working ones into **voice packs** the teacher can switch between (teacher area, tab **Giọng nói**).
 
 Result in one line: **132 of 132 clips made with three different synthetic voices, all playable in the app today; the quality still has to be judged by ear** (nobody in this pilot could listen; open the listening pages, see below).
+
+## Round 2 (October 2026): Nam Minh is the default
+
+The teachers found the voice "too AI" and asked for a **Northern (Hà Nội) accent**. A child's voice is not practical, so the request settled on a Northern adult voice. The shipped default was *Hoài My*, whose own note says it sounds Southern, so:
+
+* **Nam Minh** (`vi-VN-NamMinhNeural`, northern) now has `order: 1` and the name "Nam Minh (giọng miền Bắc)"; Hoài My is `11`, Piper `12`, the teacher's pack stays `0`. `choosePack()` picks the first *complete* pack by `order`, so a fresh device speaks with Nam Minh, and the teacher's own recordings take over once they are complete. No code changed: only the three `pack.json` files and the names in `scripts/tts-pilot.mjs`. `tests/voicepacks.test.ts` reads the real folders and checks this.
+* The round-2 games added 33 clips and re-worded 6 (`guide_scale_*`, `guide_split_1/2`); the old `guide_cmp_*` went. All three placeholder packs were topped up so **every pack has all 161 clips** (a test checks it): `node scripts/tts-pilot.mjs --voice vi-VN-NamMinhNeural --edge-bin .tts-venv/Scripts/edge-tts --python .tts-venv/Scripts/python --only <ids> --force --install` (and the same for `vi-VN-HoaiMyNeural` and `--engine piper …`). The ids are listed in [AUDIO_SCRIPT.md](AUDIO_SCRIPT.md), section "Mới trong đợt góp ý thứ hai".
+* To ask for a nicer synthetic voice later (FPT.AI, Viettel AI, Zalo AI offer Northern voices), add an engine to `scripts/tts-pilot.mjs` that writes a new pack folder; keep keys in an environment variable. Nothing is generated at run time.
 
 ## What was tried
 
