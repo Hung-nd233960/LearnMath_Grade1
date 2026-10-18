@@ -58,7 +58,7 @@ node scripts/tts-pilot.mjs --engine piper --voice vais1000 --piper-bin .tts-venv
 
 * **Edge voices (`edge-tts`)**: unofficial use of Microsoft's online service. Treat the audio as **test material**. For a pack you publish, regenerate the same two voices with **Azure Speech** (official, licensed) and use that.
 * **Piper `vais1000`**: Piper and the voice-file repository are MIT-licensed; the speech data the voice was trained on has its own terms. Check before publishing.
-* **Git keeps none of these packs** (`public/audio/*/` is ignored except `teacher/`), so the GitHub site has only the device voice and the teacher's recordings until you decide. To publish a pack, remove its line from `.gitignore`.
+* **All packs are committed** (`public/audio/<pack>/`), so GitHub Pages and Vercel ship every one of them. To keep a pack out of a deploy, delete its folder or add its path to `.gitignore`.
 * The **teacher's recordings** are the only voice with no licence question; that is the goal.
 
 ## Sources

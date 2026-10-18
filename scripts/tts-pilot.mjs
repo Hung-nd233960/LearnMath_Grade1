@@ -125,6 +125,6 @@ if (flag("install", false)) {
   mkdirSync(dest, { recursive: true });
   for (const f of readdirSync(out).filter((f) => f.endsWith(".mp3"))) if (statSync(`${out}${f}`).size > 0) copyFileSync(`${out}${f}`, `${dest}${f}`);
   writeFileSync(`${dest}pack.json`, JSON.stringify({ name: meta.name, note: meta.note, order: meta.order }, null, 2) + "\n");
-  console.log(`installed as voice pack "${meta.id}" in ${dest} (git ignores these: they are placeholders; the teacher's recordings go in public/audio/teacher/)`);
+  console.log(`installed as voice pack "${meta.id}" in ${dest} (commit it to ship it; these are placeholders, the teacher's recordings go in public/audio/teacher/)`);
 }
 process.exit(failed.length ? 1 : 0);
