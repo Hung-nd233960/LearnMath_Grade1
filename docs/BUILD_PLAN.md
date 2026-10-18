@@ -148,7 +148,8 @@ The teachers' second round (2026-10-18). Each item has a detailed task file in [
   - `games/pattern/logic.ts`: four kinds (repeat, number, rotate, grid), each question proven to have exactly one fitting option (`fittingOptions`, tested for every position × 300 seeds). View `ui/games/pattern.ts`: tap or drag a choice onto the blank. The tile art is a placeholder (task 07).
 - [x] 04 Daily plan: games per day, one at a time, replay for no credit ([task](tasks/04-daily-plan.md))
   - Pure rules in `core/dailyPlan.ts` (least-recently-played games, warm-up or random order, `ensurePlan` / `tileState` / `markDone`); `Profile.plan`, `Settings.daily` and `recordPractice` are additive, so `SCHEMA` stays 2. `ctx.dailyPlan()` makes today's plan on first use; the router guard sends a waiting or not-today game back to home (the address bar keeps the typed address, as with the break screen). The teacher area has the controls under "Thời gian chơi" and each child's plan under "Học sinh". `ui:check` runs with the plan switched off, except its own section 11c.
-- [ ] 05 Chia quả: rename, "cần thêm" and "bằng nhau" modes ([task](tasks/05-chia-qua.md))
+- [x] 05 Chia quả: rename, "cần thêm" and "bằng nhau" modes ([task](tasks/05-chia-qua.md))
+  - Vòng 3 is now step 0 several kinds / step 1 `addTo` (Mèo has some, wants a total; the child also types how many were added, with a small pad between the baskets) / step 2 `equalize` (score the end state; fruit in rows of five). Deviation from the task: the child holds at most **9** loose fruit (the existing `MAX_LOOSE` rule), not 10. Mèo's own starting fruit is fixed. 12 new clips.
 - [ ] 06 Mấy và mấy: garden scene with animals ([task](tasks/06-may-va-may-garden.md))
 - [ ] 07 Living tile scenes (swaying leaves, clouds, sparkles) and Mèo's new look ([task](tasks/07-art.md))
 - [ ] 08 Phones in landscape, wide layout ([task](tasks/08-phone.md))
@@ -164,6 +165,7 @@ The teachers' second round (2026-10-18). Each item has a detailed task file in [
   - number path: follow 1-2-3 / 2-4-6 / 10-20-30 across the grid; green / red cells
   - "collect exactly 10": +/− cells with a running total
   - Design notes are in Games_Description, section 6.2. Add them as new question `kind`s in `robot/logic.ts`, with tests.
+- **Chia quả:** "Mèo has 2 more than you" (comparing by difference) was left out: too hard for October.
 - **Cái cân shapes variant:** triangle = 3, square = 4, at tier 3.
 - **Effects per child**, instead of per device.
 - **Teacher class overview** from imported backups of several devices.

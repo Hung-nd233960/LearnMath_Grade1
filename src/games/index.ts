@@ -32,7 +32,7 @@ export interface GameMeta {
 export const GAMES: GameMeta[] = [
   { id: "scale", title: "Thăng bằng", bgVar: "--scale-bg", tileVar: "--scale-tile", art: ["balance_scale"], logic: scaleLogic, text: scaleText, ready: true },
   { id: "robot", title: "Rô-bốt", bgVar: "--robot-bg", tileVar: "--robot-tile", art: ["robot", "triangular_flag"], logic: robotLogic, text: robotText, ready: true },
-  { id: "basket", title: "Giỏ trái cây", bgVar: "--basket-bg", tileVar: "--basket-tile", art: ["basket", "tangerine"], logic: basketLogic, text: basketText, ready: true },
+  { id: "basket", title: "Chia quả", bgVar: "--basket-bg", tileVar: "--basket-tile", art: ["basket", "tangerine"], logic: basketLogic, text: basketText, ready: true },
   { id: "equations", title: "Giải mã hình", bgVar: "--eq-bg", tileVar: "--eq-tile", art: ["red_apple", "pear"], logic: equationsLogic, text: equationsText, ready: true },
   { id: "split", title: "Mấy và mấy", bgVar: "--split-bg", tileVar: "--split-tile", art: ["tulip", "sunflower"], logic: splitLogic, text: splitText, ready: true },
   { id: "pattern", title: "Quy luật", bgVar: "--cmp-bg", tileVar: "--cmp-tile", art: ["wrapped_gift"], logic: patternLogic, text: patternText, ready: true },

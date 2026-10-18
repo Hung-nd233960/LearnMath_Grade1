@@ -5,7 +5,7 @@ import { CLIPS } from "../src/audio/manifest.ts";
 import { fromIndex } from "../src/core/difficulty.ts";
 import { createRng } from "../src/core/rng.ts";
 import type { Position } from "../src/core/types.ts";
-import { basketLogic, BAG_SIZE, MAX_LOOSE, MIN_LOOSE } from "../src/games/basket/logic.ts";
+import { basketLogic, BAG_SIZE, MAX_LOOSE, MIN_LOOSE, totalOf, type BasketQuestion } from "../src/games/basket/logic.ts";
 import * as basketText from "../src/games/basket/text.ts";
 import { countSolutions, distinctValues, equationsLogic, isChainSolvable, questionRepeatsClue, rowsAreUnique } from "../src/games/equations/logic.ts";
 import { GAMES } from "../src/games/index.ts";
@@ -173,24 +173,24 @@ describe("basket", () => {
     });
   });
   it("a ten made of loose fruit is still accepted if it ever happens (safety net; unreachable in play)", () => {
-    const q = { want: { tangerine: 10 }, order: ["tangerine"], loose: { tangerine: 12 }, bags: 2, tens: { kind: "wholeTens", tens: 1, ones: 0 }, showCounts: false } as const;
+    const q = { mode: "give", want: { tangerine: 10 }, order: ["tangerine"], loose: { tangerine: 12 }, bags: 2, tens: { kind: "wholeTens", tens: 1, ones: 0 }, showCounts: false } as const;
     const r = basketLogic.check({ ...q, order: ["tangerine"], want: { ...q.want }, loose: { ...q.loose }, tens: { ...q.tens } }, { loose: { tangerine: 10 }, bags: 0 });
     expect(r.correct).toBe(true);
     expect(r.reason).toBe("looseTen");
   });
   it("prompts read naturally", () => {
-    const base = { order: ["tangerine" as const], loose: {}, bags: 2, showCounts: false };
+    const base = { mode: "give" as const, order: ["tangerine" as const], loose: {}, bags: 2, showCounts: false };
     expect(basketText.prompt({ ...base, want: { tangerine: 20 }, tens: { kind: "wholeTens", tens: 2, ones: 0 } }).text).toBe("Đưa cho Mèo hai chục quả cam nhé!");
     expect(basketText.prompt({ ...base, want: { tangerine: 13 }, tens: { kind: "tensOnes", tens: 1, ones: 3 } }).text).toBe("Đưa cho Mèo mười ba quả cam nhé!");
     expect(basketText.prompt({ ...base, want: { tangerine: 10 }, tens: { kind: "plainTen", tens: 1, ones: 0 } }).text).toBe("Đưa cho Mèo mười quả cam nhé!");
-    expect(basketText.prompt({ order: ["tangerine", "red_apple"], loose: {}, bags: 0, showCounts: false, want: { tangerine: 2, red_apple: 3 }, tens: null }).text)
+    expect(basketText.prompt({ mode: "give", order: ["tangerine", "red_apple"], loose: {}, bags: 0, showCounts: false, want: { tangerine: 2, red_apple: 3 }, tens: null }).text)
       .toBe("Đưa cho Mèo hai quả cam và ba quả táo nhé!");
-    expect(basketText.tensReading({ order: ["tangerine"], loose: {}, bags: 2, showCounts: false, want: { tangerine: 20 }, tens: { kind: "wholeTens", tens: 2, ones: 0 } })).toBe("Hai chục là 20 quả cam.");
+    expect(basketText.tensReading({ mode: "give", order: ["tangerine"], loose: {}, bags: 2, showCounts: false, want: { tangerine: 20 }, tens: { kind: "wholeTens", tens: 2, ones: 0 } })).toBe("Hai chục là 20 quả cam.");
   });
 });
 
 describe("basket: the chục reading is spoken as well as shown", () => {
-  const base = { order: ["tangerine" as const], loose: {}, bags: 2, showCounts: false };
+  const base = { mode: "give" as const, order: ["tangerine" as const], loose: {}, bags: 2, showCounts: false };
   const ok = { correct: true, reason: "exact" };
   it("whole tens: hai chục là hai mươi quả cam", () => {
     const h = basketText.hint(ok, { ...base, want: { tangerine: 20 }, tens: { kind: "wholeTens", tens: 2, ones: 0 } });
@@ -203,6 +203,84 @@ describe("basket: the chục reading is spoken as well as shown", () => {
   });
   it("no reading outside tier 2", () => {
     expect(basketText.hint(ok, { ...base, want: { tangerine: 3 }, tens: null }).clips).toEqual(["basket_ok"]);
+  });
+});
+
+describe("basket (Chia quả): Vòng 3 — cần thêm, và bằng nhau", () => {
+  const gen = (step: number, seed: number) => basketLogic.generate({ tier: 3, step }, createRng(seed));
+  const kindOf = (q: BasketQuestion) => q.order[0]!;
+
+  it("each step of Vòng 3 has its own mode; Vòng 1–2 are 'give'", () => {
+    for (let seed = 1; seed <= 100; seed++) {
+      expect(gen(0, seed).mode).toBe("give");
+      expect(gen(1, seed).mode).toBe("addTo");
+      expect(gen(2, seed).mode).toBe("equalize");
+      expect(basketLogic.generate({ tier: 1, step: 1 }, createRng(seed)).mode).toBe("give");
+      expect(basketLogic.generate({ tier: 2, step: 1 }, createRng(seed)).mode).toBe("give");
+    }
+  });
+
+  it("addTo: Mèo wants more than it has, the target is at most 20, and a bag appears only when ten or more is needed", () => {
+    for (let seed = 1; seed <= 400; seed++) {
+      const q = gen(1, seed);
+      const need = q.want[kindOf(q)]!;
+      expect(q.target).toBe(q.start! + need);
+      expect(q.start).toBeGreaterThanOrEqual(1);
+      expect(q.target!).toBeLessThanOrEqual(20);
+      expect(need).toBeGreaterThanOrEqual(2);
+      expect(q.bags > 0).toBe(need >= BAG_SIZE);
+      if (need >= BAG_SIZE) expect(kindOf(q)).toBe("tangerine");
+      expect(q.showCounts).toBe(false);
+      // the child can always do it with what is in their basket
+      const s = basketLogic.solve!(q);
+      expect(totalOf(s, kindOf(q))).toBe(need);
+      expect(s.said).toBe(need);
+      expect(basketLogic.check(q, s).correct).toBe(true);
+    }
+  });
+
+  it("addTo: right total but a wrong number said, too few, too many, nothing said", () => {
+    const q = gen(1, 7);
+    const k = kindOf(q), need = q.want[k]!;
+    const right = basketLogic.solve!(q);
+    expect(basketLogic.check(q, { ...right, said: need + 1 })).toMatchObject({ correct: false, reason: "wrongSaid", data: { said: need + 1, need } });
+    expect(basketLogic.check(q, { loose: {}, bags: 0, said: need }).reason).toBe("tooFew");
+    expect(basketLogic.check(q, { loose: { [k]: (right.loose[k] ?? 0) + 1 }, bags: right.bags, said: need }).reason).toBe("tooMany");
+    expect(basketLogic.check(q, { loose: right.loose, bags: right.bags }).reason).toBe("empty");
+    // saying the right number is not enough when the basket is wrong (amounts are checked first)
+    expect(basketLogic.check(q, { loose: {}, bags: 0, said: need }).correct).toBe(false);
+  });
+
+  it("equalize: the child holds start + 2 × moves, 4 to 9 loose, and moving 'moves' makes both baskets equal", () => {
+    for (let seed = 1; seed <= 400; seed++) {
+      const q = gen(2, seed);
+      const k = kindOf(q), c = q.loose[k]!, m = q.start!, moves = q.want[k]!;
+      expect(c - m).toBe(2 * moves);
+      expect(c).toBeGreaterThanOrEqual(4);
+      expect(c).toBeLessThanOrEqual(MAX_LOOSE);
+      expect(m).toBeGreaterThanOrEqual(0);
+      expect(m).toBeLessThanOrEqual(4);
+      expect(q.bags).toBe(0);
+      const s = basketLogic.solve!(q);
+      expect(totalOf(s, k)).toBe(moves);
+      expect(basketLogic.check(q, s).correct).toBe(true);
+    }
+  });
+
+  it("equalize: only the end state counts; too few or too many moved says who has more", () => {
+    const q = gen(2, 5);
+    const k = kindOf(q), moves = q.want[k]!;
+    expect(basketLogic.check(q, { loose: { [k]: moves - 1 }, bags: 0 })).toMatchObject({ correct: false, reason: "childMore" });
+    expect(basketLogic.check(q, { loose: { [k]: moves + 1 }, bags: 0 })).toMatchObject({ correct: false, reason: "meoMore" });
+    expect(basketLogic.check(q, { loose: {}, bags: 0 }).reason).toBe("childMore");
+    expect(basketLogic.check(q, { loose: { [k]: q.loose[k]! + 1 }, bags: 0 }).reason).toBe("invalid"); // more than the child had
+  });
+
+  it("the new prompts read naturally", () => {
+    const addTo = { mode: "addTo", want: { red_apple: 10 }, order: ["red_apple"], loose: { red_apple: 9 }, bags: 0, tens: null, showCounts: false, start: 5, target: 15 } as BasketQuestion;
+    expect(basketText.prompt(addTo).text).toBe("Trong giỏ của Mèo có năm quả táo. Mèo muốn có tất cả mười lăm quả táo. Em đưa thêm cho Mèo nhé! Em đã đưa thêm mấy quả?");
+    const equalize = { mode: "equalize", want: { red_apple: 3 }, order: ["red_apple"], loose: { red_apple: 8 }, bags: 0, tens: null, showCounts: false, start: 2 } as BasketQuestion;
+    expect(basketText.prompt(equalize).text).toBe("Giỏ của em có tám quả táo. Giỏ của Mèo có hai quả táo. Em chuyển sang giỏ của Mèo để hai giỏ bằng nhau nhé!");
   });
 });
 

@@ -73,7 +73,7 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `games/compare.ts` | The So sánh cân screen: mini scales from `Weighing`s, single-pick vs order modes, a row of slots where `reset` keeps the correct prefix (uses `fb.result.data.firstWrong`). |
 | `games/robot.ts` | The Rô-bốt screen: an animated result in `playResult` driven by `simulate()`, a program the child edits, `reveal` that fills and walks the solution, and a document-level key listener removed in `unmount`. |
 | `games/scale.ts` | The Cái cân screen: live tilt vs the padlock, fixed vs movable items, `playResult` that animates the outcome and `reset` that re-locks. |
-| `games/basket.ts`, `games/art.ts` | The Giỏ trái cây screen: the model for views that draw their own prompt (`ownPrompt`), move items with `dragTap`, and react to wrong tries / the mute switch. `art.ts` holds SVG drawings shared by several games. |
+| `games/basket.ts`, `games/art.ts` | The Chia quả screen: the model for views that draw their own prompt (`ownPrompt`), move items with `dragTap`, and react to wrong tries / the mute switch. `art.ts` holds SVG drawings shared by several games. |
 | `games/equations.ts` | The Giải mã hình screen (second game screen; simpler than split, a good second example). |
 | `games/split.ts`, `games/bond.ts`, `games/splitLayout.ts` | The first game screen (Mấy và mấy): the model for the others. `bond.ts` is the number-bond widget; `splitLayout.ts` is pure and tested. |
 | `screens/addProfile.ts` | `openAddProfile(ctx, onAdded)`: the "Thêm bạn mới" form (name + picture); `openEditProfile(ctx, profile, onSaved)` reuses it to rename a child. |

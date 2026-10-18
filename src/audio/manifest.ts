@@ -63,7 +63,7 @@ export const CLIP_GROUPS = {
     robot_empty: "Em chạm các mũi tên để xếp bước đi trước nhé.",
     robot_ok: "Rô-bốt đã tới lá cờ!",
   },
-  "Giỏ trái cây": {
+  "Chia quả": {
     give_meo: "Đưa cho Mèo",
     fruit_cam: "quả cam", fruit_tao: "quả táo", fruit_chuoi: "quả chuối",
     basket_too_many: "Giỏ của Mèo nhiều quá rồi! Em lấy bớt ra nhé.",
@@ -71,6 +71,18 @@ export const CLIP_GROUPS = {
     basket_bag_is_ten: "Nhớ nhé: mỗi túi là một chục, bằng mười quả.",
     basket_loose_ten: "Mười quả lẻ cũng là một chục đấy! Lần sau em thử đưa cả túi nhé.",
     basket_ok: "Mèo nhận đủ rồi. Cảm ơn em nhé!",
+    basket_meo_has: "Trong giỏ của Mèo có",
+    basket_meo_wants: "Mèo muốn có tất cả",
+    basket_give_more: "Em đưa thêm cho Mèo nhé!",
+    basket_how_many_more: "Em đã đưa thêm mấy quả?",
+    basket_hint_said: "Em đếm lại số quả em vừa đưa thêm nhé!",
+    basket_you_have: "Giỏ của em có",
+    basket_meo_basket_has: "Giỏ của Mèo có",
+    basket_meo_empty: "Giỏ của Mèo chưa có quả nào",
+    basket_make_equal: "Em chuyển sang giỏ của Mèo để hai giỏ bằng nhau nhé!",
+    basket_hint_childmore: "Giỏ của em còn nhiều hơn. Em chuyển thêm sang giỏ của Mèo nhé.",
+    basket_hint_meomore: "Giỏ của Mèo nhiều hơn rồi. Em lấy bớt ra nhé.",
+    basket_equal_ok: "Hai giỏ bằng nhau rồi! Giỏi quá!",
   },
   "Giải mã hình": {
     eq_t1: "Mỗi quả là một con số. Cộng lại bằng mấy?",

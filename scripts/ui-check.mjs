@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Giải mã hình (step 4), Giỏ trái cây (step 5), Thăng bằng (steps 6 and 8), Quy luật (task 03), Rô-bốt (step 7), screen time (step 9), the teacher area (step 10), the guide (step 11) Mèo's worked examples, voice packs, sound mixer and music (step 13).
+// then plays whole sets of Mấy và mấy (step 3), Giải mã hình (step 4), Chia quả (step 5), Thăng bằng (steps 6 and 8), Quy luật (task 03), Rô-bốt (step 7), screen time (step 9), the teacher area (step 10), the guide (step 11) Mèo's worked examples, voice packs, sound mixer and music (step 13).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -229,7 +229,7 @@ await click(`.kid[data-profile="${binhId}"]`);
 check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
 const chips = async () => (await ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`)).replace(/còn \d+ phút/, 'còn N phút');
 check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn N phút", await chips());
-check("home: six tiles; all six games are playable", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 0 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Thăng bằng,Rô-bốt,Giỏ trái cây,Giải mã hình,Mấy và mấy,Quy luật'`));
+check("home: six tiles; all six games are playable", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 0 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Thăng bằng,Rô-bốt,Chia quả,Giải mã hình,Mấy và mấy,Quy luật'`));
 check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
 check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
 await shot("ui-5-home");
@@ -516,7 +516,7 @@ await click("#dev-solve");
 await sleep(1500);
 check("dev route: 'Giải' fills the one correct answer", (await ev(`document.querySelector('#eq-answer').dataset.v`)) === String(JSON.parse([...solveEq(eq3)][0])[0]) && (await ev(`!!document.querySelector('#eq-answer.right')`)));
 
-// ---------- 8. Giỏ trái cây (step 5) ----------
+// ---------- 8. Chia quả (step 5) ----------
 const readBasket = () => ev(`(() => {
   const a = document.querySelector('.bk-ask');
   return { want: JSON.parse(a.dataset.want), tens: a.dataset.tens, tier: document.querySelector('.tier-badge').textContent, prompt: a.querySelector('.bubble span').textContent };
@@ -643,12 +643,12 @@ await ev(`__app.go('dev/basket/2/0/${seedTen}')`); await waitFor(`document.query
 await give(".bk-bag");
 await click("#xong");
 check("dev: one bag is accepted as one chục", await waitFor(`document.querySelector('#dev-status').textContent === '✔ exact'`));
-const seedZero = await devSeedWhere(3, 2, (r) => Object.values(r.want).every((v) => v === 0), 120);
+const seedZero = await devSeedWhere(3, 0, (r) => Object.values(r.want).every((v) => v === 0), 120);
 check("dev: found a 'không quả …' question", seedZero !== null);
 if (seedZero !== null) {
   await click("#xong");
   check("dev: giving nothing is right when Mèo asks for none", await waitFor(`document.querySelector('#dev-status').textContent === '✔ exact'`));
-  await ev(`__app.go('dev/basket/3/2/${seedZero}')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 3')`); await sleep(300);
+  await ev(`__app.go('dev/basket/3/0/${seedZero}')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 3')`); await sleep(300);
   await give('.bk-fruit');
   await click("#xong");
   check("dev: giving one anyway is too many", await waitFor(`document.querySelector('#dev-status').textContent === '✘ tooMany'`));
@@ -659,6 +659,80 @@ await click("#dev-solve");
 await sleep(2500);
 const trd = await tallyOf("R");
 check("dev: 'Giải' moves exactly the requested amount across", Object.entries(bd.want).every(([k, v]) => (trd[k] ?? 0) === v), JSON.stringify(trd) + JSON.stringify(bd.want));
+
+// --- Vòng 3, step 1: "cần thêm" (Mèo has some and wants a total; the child also says how many were added) ---
+const readAddTo = () => ev(`(() => { const a = document.querySelector('.bk-ask'); return { want: JSON.parse(a.dataset.want), fixed: document.querySelectorAll('.bk-basket.R [data-fixed]').length, bags: document.querySelectorAll('.bk-basket.L [data-bag]').length, prompt: a.querySelector('.bubble span').textContent }; })()`);
+const devBasket = async (route) => { await ev(`__app.go('${route}')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 3')`); await sleep(300); };
+await devBasket('dev/basket/3/1/4');
+let ad = await readAddTo();
+let adNeed = Object.values(ad.want)[0];
+check("dev: 'cần thêm' shows Mèo's own fruit, a number box and a small pad", ad.fixed >= 1 && (await ev(`!!document.querySelector('#bk-said') && document.querySelectorAll('.bk-said .numpad button').length === 11`)));
+check("dev: it says what Mèo has and wants, then asks how many were added", /^Trong giỏ của Mèo có .+\. Mèo muốn có tất cả .+\. Em đưa thêm cho Mèo nhé! Em đã đưa thêm mấy quả\?$/.test(ad.prompt), ad.prompt);
+await shot("ui-8-basket-addto");
+const fixedBefore = JSON.stringify(await tallyOf("R"));
+await click(".bk-basket.R [data-fixed]"); await click(".bk-basket.L");
+check("dev: Mèo's own fruit cannot be taken back out", JSON.stringify(await tallyOf("R")) === fixedBefore);
+await giveAmount(ad.want);
+await click("#xong");
+await sleep(400);
+check("dev: Xong without typing how many were added is a nudge, not an answer", await ev(`document.querySelector('#dev-status').textContent.startsWith('basket')`));
+await typeNumber(adNeed + 1);
+await click("#xong");
+check("dev: the right fruit but a wrong number is judged wrongSaid", await waitFor(`document.querySelector('#dev-status').textContent === '✘ wrongSaid'`) && (await ev(`!!document.querySelector('#bk-said.wrong')`)));
+await sleep(1200);
+check("dev: after that the number stays in the box so it can be fixed", (await ev(`document.querySelector('#bk-said').dataset.v`)) === String(adNeed + 1) && (await ev(`!document.querySelector('#bk-said.wrong')`)));
+await click('#bk-said');
+for (let i = 0; i < 2; i++) await click('#numpad [data-del]');
+await typeNumber(adNeed);
+await click("#xong");
+check("dev: the right number is judged right", await waitFor(`document.querySelector('#dev-status').textContent === '✔ exact'`));
+await devBasket('dev/basket/3/1/4');
+await giveAmount({ ...ad.want, [Object.keys(ad.want)[0]]: adNeed - 1 }, { bags: true });
+await typeNumber(adNeed);
+await click("#xong");
+check("dev: the right number said with too few fruit moved is judged tooFew (the fruit is checked first)", await waitFor(`document.querySelector('#dev-status').textContent === '✘ tooFew'`));
+// a question that needs a bag (ten or more)
+const seedBag = await devSeedWhere(3, 1, (r) => Object.values(r.want)[0] >= 10, 80);
+check("dev: found a 'cần thêm' question that needs a bag", seedBag !== null);
+if (seedBag !== null) {
+  ad = await readAddTo();
+  adNeed = Object.values(ad.want)[0];
+  check("dev: it is about oranges, and the child has two bags", Object.keys(ad.want)[0] === "tangerine" && ad.bags === 2);
+  await giveAmount(ad.want);
+  await typeNumber(adNeed);
+  await click("#xong");
+  check("dev: a bag and some loose fruit, with the number said, is judged right", await waitFor(`document.querySelector('#dev-status').textContent === '✔ exact'`));
+  await devBasket('dev/basket/3/1/' + seedBag);
+  await click("#dev-solve");
+  await sleep(2800);
+  check("dev: 'Giải' moves the fruit and fills the number box", (await ev(`document.querySelector('#bk-said').dataset.v`)) === String(adNeed) && (await ev(`document.querySelectorAll('.bk-basket.R [data-fixed]').length`)) === ad.fixed);
+}
+
+// --- Vòng 3, step 2: "bằng nhau" (make the two baskets hold the same) ---
+await devBasket('dev/basket/3/2/3');
+const eqInfo = () => ev(`(() => ({ mine: document.querySelectorAll('.bk-basket.L [data-item]').length, meo: document.querySelectorAll('.bk-basket.R [data-item]').length, fixed: document.querySelectorAll('.bk-basket.R [data-fixed]').length, kind: document.querySelector('.bk-basket.L [data-item]').dataset.k, prompt: document.querySelector('.bk-ask .bubble span').textContent }))()`);
+let eq = await eqInfo();
+const eqMoves = (eq.mine - eq.meo) / 2;
+check("dev: 'bằng nhau' reads both baskets, hides the live counts and has no number pad", /^Giỏ của em có .+\. Giỏ của Mèo .+\. Em chuyển sang giỏ của Mèo để hai giỏ bằng nhau nhé!$/.test(eq.prompt) && (await ev(`!document.querySelector('.bk-counts span') && !document.querySelector('.bk-said')`)), eq.prompt);
+check("dev: the baskets hold different amounts (the difference is even)", eq.mine > eq.meo && (eq.mine - eq.meo) % 2 === 0 && eq.mine >= 4 && eq.mine <= 9, JSON.stringify(eq));
+check("dev: the child's fruit sits in rows of five", (await ev(`new Set([...document.querySelectorAll('.bk-basket.L .bk-fruit')].map(f => Math.round(f.getBoundingClientRect().top))).size`)) === Math.ceil(eq.mine / 5));
+await shot("ui-8-basket-equalize");
+await giveAmount({ [eq.kind]: eqMoves - 1 });
+await click("#xong");
+check("dev: moving too little says the child's basket still has more", await waitFor(`document.querySelector('#dev-status').textContent === '✘ childMore'`));
+await sleep(1200);
+await give(`.bk-fruit[data-k="${eq.kind}"]`); await give(`.bk-fruit[data-k="${eq.kind}"]`);
+await click("#xong");
+check("dev: moving too much says Mèo's basket has more (fruit can go back and forth)", await waitFor(`document.querySelector('#dev-status').textContent === '✘ meoMore'`));
+await sleep(1200);
+await click(`.bk-basket.R .bk-fruit:not([data-fixed])`); await click(".bk-basket.L");
+await click("#xong");
+check("dev: taking one back so both baskets are equal is judged right", await waitFor(`document.querySelector('#dev-status').textContent === '✔ equal'`));
+await devBasket('dev/basket/3/2/3');
+await click("#dev-solve");
+await sleep(2600);
+eq = await eqInfo();
+check("dev: 'Giải' leaves both baskets equal", eq.mine === eq.meo, JSON.stringify(eq));
 
 // the panel in Vòng 2 also shows the bags
 await ev(`__app.go('dev/basket/2/1/3')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('seed 3')`); await sleep(300);
@@ -1765,7 +1839,7 @@ check("music: each game has its own tune (Rô-bốt)", (await ev(`__app.bgm.play
 await ev(`document.querySelector('.guide-card .btn-primary')?.click()`);
 await ev(`__app.go('play/basket')`); await sleep(500);
 await ev(`document.querySelector('.guide-card .btn-primary')?.click()`);
-check("music: and another for Giỏ trái cây", (await ev(`__app.bgm.playing`)) === "basket");
+check("music: and another for Chia quả", (await ev(`__app.bgm.playing`)) === "basket");
 await ev(`__app.go('home')`); await sleep(400);
 check("music: back to the lobby tune at home", (await ev(`__app.bgm.playing`)) === "lobby");
 await ev(`__app.go('teacher')`); await sleep(400);

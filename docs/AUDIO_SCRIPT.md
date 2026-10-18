@@ -121,7 +121,7 @@ Mẹo thu âm:
 | `robot_empty.mp3` | Em chạm các mũi tên để xếp bước đi trước nhé. |
 | `robot_ok.mp3` | Rô-bốt đã tới lá cờ! |
 
-## Giỏ trái cây
+## Chia quả
 
 | Tên tệp | Câu cần đọc |
 | --- | --- |
@@ -134,6 +134,18 @@ Mẹo thu âm:
 | `basket_bag_is_ten.mp3` | Nhớ nhé: mỗi túi là một chục, bằng mười quả. |
 | `basket_loose_ten.mp3` | Mười quả lẻ cũng là một chục đấy! Lần sau em thử đưa cả túi nhé. |
 | `basket_ok.mp3` | Mèo nhận đủ rồi. Cảm ơn em nhé! |
+| `basket_meo_has.mp3` | Trong giỏ của Mèo có |
+| `basket_meo_wants.mp3` | Mèo muốn có tất cả |
+| `basket_give_more.mp3` | Em đưa thêm cho Mèo nhé! |
+| `basket_how_many_more.mp3` | Em đã đưa thêm mấy quả? |
+| `basket_hint_said.mp3` | Em đếm lại số quả em vừa đưa thêm nhé! |
+| `basket_you_have.mp3` | Giỏ của em có |
+| `basket_meo_basket_has.mp3` | Giỏ của Mèo có |
+| `basket_meo_empty.mp3` | Giỏ của Mèo chưa có quả nào |
+| `basket_make_equal.mp3` | Em chuyển sang giỏ của Mèo để hai giỏ bằng nhau nhé! |
+| `basket_hint_childmore.mp3` | Giỏ của em còn nhiều hơn. Em chuyển thêm sang giỏ của Mèo nhé. |
+| `basket_hint_meomore.mp3` | Giỏ của Mèo nhiều hơn rồi. Em lấy bớt ra nhé. |
+| `basket_equal_ok.mp3` | Hai giỏ bằng nhau rồi! Giỏi quá! |
 
 ## Giải mã hình
 
@@ -215,4 +227,4 @@ Mẹo thu âm:
 | `demo_scale_light.mp3` | Đĩa này nhẹ hơn, nên Mèo thêm quả vào đây. |
 | `demo_scale_done.mp3` | Hai đĩa đã nặng bằng nhau. Mèo bấm Xong! |
 
-Tổng cộng: **149** tệp.
+Tổng cộng: **161** tệp.

@@ -72,6 +72,8 @@ export const STR = {
   scaleTray: "Kéo quả vào đĩa:",
   scaleLockTip: "Cân đang được chốt: bấm Xong để thả cân",
   basketMine: "Giỏ của em",
+  basketAdded: "Em đã đưa thêm",
+  basketUnit: "quả",
   basketMeo: "Giỏ của Mèo",
 
   // screen time

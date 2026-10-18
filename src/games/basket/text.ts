@@ -8,6 +8,16 @@ export const FRUIT_CLIP: Record<Fruit, ClipId> = { tangerine: "fruit_cam", red_a
 
 /** "Đưa cho Mèo hai chục quả cam nhé!" / "… mười ba quả cam …" / "… hai quả cam và ba quả táo …" */
 export function prompt(q: BasketQuestion): Speech {
+  const f = FRUIT_CLIP[q.order[0]!];
+  // "Trong giỏ của Mèo có năm quả táo. Mèo muốn có tất cả mười lăm quả táo. Em đưa thêm cho Mèo nhé! Em đã đưa thêm mấy quả?"
+  if (q.mode === "addTo") {
+    return say("basket_meo_has", q.start!, f, { raw: "." }, "basket_meo_wants", q.target!, f, { raw: "." }, "basket_give_more", "basket_how_many_more");
+  }
+  // "Giỏ của em có tám quả táo. Giỏ của Mèo có hai quả táo. Em chuyển sang giỏ của Mèo để hai giỏ bằng nhau nhé!"
+  if (q.mode === "equalize") {
+    const meo: SpeechPart[] = q.start ? ["basket_meo_basket_has", q.start, f] : ["basket_meo_empty"];
+    return say("basket_you_have", q.loose[q.order[0]!]!, f, { raw: "." }, ...meo, { raw: "." }, "basket_make_equal");
+  }
   const parts: SpeechPart[] = ["give_meo"];
   q.order.forEach((f, i) => {
     if (i > 0) parts.push("va");
@@ -39,6 +49,16 @@ function tensReadingClips(q: BasketQuestion) {
 
 /** Hint after a wrong try, or the praise detail after a right one (tier 2 adds the "chục" reading, shown and spoken). */
 export function hint(r: CheckResult, q?: BasketQuestion): Speech {
+  if (q?.mode === "addTo") {
+    if (r.correct) return say("basket_ok");
+    if (r.reason === "wrongSaid" || r.reason === "empty") return say("basket_hint_said");
+    if (r.reason === "tooMany") return say("basket_too_many");
+    return q.bags ? say("basket_too_few", "basket_bag_is_ten") : say("basket_too_few");
+  }
+  if (q?.mode === "equalize") {
+    if (r.correct) return say("basket_equal_ok");
+    return say(r.reason === "meoMore" ? "basket_hint_meomore" : "basket_hint_childmore");
+  }
   if (r.correct) {
     const base = r.reason === "looseTen" ? say("basket_ok", "basket_loose_ten") : say("basket_ok");
     if (!q?.tens) return base;
