@@ -136,6 +136,21 @@
 - [ ] Record the voice: hand [AUDIO_SCRIPT.md](AUDIO_SCRIPT.md) to the teacher (now 132 clips); drop the files into `public/audio/`
 - [ ] Worked examples for the other four games, if the teachers ask (same pattern; Giỏ trái cây is next in line)
 
+## 14. Feedback round 2 ☐
+The teachers' second round (2026-10-18). Each item has a detailed task file in [docs/tasks/](tasks/README.md); do them in order. Where a task file disagrees with CLAUDE.md, the task file wins until task 10 updates CLAUDE.md.
+- [x] 00 Tidy the feedback into `docs/feedbacks/`, move the images ([task](tasks/00-feedback-docs.md))
+- [ ] 01 Giải mã hình: rename, several rows in Vòng 1, distinct values ([task](tasks/01-giai-ma-hinh.md))
+- [ ] 02 Thăng bằng: merge Cái cân + So sánh cân, inference in Vòng 3, `SCHEMA` 2 ([task](tasks/02-thang-bang.md))
+- [ ] 03 Quy luật: new game `pattern` ([task](tasks/03-quy-luat.md))
+- [ ] 04 Daily plan: games per day, one at a time, replay for no credit ([task](tasks/04-daily-plan.md))
+- [ ] 05 Chia quả: rename, "cần thêm" and "bằng nhau" modes ([task](tasks/05-chia-qua.md))
+- [ ] 06 Mấy và mấy: garden scene with animals ([task](tasks/06-may-va-may-garden.md))
+- [ ] 07 Living tile scenes (swaying leaves, clouds, sparkles) and Mèo's new look ([task](tasks/07-art.md))
+- [ ] 08 Phones in landscape, wide layout ([task](tasks/08-phone.md))
+- [ ] 09 Voice: Nam Minh (Northern) as the default ([task](tasks/09-voice.md))
+- [ ] 10 Docs and user guide sync ([task](tasks/10-docs-sync.md))
+- [ ] 11 Three desktop builds: 16:9, iPad, iPhone 15 ([task](tasks/11-tauri-sizes.md))
+
 ---
 
 ## Later / stretch (not in the 5-day scope)
