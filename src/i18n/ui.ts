@@ -25,7 +25,7 @@ export const STR = {
   soundVoice: "Giọng Mèo",
   soundOffByTeacher: "Thầy cô đã tắt",
   soundVolume: "Âm lượng",
-  rotate: "Em hãy xoay ngang máy, hoặc dùng máy tính bảng nhé!",
+  rotate: "Em hãy xoay ngang máy nhé!",
   gateHint: "Giữ để mở · dành cho người lớn",
   gateTitle: "Khu vực giáo viên (giữ để mở)",
   tier: (n: number) => `Vòng ${n}`,

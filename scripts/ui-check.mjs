@@ -79,9 +79,15 @@ check("scales up 2x", await ev(`Math.round(document.querySelector('.stage').getB
 await viewport(800, 560);
 await sleep(100);
 check("scales down (800 wide window)", await ev(`Math.abs(document.querySelector('.stage').getBoundingClientRect().width - 800) < 2`));
-await viewport(590, 410);
+for (const [w, hh, name] of [[852, 393, "iPhone 15"], [932, 430, "iPhone 15 Pro Max"], [852, 340, "iPhone 15 with Safari's toolbars"]]) {
+  await viewport(w, hh);
+  await sleep(100);
+  check(`phone in landscape is let in (${name}, ${w}×${hh}): no rotate notice, the stage fits the window`, await ev(`!document.body.classList.contains('portrait') && getComputedStyle(document.querySelector('#rotate')).display === 'none' && getComputedStyle(document.querySelector('.stage')).display !== 'none' && document.querySelector('.stage').getBoundingClientRect().width <= ${w} + 1 && document.querySelector('.stage').getBoundingClientRect().height <= ${hh} + 1`));
+}
+await viewport(393, 852);
 await sleep(100);
-check("small phone-ish landscape is blocked (min side < 420)", await ev(`document.body.classList.contains('portrait')`));
+check("phone upright (393×852) still asks to turn the device sideways", await ev(`document.body.classList.contains('portrait')`));
+check("the rotate notice only asks to turn the device (no 'use a tablet')", (await ev(`document.querySelector('#rotate p').textContent`)) === "Em hãy xoay ngang máy nhé!");
 await viewport(820, 1180);
 await sleep(100);
 check("portrait notice on", await ev(`document.body.classList.contains('portrait') && getComputedStyle(document.querySelector('#rotate')).display === 'flex' && getComputedStyle(document.querySelector('.stage')).display === 'none'`));

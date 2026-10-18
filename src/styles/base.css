@@ -19,7 +19,7 @@ a { color: inherit; }
 /* The stage is always 1180×820 and is scaled to fit the window (--s is set by stage.ts). */
 .stage {
   position: absolute;
-  left: 50%; top: 50%;
+  left: calc(50% + var(--ox, 0px)); top: calc(50% + var(--oy, 0px));
   width: 1180px; height: 820px;
   transform: translate(-50%, -50%) scale(var(--s, 1));
   border-radius: 32px;
@@ -38,7 +38,7 @@ a { color: inherit; }
 /* One screen at a time; screens position their own children absolutely inside it. */
 .screen { position: absolute; inset: 0; }
 
-/* Portrait or phone: ask for a landscape tablet instead of drawing the stage. */
+/* Portrait: ask for the device to be turned sideways instead of drawing the stage. */
 #rotate {
   display: none;
   position: fixed; inset: 0; z-index: 100;

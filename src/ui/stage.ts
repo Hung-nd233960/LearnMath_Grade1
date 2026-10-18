@@ -1,5 +1,6 @@
 // The fixed 1180×820 stage, scaled to fit the window and letterboxed, plus the
-// "turn your device sideways" notice for portrait screens and phones.
+// "turn your device sideways" notice for portrait screens. Phones in landscape are let in (round 2): the stage then
+// fits the space left by the notch and the home indicator (the safe area).
 import { STR } from "../i18n/ui.ts";
 import { h } from "./dom.ts";
 import { mascot } from "./mascot.ts";
@@ -11,9 +12,21 @@ export function computeScale(width: number, height: number): number {
   return Math.min(width / STAGE_W, height / STAGE_H);
 }
 
-/** Portrait, or too small to be a tablet (phones, even sideways). */
+/** Portrait: ask for the device to be turned sideways. (Phones used to be refused as too small; they are let in now.) */
 export function isPortrait(width: number, height: number): boolean {
-  return height > width || Math.min(width, height) < 420;
+  return height > width;
+}
+
+export interface Insets { top: number; right: number; bottom: number; left: number }
+
+/** The space the notch, the Dynamic Island and the home indicator take (env(safe-area-inset-*)); zero on most screens. */
+export function safeInsets(): Insets {
+  const probe = h("div", { style: "position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)" });
+  document.body.append(probe);
+  const cs = getComputedStyle(probe);
+  const out = { top: parseFloat(cs.paddingTop) || 0, right: parseFloat(cs.paddingRight) || 0, bottom: parseFloat(cs.paddingBottom) || 0, left: parseFloat(cs.paddingLeft) || 0 };
+  probe.remove();
+  return out;
 }
 
 export interface Stage {
@@ -36,7 +49,12 @@ export function createStage(host: HTMLElement): Stage {
   let screen: HTMLElement | null = null;
 
   const fit = () => {
-    document.documentElement.style.setProperty("--s", String(computeScale(innerWidth, innerHeight)));
+    const inset = safeInsets();
+    const root = document.documentElement.style;
+    root.setProperty("--s", String(computeScale(innerWidth - inset.left - inset.right, innerHeight - inset.top - inset.bottom)));
+    // the stage is centred in what is left of the window, not in the whole window
+    root.setProperty("--ox", `${(inset.left - inset.right) / 2}px`);
+    root.setProperty("--oy", `${(inset.top - inset.bottom) / 2}px`);
     document.body.classList.toggle("portrait", isPortrait(innerWidth, innerHeight));
   };
   addEventListener("resize", fit);

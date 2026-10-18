@@ -31,11 +31,14 @@ describe("stage geometry", () => {
     expect(computeScale(1180, 400)).toBeCloseTo(400 / 820); // height is the limit
     expect(computeScale(590, 2000)).toBe(0.5); // width is the limit
   });
-  it("asks portrait screens and phones to turn the device or use a tablet", () => {
+  it("asks only portrait screens to turn the device sideways: phones in landscape are let in", () => {
     expect(isPortrait(820, 1180)).toBe(true); // iPad upright
+    expect(isPortrait(393, 852)).toBe(true); // iPhone 15 upright
     expect(isPortrait(1180, 820)).toBe(false); // iPad landscape
     expect(isPortrait(1920, 1080)).toBe(false); // desktop
-    expect(isPortrait(844, 390)).toBe(true); // phone sideways: still too small
+    expect(isPortrait(852, 393)).toBe(false); // iPhone 15 sideways
+    expect(isPortrait(932, 430)).toBe(false); // iPhone 15 Pro Max sideways
+    expect(isPortrait(852, 340)).toBe(false); // … with Safari's toolbars taking height
   });
 });
 
