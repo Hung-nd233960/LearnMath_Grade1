@@ -1,0 +1,38 @@
+/* The scenes behind the home tiles (see scene.ts). Still by default; the motion below runs only under fx-anim.
+   Only transform and opacity are animated, so it stays smooth on an iPad. */
+.tile-scene { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+.tile-scene svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* leaves sway around the foot of their stem */
+.fx-anim .tile-scene .sway { transform-box: fill-box; transform-origin: 50% 100%; animation: scene-sway 3.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.7s); }
+@keyframes scene-sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+
+/* clouds drift slowly across and start again; each one starts at its own place on the way */
+.fx-anim .tile-scene .drift { animation: scene-drift 30s linear infinite; animation-delay: calc(var(--i, 0) * -4.3s); }
+@keyframes scene-drift { from { transform: translateX(calc(var(--from) * 1px)); } to { transform: translateX(calc(var(--to) * 1px)); } }
+
+.fx-anim .tile-scene .twinkle { transform-box: fill-box; transform-origin: center; animation: scene-twinkle 2.6s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.6s); }
+@keyframes scene-twinkle { 0%, 100% { transform: scale(0.5); opacity: 0.25; } 50% { transform: scale(1.1); opacity: 1; } }
+
+.fx-anim .tile-scene .rays { transform-box: fill-box; transform-origin: center; animation: scene-pulse 3.4s ease-in-out infinite; }
+@keyframes scene-pulse { 50% { transform: scale(1.09); } }
+
+.fx-anim .tile-scene .qm { transform-box: fill-box; transform-origin: center; animation: scene-bob 3.2s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -0.8s); }
+@keyframes scene-bob { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-7px) rotate(6deg); } }
+
+.fx-anim .tile-scene .petal { animation: scene-petal 8s linear infinite; animation-delay: calc(var(--i, 0) * -1.9s); }
+@keyframes scene-petal { 0% { transform: translate(0, 0) rotate(0); opacity: 0; } 10% { opacity: 1; } 50% { transform: translate(14px, 100px) rotate(160deg); } 100% { transform: translate(-6px, 210px) rotate(330deg); opacity: 0.3; } }
+
+/* the subject of a tile bobs a little, each at its own time */
+.fx-anim .tile .art, .fx-anim .tile .peek { animation: tile-bob 4.2s ease-in-out infinite; animation-delay: calc(var(--n, 0) * -0.8s); }
+@keyframes tile-bob { 50% { transform: translateY(-4px); } }
+.fx-anim .tile .peek { animation-name: tile-peek; }
+@keyframes tile-peek { 0%, 100% { transform: rotate(-3deg); } 50% { transform: translateY(-3px) rotate(3deg); } }
+
+/* a tap: the tile squishes and the leaves rustle */
+.screen-home .tile:active { transform: translateY(3px) scale(0.96); }
+.fx-anim .tile:active .tile-scene .sway { animation-duration: 0.35s; }
+
+/* tiles that wait (the daily plan) or are not ready stand still */
+.tile.state-later .tile-scene *, .tile.state-notToday .tile-scene *, .tile.soon .tile-scene *,
+.tile.state-later .art, .tile.state-notToday .art, .tile.soon .art, .tile.state-later .peek, .tile.state-notToday .peek { animation-play-state: paused !important; }

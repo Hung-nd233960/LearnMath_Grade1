@@ -231,6 +231,14 @@ const chips = async () => (await ev(`[...document.querySelectorAll('.chip')].map
 check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn N phút", await chips());
 check("home: six tiles; all six games are playable", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 0 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Thăng bằng,Rô-bốt,Chia quả,Giải mã hình,Mấy và mấy,Quy luật'`));
 check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
+// the tile scenes (round 2): each tile is a little scene with a subject and a wooden sign; still unless the animation switch is on
+check("home: every tile has a scene, a subject and a wooden sign carrying the game's title", await ev(`[...document.querySelectorAll('.tile')].every(t => !!t.querySelector('.tile-scene svg') && !!t.querySelector('.art') && !!t.querySelector('.sign h3'))`));
+check("home: with the effects on, leaves sway, clouds drift and sparkles twinkle", await ev(`(() => { const t = document.querySelector('.tile'); const an = (s) => getComputedStyle(t.querySelector(s)).animationName; return an('.sway') === 'scene-sway' && an('.drift') === 'scene-drift' && an('.twinkle') === 'scene-twinkle'; })()`));
+check("home: the tiles bob at different times (each has its own delay)", await ev(`new Set([...document.querySelectorAll('.tile .art')].map(a => getComputedStyle(a).animationDelay)).size === 6`));
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, fx: { ...d.settings.fx, anim: false } } }))`); await sleep(200);
+check("home: with the animation switch off, the scenes and the subjects stand still", await ev(`['.tile-scene .sway', '.tile-scene .drift', '.tile-scene .twinkle', '.art'].every(s => getComputedStyle(document.querySelector('.tile ' + s)).animationName === 'none')`));
+await ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, fx: { ...d.settings.fx, anim: true } } }))`); await sleep(200);
+await shot("ui-5-home-scenes");
 check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
 await shot("ui-5-home");
 
@@ -1263,6 +1271,7 @@ st = await states();
 check("plan: tiles follow the plan (next / later / not today)", st.pattern === "next" && st.scale === "later" && st.robot === "later" && st.basket === "notToday" && st.equations === "notToday" && st.split === "notToday", JSON.stringify(st));
 check("plan: the open tile says 'Chơi tiếp' and a waiting one has a padlock", /Chơi tiếp/.test(await ev(`document.querySelector('.tile[data-game=pattern] .state').textContent`)) && (await ev(`!!document.querySelector('.tile[data-game=scale] .state.later img')`)));
 await shot("ui-11c-plan-home");
+check("plan: a tile that has to wait stands still (its animations are paused)", await ev(`['.tile-scene .sway', '.art'].every(s => getComputedStyle(document.querySelector('.tile[data-game=scale] ' + s)).animationPlayState === 'paused') && getComputedStyle(document.querySelector('.tile[data-game=pattern] .tile-scene .sway')).animationPlayState === 'running'`));
 await click(".tile[data-game=scale]");
 await sleep(300);
 check("plan: tapping a waiting game stays on home, Mèo explains, and the open game lights up", (await ev(`!!document.querySelector('.screen-home')`)) && (await ev(`document.querySelector('.toast > span')?.textContent`)) === "Bé hoàn thành trò trước đã nhé!" && (await ev(`document.querySelector('.tile[data-game=pattern]').classList.contains('nudge')`)));

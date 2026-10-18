@@ -152,7 +152,8 @@ The teachers' second round (2026-10-18). Each item has a detailed task file in [
   - Vòng 3 is now step 0 several kinds / step 1 `addTo` (Mèo has some, wants a total; the child also types how many were added, with a small pad between the baskets) / step 2 `equalize` (score the end state; fruit in rows of five). Deviation from the task: the child holds at most **9** loose fruit (the existing `MAX_LOOSE` rule), not 10. Mèo's own starting fruit is fixed. 12 new clips.
 - [x] 06 Mấy và mấy: garden scene with animals ([task](tasks/06-may-va-may-garden.md))
   - The developer chose **rabbits and chicks** (Fluent `rabbit` and `baby_chick`, MIT). `garden` scene is picked half the time; `GARDEN_ART` is a faded backdrop (no small flowers or fruit); `gardenSpots()` is tested for fit and overlap. The guide lines `guide_split_1/2` were made scene-neutral (voice packs need those two clips again, task 09). Checked in greyscale: the two kinds still differ by shape.
-- [ ] 07 Living tile scenes (swaying leaves, clouds, sparkles) and Mèo's new look ([task](tasks/07-art.md))
+- [x] 07 Living tile scenes (swaying leaves, clouds, sparkles) and Mèo's new look ([task](tasks/07-art.md))
+  - `ui/scene.ts` + `scene.css` draw each tile's scene (inline SVG; motion only under `fx-anim`, paused on tiles that wait); `ui/tileArt.ts` has the subjects (a golden scale with a face, a basket with a face, a board with Mèo peeking …); the home tile gets a wooden sign with a two-colour title. `ui/mascot.ts` is redrawn (plaid hat and cape, tabby stripes, magnifier over one eye; all five moods kept); app icons regenerated with `scripts/make-icons.mjs`. The old tile bob in `fx.css` was removed (scene.css staggers it per tile).
 - [ ] 08 Phones in landscape, wide layout ([task](tasks/08-phone.md))
 - [ ] 09 Voice: Nam Minh (Northern) as the default ([task](tasks/09-voice.md))
 - [ ] 10 Docs and user guide sync ([task](tasks/10-docs-sync.md))

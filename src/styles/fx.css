@@ -28,8 +28,6 @@
 .fx-anim .kid:nth-child(8) { animation-delay: 0.42s; }
 @keyframes popIn { from { transform: scale(0.82) translateY(24px); opacity: 0; } }
 
-.fx-anim .tile .art { animation: bob 3s ease-in-out infinite; }
-.fx-anim .tile:nth-child(2n) .art { animation-delay: -1.5s; }
 .fx-anim .chip img, .fx-anim .tile .got img:not(.dim) { animation: twinkle 2.6s ease-in-out infinite; }
 @keyframes twinkle { 50% { transform: scale(1.18) rotate(12deg); } }
 .fx-anim .dots span.now { animation: pulse 1.3s ease-in-out infinite; }

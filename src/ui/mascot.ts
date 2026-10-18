@@ -1,61 +1,88 @@
-// Mèo Smarty, drawn in SVG (ported from mockup/v2). The mood picks the face.
+// Mèo Smarty, drawn in SVG: an orange tabby detective in a brown plaid deerstalker hat and plaid cape, with a
+// magnifying glass. The mood picks the face. (Redrawn in round 2 to match the teachers' new design; the moods,
+// sizes and the `.eyes` group the blink animation targets are unchanged.)
 import { h } from "./dom.ts";
 
 export type Mood = "normal" | "happy" | "think" | "sleep" | "detective";
 
 const N = "#1E2A4A";
+const ORANGE = "#F5A83A";
+const ORANGE_DARK = "#D98420";
+
+let plaidCount = 0;
 
 function eyesFor(mood: Mood): string {
   if (mood === "happy") {
-    return `<path d="M60 112 q12 -15 24 0" stroke="${N}" stroke-width="6" fill="none" stroke-linecap="round"/>
-            <path d="M116 112 q12 -15 24 0" stroke="${N}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+    return `<path d="M58 112 q13 -17 26 0" stroke="${N}" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M116 112 q13 -17 26 0" stroke="${N}" stroke-width="6" fill="none" stroke-linecap="round"/>`;
   }
   if (mood === "sleep") {
-    return `<path d="M60 108 q12 10 24 0" stroke="${N}" stroke-width="5" fill="none" stroke-linecap="round"/>
-            <path d="M116 108 q12 10 24 0" stroke="${N}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+    return `<path d="M58 108 q13 11 26 0" stroke="${N}" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M116 108 q13 11 26 0" stroke="${N}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
   }
   // open eyes sit in <g class="eyes"> so the "fx-anim" blink animation can target them
-  const open = `<g class="eyes"><ellipse cx="72" cy="106" rx="11" ry="14" fill="${N}"/><circle cx="76" cy="100" r="4.5" fill="#fff"/><circle cx="68" cy="112" r="2" fill="#fff"/>
-            <ellipse cx="128" cy="106" rx="11" ry="14" fill="${N}"/><circle cx="132" cy="100" r="4.5" fill="#fff"/><circle cx="124" cy="112" r="2" fill="#fff"/></g>`;
-  return mood === "think" ? open + `<path d="M58 84 l24 -6M118 78 l24 6" stroke="${N}" stroke-width="4" stroke-linecap="round"/>` : open;
+  const open = `<g class="eyes"><ellipse cx="72" cy="108" rx="13" ry="16" fill="${N}"/><ellipse cx="72" cy="110" rx="8" ry="10" fill="#7a4a24" opacity=".55"/><circle cx="77" cy="101" r="5.5" fill="#fff"/><circle cx="67" cy="115" r="2.4" fill="#fff"/>
+            <ellipse cx="128" cy="108" rx="13" ry="16" fill="${N}"/><ellipse cx="128" cy="110" rx="8" ry="10" fill="#7a4a24" opacity=".55"/><circle cx="133" cy="101" r="5.5" fill="#fff"/><circle cx="123" cy="115" r="2.4" fill="#fff"/></g>`;
+  return mood === "think" ? open + `<path d="M56 86 l26 -7M118 79 l26 7" stroke="${N}" stroke-width="4" stroke-linecap="round"/>` : open;
 }
 
 function mouthFor(mood: Mood): string {
-  if (mood === "happy") return `<path d="M86 138 q14 22 28 0 z" fill="#C2414F" stroke="${N}" stroke-width="3.5" stroke-linejoin="round"/>`;
-  if (mood === "think") return `<path d="M90 142 q10 -5 20 0" stroke="${N}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
-  return `<path d="M86 138 q7 8 14 0 q7 8 14 0" stroke="${N}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+  if (mood === "happy") return `<path d="M84 140 q16 26 32 0 z" fill="#C2414F" stroke="${N}" stroke-width="3.5" stroke-linejoin="round"/><path d="M92 152 q8 7 16 0" fill="#F08A96"/>`;
+  if (mood === "think") return `<path d="M90 144 q10 -5 20 0" stroke="${N}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+  if (mood === "sleep") return `<path d="M92 142 q8 5 16 0" stroke="${N}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+  // a cheerful open smile
+  return `<path d="M86 138 q14 22 28 0 z" fill="#C2414F" stroke="${N}" stroke-width="3.5" stroke-linejoin="round"/><path d="M93 150 q7 6 14 0" fill="#F08A96"/>`;
 }
 
 export function mascotSVG(mood: Mood = "normal"): string {
+  const id = `plaid${plaidCount++}`;
+  // the magnifying glass is held in front of the right eye (which it enlarges)
   const lens = mood === "detective" || mood === "normal"
-    ? `<g transform="rotate(-20 168 168)"><rect x="160" y="178" width="14" height="34" rx="7" fill="#8A5A30"/>
-       <circle cx="167" cy="160" r="24" fill="#CFE8FF" fill-opacity=".85" stroke="${N}" stroke-width="7"/>
-       <path d="M155 152 q6 -8 14 -8" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/></g>`
+    ? `<g>
+         <path d="M156 128 L184 170" stroke="#8A5A30" stroke-width="12" stroke-linecap="round"/>
+         <path d="M156 128 L184 170" stroke="#B07A46" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+         <circle cx="186" cy="172" r="12" fill="${ORANGE}" stroke="${ORANGE_DARK}" stroke-width="3"/>
+         <clipPath id="${id}l"><circle cx="134" cy="106" r="29"/></clipPath>
+         <circle cx="134" cy="106" r="29" fill="#E3F2FF" fill-opacity=".8"/>
+         <g clip-path="url(#${id}l)"><ellipse cx="134" cy="108" rx="17" ry="21" fill="${N}"/><circle cx="141" cy="99" r="7" fill="#fff"/><circle cx="127" cy="117" r="3" fill="#fff"/></g>
+         <circle cx="134" cy="106" r="29" fill="none" stroke="${N}" stroke-width="7"/>
+         <path d="M116 92 q8 -12 22 -12" stroke="#fff" stroke-width="4.5" fill="none" stroke-linecap="round" opacity=".9"/>
+       </g>`
     : "";
   const zzz = mood === "sleep"
     ? `<text x="150" y="60" font-family="Baloo 2" font-weight="800" font-size="30" fill="${N}">z</text><text x="168" y="38" font-family="Baloo 2" font-weight="800" font-size="22" fill="${N}">z</text>`
     : "";
   return `<svg viewBox="0 0 210 220" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-    <ellipse cx="100" cy="122" rx="76" ry="68" fill="#F7B93A"/>
-    <path d="M84 60 q16 14 32 0" stroke="#E39228" stroke-width="6" fill="none" stroke-linecap="round"/>
-    <path d="M28 120 q-4 -8 6 -14M172 120 q4 -8 -6 -14" stroke="#E39228" stroke-width="5" fill="none" stroke-linecap="round"/>
-    <ellipse cx="100" cy="148" rx="40" ry="28" fill="#FFE7B5"/>
-    <ellipse cx="50" cy="136" rx="14" ry="9" fill="#FF8C8C" opacity=".55"/>
-    <ellipse cx="150" cy="136" rx="14" ry="9" fill="#FF8C8C" opacity=".55"/>
+    <defs>
+      <pattern id="${id}" width="16" height="16" patternUnits="userSpaceOnUse">
+        <rect width="16" height="16" fill="#8A5A33"/>
+        <rect y="3" width="16" height="4" fill="#5E3A1E" opacity=".6"/><rect x="3" width="4" height="16" fill="#5E3A1E" opacity=".6"/>
+        <rect y="10" width="16" height="1.6" fill="#E3B27A" opacity=".85"/><rect x="10" width="1.6" height="16" fill="#E3B27A" opacity=".85"/>
+      </pattern>
+    </defs>
+    <path d="M14 218 Q16 168 62 160 L138 160 Q184 168 186 218 Z" fill="url(#${id})" stroke="#4A2E16" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M62 160 Q100 192 138 160" fill="#6B4425" stroke="#4A2E16" stroke-width="3.5" stroke-linejoin="round"/>
+    <circle cx="100" cy="190" r="8" fill="#F2B544" stroke="#B9801C" stroke-width="3"/><path d="M96 187 q4 -3 8 0" stroke="#FFF3C4" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="100" cy="120" rx="76" ry="68" fill="${ORANGE}"/>
+    <path d="M100 60 v22 M82 62 l5 20 M118 62 l-5 20" stroke="${ORANGE_DARK}" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+    <path d="M26 112 q13 2 20 0 M24 126 q13 2 22 0 M174 112 q-13 2 -20 0 M176 126 q-13 2 -22 0" stroke="${ORANGE_DARK}" stroke-width="4.5" fill="none" stroke-linecap="round" opacity=".8"/>
+    <ellipse cx="100" cy="146" rx="42" ry="30" fill="#FFEACB"/>
+    <ellipse cx="48" cy="136" rx="15" ry="10" fill="#FF8C8C" opacity=".6"/>
+    <ellipse cx="152" cy="136" rx="15" ry="10" fill="#FF8C8C" opacity=".6"/>
     ${eyesFor(mood)}
-    <path d="M92 126 h16 l-8 9 z" fill="#F0606E" stroke="#F0606E" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M91 126 h18 l-9 10 z" fill="#F0606E" stroke="#F0606E" stroke-width="3" stroke-linejoin="round"/>
     ${mouthFor(mood)}
     <g stroke="${N}" stroke-width="2.6" stroke-linecap="round" opacity=".7">
-      <path d="M40 142 l-26 -4M40 150 l-24 6M160 142 l26 -4M160 150 l24 6"/></g>
-    <path d="M42 76 Q100 2 158 76 Z" fill="#7B5434"/>
-    <path d="M60 52 L72 76M86 34 L92 76M114 34 L108 76M140 52 L128 76" stroke="#654328" stroke-width="4"/>
-    <path d="M44 70 Q100 46 156 70 L158 82 Q100 58 42 82 Z" fill="#E8604C"/>
-    <ellipse cx="100" cy="80" rx="74" ry="11" fill="#5E3E22"/>
-    <circle cx="100" cy="30" r="8" fill="#E8604C"/>
-    <path d="M40 92 L22 34 L78 62 Z" fill="#F7B93A" stroke="#E39228" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M42 80 L32 48 L64 64 Z" fill="#FF9DA7"/>
-    <path d="M160 92 L178 34 L122 62 Z" fill="#F7B93A" stroke="#E39228" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M158 80 L168 48 L136 64 Z" fill="#FF9DA7"/>
+      <path d="M40 144 l-28 -5M40 152 l-26 7M160 144 l28 -5M160 152 l26 7"/></g>
+    <path d="M38 94 L18 30 L80 62 Z" fill="${ORANGE}" stroke="${ORANGE_DARK}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M42 82 L30 46 L66 64 Z" fill="#FF9DA7"/>
+    <path d="M162 94 L182 30 L120 62 Z" fill="${ORANGE}" stroke="${ORANGE_DARK}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M158 82 L170 46 L134 64 Z" fill="#FF9DA7"/>
+    <path d="M40 76 Q100 -2 160 76 Z" fill="url(#${id})" stroke="#4A2E16" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M60 50 L72 76M88 30 L92 76M112 30 L108 76M140 50 L128 76" stroke="#4A2E16" stroke-width="3" opacity=".7"/>
+    <path d="M26 80 Q100 92 174 80 Q100 62 26 80 Z" fill="#6B4425" stroke="#4A2E16" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M44 74 Q100 58 156 74" stroke="#E8604C" stroke-width="6" fill="none" stroke-linecap="round" opacity=".9"/>
+    <circle cx="100" cy="26" r="9" fill="#E8604C" stroke="#B8402F" stroke-width="3"/>
     ${lens}${zzz}
   </svg>`;
 }

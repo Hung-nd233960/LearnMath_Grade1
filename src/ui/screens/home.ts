@@ -1,7 +1,6 @@
 // Home: shows the active child's stars, streak, time left, this week, and the game tiles.
 import { tileState, type TileState } from "../../core/dailyPlan.ts";
 import { streakToday, weekStrip } from "../../core/profiles.ts";
-import type { GameId } from "../../core/types.ts";
 import { GAMES } from "../../games/index.ts";
 import { say } from "../../i18n/speech.ts";
 import { STR } from "../../i18n/ui.ts";
@@ -9,45 +8,19 @@ import { mountAdultGate } from "../adultGate.ts";
 import { avatarBadge } from "../avatars.ts";
 import { emoji, h } from "../dom.ts";
 import { mascot } from "../mascot.ts";
+import { tileScene } from "../scene.ts";
+import { tileArt } from "../tileArt.ts";
 import { showToast } from "../notices.ts";
 import type { ScreenDef } from "../router.ts";
 import { speakerButton } from "../topbar.ts";
+import "../scene.css";
 import "./home.css";
 
-/** The picture in the middle of each tile (matches mockup/v2/index.html). */
-function tileArt(id: GameId): HTMLElement {
-  const art = h("div", { class: "art" });
-  switch (id) {
-    case "scale":
-      art.append(emoji("balance_scale", 112));
-      break;
-    case "robot":
-      art.append(emoji("robot", 104), emoji("triangular_flag", 54));
-      break;
-    case "basket": {
-      const orange = emoji("tangerine", 54);
-      orange.style.marginRight = "-18px";
-      art.append(orange, emoji("basket", 108));
-      break;
-    }
-    case "equations":
-      art.classList.add("eqart");
-      art.append(emoji("red_apple", 64), "+", emoji("pear", 64), "=?");
-      break;
-    case "split": {
-      const sun = emoji("sunflower", 78);
-      const small = emoji("tulip", 60);
-      sun.style.marginLeft = "-14px";
-      small.style.marginLeft = "-12px";
-      art.append(emoji("tulip", 78), sun, small);
-      break;
-    }
-    case "pattern":
-      art.classList.add("eqart");
-      art.append(emoji("red_apple", 56), emoji("pear", 56), emoji("red_apple", 56), "?");
-      break;
-  }
-  return art;
+/** The game title as the heading of its sign: the last word in the game's accent colour ("Thăng " + "bằng"). */
+function titleOf(title: string): HTMLElement {
+  const words = title.split(" ");
+  const last = words.pop()!;
+  return h("h3", null, ...(words.length ? [words.join(" ") + " ", h("span", { class: "hl" }, last)] : [h("span", { class: "hl" }, last)]));
 }
 
 /** The small label that tells a child what a tile is doing today (see core/dailyPlan.ts). */
@@ -126,7 +99,9 @@ export const homeScreen: ScreenDef = {
       } else {
         tile.append(h("span", { class: "got" }, ...[0, 1, 2].map((i) => emoji("star", 26, i < progress.bestStars ? "" : "dim"))));
       }
-      tile.append(tileArt(g.id), h("h3", null, g.title));
+      tile.style.setProperty("--n", String(GAMES.indexOf(g)));
+      tile.prepend(tileScene(g.id, GAMES.indexOf(g)));
+      tile.append(tileArt(g.id), h("div", { class: `sign sign-${g.id}` }, titleOf(g.title)));
       if (ready) tile.addEventListener("click", () => (waiting ? explainLocked(state) : ctx.go(`play/${g.id}`)));
       return tile;
     });
