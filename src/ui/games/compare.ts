@@ -11,6 +11,8 @@ import { ICON } from "../icons.ts";
 import type { GameView } from "./types.ts";
 import "./compare.css";
 
+const ARROW = '<svg width="34" height="24" viewBox="0 0 34 24"><path d="M3 12h26M20 3l9 9-9 9" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
 /** The gift picture in a box's colour. */
 function gift(box: Box, size: number): HTMLImageElement {
   const img = emoji("wrapped_gift", size, "gift");
@@ -74,13 +76,14 @@ export function createCompareView(): GameView<CompareQuestion, CompareAnswer> {
     const n = q.items.length;
     const slots = Array.from({ length: n }, (_, i) => {
       const box = picked[i];
-      const cls = mark && box ? (box === q.truth[i] || mark === "reveal" ? " right" : " wrong") : "";
+      const cls = mark && box ? (box === q.truth[i] || mark === "reveal" ? " right" : " wrong") : !mark && i === picked.length ? " next" : "";
       const slot = h("button", { class: `cp-slot${cls}`, "data-i": i, "data-k": box ?? null, tabindex: -1 },
         box ? gift(box, 80) : null,
         i === 0 ? h("small", null, STR.lightestLabel) : i === n - 1 ? h("small", null, STR.heaviestLabel) : null);
       // tapping a placed box takes it back out (the ones after it shift left)
       if (box && !mark) slot.addEventListener("click", () => { picked.splice(i, 1); paintOrder(); });
-      return [slot, i < n - 1 ? h("span", { class: "cp-arrow" }, "›") : null];
+      // a real arrow (not ">"), so it is not read as the "greater than" sign
+      return [slot, i < n - 1 ? h("span", { class: "cp-arrow", "aria-hidden": "true" }, html(ARROW)) : null];
     }).flat();
     answerEl.replaceChildren(h("div", { class: "cp-order" }, h("div", { class: "cp-slots" }, ...slots), choices(90, picked)));
   }
