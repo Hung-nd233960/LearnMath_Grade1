@@ -158,7 +158,8 @@ The teachers' second round (2026-10-18). Each item has a detailed task file in [
   - Phase A: `isPortrait` is just `height > width`; the notice only asks to turn the device; the stage fits the safe area (`safeInsets()`, `--ox`/`--oy`). Phase B: `computeLayout()` picks a 1240×600 stage (`body.wide`) for a short, wide screen (aspect ≥ 1.75 and under 600 px high), scale about 0.65 on an iPhone 15 (0.48 before). Every screen has its layout in `src/styles/wide.css` (top bar and prompt share one row; picture-heavy games keep their normal coordinates inside a scaled box; number keys, buttons and the tray's fruit are kept at about 44 CSS px). `ui:check` section 20 plays on an 852×393 viewport: controls inside the stage and ≥ 44 px on 19 dev screens, two whole sets, a drag, the guide. Only the tile art and Mèo's face were not re-laid out.
 - [x] 09 Voice: Nam Minh (Northern) as the default ([task](tasks/09-voice.md))
   - `pack.json` orders: teacher 0, Nam Minh 1, Hoài My 11, Piper 12. 39 new or re-worded clips generated for all three packs (every pack has all 161 clips; a test checks it); obsolete `guide_cmp_*` removed; AUDIO_SCRIPT has a "new in round 2" section. Set up `.tts-venv` (git-ignored) with edge-tts, piper-tts, miniaudio and lameenc to do it.
-- [ ] 10 Docs and user guide sync ([task](tasks/10-docs-sync.md))
+- [x] 10 Docs and user guide sync ([task](tasks/10-docs-sync.md))
+  - CLAUDE.md, RULES, ARCHITECTURE, UI_GUIDE and the README now describe the merged and new games, the daily plan, the wide phone stage and the animal rule. The user guide (Vietnamese and English) has a new section on phones, the daily plan on the home screen and in the teacher area, Thăng bằng with its three kinds, Chia quả with its new modes and Quy luật; pictures and the two demo videos were retaken (`guide-shots.mjs` now sets the plan off for the game pictures).
 - [ ] 11 Three desktop builds: 16:9, iPad, iPhone 15 ([task](tasks/11-tauri-sizes.md))
 
 ---

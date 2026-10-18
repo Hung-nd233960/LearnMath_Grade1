@@ -20,9 +20,10 @@ This guide explains how to build the screens on top of the finished logic. Read 
 ## Stage and layout
 
 - **Fixed stage:** everything is drawn on a **1180 × 820** stage, scaled to fit with `transform: scale()` and letterboxed. Use px inside the stage.
-- **Portrait or phone:** show the "xoay ngang máy" notice instead. Port `fitStage()` and `#rotate` from `mockup/v2/shared.js`.
+- **The wide stage (phones sideways):** when the window is short and wide (`computeLayout()` in `ui/stage.ts`: aspect ≥ 1.75 and under 600 px high, after the notch and home indicator are taken off) the stage is **1240 × 600** and `<body>` gets the class `wide`. **Every screen needs a layout for it** in `src/styles/wide.css` (all rules start with `body.wide`, so the normal layouts stay untouched). Rules of thumb: the top 72 px hold the top bar and the prompt in one row and the game gets y 84–592; a control needs about **68 stage px** to be 44 CSS px on an iPhone 15 (`--tap-min`); pictures may shrink, but buttons, boxes, number keys and fruit you pick up must not. A game whose normal layout is picture-heavy can keep its 1180-wide coordinates inside a scaled box (`.sc`, `.cp`, `.pt` in wide.css; a button inside gets a bigger `min-height` to compensate). To test: `npm run dev`, then `chrome --headless=new --window-size=852,393 --screenshot=out.png "http://localhost:5173/#/dev/split/2/2/9"` (iPhone 15 sideways; 932×430 is the Pro Max), and `ui:check` section 20 plays on that size.
+- **Portrait:** show the "xoay ngang máy" notice instead (`isPortrait()`; the notice is `#rotate`).
 - **Top bar layout:** back button left; "Vòng N" + 5 dots centre; (i) + speaker right.
-- **Touch targets:** at least **56 stage-px**. Draggable items are about 58–60 px.
+- **Touch targets:** at least **56 stage-px** on the normal stage, and 44 CSS px on the phone (see the wide stage). Draggable items are about 58–60 px.
 - **Fonts:** **Baloo 2** for headings, buttons and numbers; **Be Vietnam Pro** for body text. Both are loaded in `index.html`.
 
 ## Styles
@@ -49,7 +50,7 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `context.ts` | `AppContext`: `{ store, voice, sfx, stage, go(path), now(), today() }`, passed to every screen. Use `ctx.now()` / `ctx.today()`, never `Date`. |
 | `app.ts` | `startApp(host)`. Builds the context, applies `settings` to the page (`fx-*` and `is-muted` classes on `<html>`, `sfx` / `voice` flags), unlocks audio on the first touch, handles the speaker button (toggles `settings.muted`) and the tap sound. **Add each new screen to the `SCREENS` table here.** In dev, `window.__app` is the context. |
 | `router.ts` | Hash routes. A screen is a `ScreenDef`: `{ mount({ ctx, screen, params }) → cleanup, bg?, decor? }`. `bg` is a CSS variable name (`"--scale-bg"`) or a colour; `decor` picks the background pictures (default = the route name, `null` = none). `RouterOptions.guard` redirects (use it for "no profile chosen → who"). `parseRoute` is pure and tested. |
-| `stage.ts` | `createStage(host)`: the 1180×820 stage, scaled to fit, plus the portrait notice. `stage.el` is where overlays go. Also `STAGE_W`, `STAGE_H`, `computeScale`, `isPortrait`. |
+| `stage.ts` | `createStage(host)`: the stage (1180×820, or 1240×600 on a phone sideways), scaled to fit inside the safe area, plus the portrait notice. `stage.el` is where overlays go. Also `STAGE_W`, `STAGE_H`, `WIDE_W`, `WIDE_H`, `computeLayout`, `computeScale`, `isPortrait`, `safeInsets`. |
 | `dom.ts` | `h(tag, attrs, ...children)`, `html(staticMarkup)`, `$`, `$$`, `clear`, `emoji(name, size)`, `emojiSrc(name)`, `Cleanup`. In `h`, `onclick: fn` adds a listener and `"data-x": true` sets an empty attribute. |
 | `icons.ts` | `ICON` (back, sound, mute, replay, check) and `ARROW` (U, D, L, R) as SVG strings. |
 | `mascot.ts` | `mascot(mood)` → `<div class="meo">` (moods: normal, happy, think, sleep, detective); `setMood(el, mood)`. Size it with CSS on `.meo`. |
@@ -70,11 +71,13 @@ All of these exist and are tested. Use them; don't re-implement. Anything that l
 | `screens/dev.ts` | Dev-only `#/dev/<id>/<tier>/<step>/<seed>`: one deterministic question + a "Giải" button. |
 | `games/types.ts`, `games/index.ts` | The `GameView` contract and the `VIEWS` registry. |
 | `timekeeper.ts`, `notices.ts`, `screens/break.ts`, `screens/locked.ts` | Screen time. `ctx.time` is the clock (`snapshot()`, `dailyLeftMs()`, `gate(route)`, `ensureBreak()`, `grantBonus(min)`, `endBreak()`, `subscribe(fn)`); the router guard in `app.ts` applies a due break or lock to `home` and `play`. Add a new counting screen to `COUNTING_ROUTES`. |
-| `games/compare.ts` | The So sánh cân screen: mini scales from `Weighing`s, single-pick vs order modes, a row of slots where `reset` keeps the correct prefix (uses `fb.result.data.firstWrong`). |
+| `games/scale.ts`, `games/scale/` | The Thăng bằng screen. `scale.ts` only picks the sub-view by the question's `kind`: `balance.ts` (the big scale, `mountBalance()`, shared with the inference), `compare.ts` (mini scales from `Weighing`s, single-pick vs order modes, a row of slots where `reset` keeps the correct prefix; `miniScaleFrame()` is reused by the inference) and `infer.ts` (clue scales + the big scale drawn at 80%, the left pan locked). |
 | `games/robot.ts` | The Rô-bốt screen: an animated result in `playResult` driven by `simulate()`, a program the child edits, `reveal` that fills and walks the solution, and a document-level key listener removed in `unmount`. |
-| `games/scale.ts` | The Cái cân screen: live tilt vs the padlock, fixed vs movable items, `playResult` that animates the outcome and `reset` that re-locks. |
+| `games/pattern.ts` | The Quy luật screen: tap or drag a choice onto the blank (`dragTap`), shapes drawn as inline SVG (`renderToken`). |
 | `games/basket.ts`, `games/art.ts` | The Chia quả screen: the model for views that draw their own prompt (`ownPrompt`), move items with `dragTap`, and react to wrong tries / the mute switch. `art.ts` holds SVG drawings shared by several games. |
-| `games/equations.ts` | The Giải mã hình screen (second game screen; simpler than split, a good second example). |
+| `games/equations.ts` | The Giải mã hình screen: one answer box per row, the next row takes over after a complete number, right rows stay locked on a retry. |
+| `scene.ts`, `scene.css`, `tileArt.ts` | The home tiles: a scene (sky, drifting clouds, hills, swaying leaves, sparkles) behind a subject, with a wooden title sign. The motion only runs under `fx-anim`; tiles that wait (the daily plan) stand still. |
+| `mascot.ts` | Mèo in SVG (plaid deerstalker, cape, magnifier over one eye); the five moods and the `.eyes` group for the blink are the contract. After changing her, run `node scripts/make-icons.mjs`. |
 | `games/split.ts`, `games/bond.ts`, `games/splitLayout.ts` | The first game screen (Mấy và mấy): the model for the others. `bond.ts` is the number-bond widget; `splitLayout.ts` is pure and tested. |
 | `screens/addProfile.ts` | `openAddProfile(ctx, onAdded)`: the "Thêm bạn mới" form (name + picture); `openEditProfile(ctx, profile, onSaved)` reuses it to rename a child. |
 | `audio/packs.ts`, `audio/voice.ts` | Voice packs: `choosePack(selected, packs)` decides the folder (the teacher's choice, else the first complete pack, else `"device"`); `voice.setPack(id)` applies it (`applySettings` in `app.ts` does so on every settings change); `voice.play(speech, pack?, force?)` can audition another pack. `ctx.voicePacks` holds the list read from `audio/packs.json`. |
@@ -129,12 +132,12 @@ Per game, the question fields to draw and the answer to submit:
 
 | View | Draw from Q | Submit A | Port from |
 | --- | --- | --- | --- |
-| scale | `left/right` fixed fruit, `tray`, `key` (weight table), `liveTilt` (padlock when false), `showCounts` (+ `compareSign()`) | `{ addedLeft, addedRight }` | scale.html (brass scale) |
+| scale (Thăng bằng) | a tagged union on `kind`: **balance** `left/right` fixed fruit, `tray`, `key` (weight table), `liveTilt` (padlock when false), `showCounts` (+ `compareSign()`); **compare** `items`, `weighings` (mini brass scales), `mode`, `BOXES[box].hue`; **infer** `clues` (balanced mini scales), `asked` (on the left pan), `tray` (a number of cam), `weights` (hidden) | balance `{ addedLeft, addedRight }`; compare a box or `Box[]` (order); infer `{ placed }` (cam on the empty pan) | scale.html, compare.html |
 | robot | `size`, `start`, `goal`, `blocks`, `walls`, `maxSteps` | `Dir[]`; animate with `simulate(q, program).cells`, stop at `crashAt` | robot.html |
-| basket | `loose`, `bags` (bags of 10 = tangerines), `order`, `showCounts`; prompt from `text.prompt(q)` | `{ loose, bags }` currently in Mèo's basket | basket.html (teal basket) |
+| basket (Chia quả) | `mode` (give / addTo / equalize), `loose`, `bags` (bags of 10 = tangerines), `order`, `showCounts`, `start` (Mèo's own fixed fruit), `target`; prompt from `text.prompt(q)` | `{ loose, bags, said? }`: what the child moved INTO Mèo's basket (`said` is the typed number of addTo) | basket.html (teal basket) |
 | equations | `known` (Bảng số), `clues` (Manh mối 1..n), `asks` (rows to fill) | number[] (one per row) | equations.html |
 | split | `mode`, `scene` (`SCENES`), `layout` (kind index per item), `blanks`; sentence segments from `text.sentence(q)` | `{ whole?, a?, b? }` | split.html (ceramic vase, number bond) |
-| compare | `items`, `weighings` (mini brass scales), `mode`, `BOXES[box].hue` | box or `Box[]` (order) | compare.html |
+| pattern (Quy luật) | `kind`, `items` (a row or the 3×3 grid, `null` = the blank), `options`, `answer` (index); every token has `tokenKey(t)` for `data-k` | the index of the tapped option | none (new in round 2) |
 
 Extra notes:
 - **Picture panel (basket):** shown when `settings.muted`, or after the first wrong try. The view reads `api.wrongTries()` and subscribes to the store for mute changes (`basket.ts`).
@@ -142,7 +145,7 @@ Extra notes:
 - **Guide (i):**
   - First version: a card with `text.GUIDE_STEPS`, read aloud.
   - Show it automatically when `profile.games[id].seenGuide` is false, then call `markGuideSeen`.
-  - Worked examples (ghost hand performing `logic.solve(q)` on a sample question) exist for Rô-bốt and Cái cân: add a script to `ui/games/demos.ts` and the "Xem Mèo làm mẫu" button appears by itself (`ui/demo.ts` does the rest).
+  - Worked examples (ghost hand performing `logic.solve(q)` on a sample question) exist for Rô-bốt and Thăng bằng: add a script to `ui/games/demos.ts` and the "Xem Mèo làm mẫu" button appears by itself (`ui/demo.ts` does the rest).
 
 ## Screen time in the shell
 

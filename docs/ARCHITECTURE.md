@@ -23,6 +23,7 @@ src/
     settings.ts         Fx switches/presets, limits, PIN record
     pin.ts              PIN hash/check (keeps kids out; not security)
     teacher.ts          slider ranges, unlock expiry, PIN wait (teacher area rules)
+    dailyPlan.ts        the daily plan: which games, in what order, one at a time (docs/RULES.md)
     profiles.ts         Profile shape, recordSet, weekStrip, guide-seen
     storage.ts          versioned save, migrate, export/import, Store
   games/
@@ -103,9 +104,9 @@ interface GameView<Q, A> {
 
 ## State and saving
 
-- **One document:** everything is one JSON document, `AppData`, under the localStorage key `ttth.data` (schema 1).
+- **One document:** everything is one JSON document, `AppData`, under the localStorage key `ttth.data` (**schema 2**).
 - **Store:** `Store` (in storage.ts) loads it and repairs bad or old data. `update(fn)` saves after every change, and `subscribe` lets screens redraw.
-- **Changing the shape:** bump `SCHEMA` and add an upgrade step in `migrate()`. Never break old saves.
+- **Changing the shape:** bump `SCHEMA` and add an upgrade step in `migrate()`. Never break old saves. Schema 1 → 2 (round 2, `upgradeFrom1` in `storage.ts`): the old `compare` progress is dropped (the history keeps its records), `pattern` starts fresh, and a scale seed beyond Vòng 1 step 2 restarts there. Fields added with defaults (`Settings.daily`, `Profile.plan`, `voicePack`) need no bump.
 - **Profiles** hold:
   - stars and stars per day (last 14 days)
   - the streak

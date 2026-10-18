@@ -1,8 +1,8 @@
 # Thám tử Toán học Tí hon
 
-A math game web app for Vietnamese grade 1 children (6 years old). It has six mini-games (Cái cân, Rô-bốt, Giỏ trái cây, Tính theo hình, Mấy và mấy, So sánh cân) with the detective cat **Mèo Smarty**.
+A math game web app for Vietnamese grade 1 children (6 years old). It has six mini-games (Thăng bằng, Rô-bốt, Chia quả, Giải mã hình, Mấy và mấy, Quy luật) with the detective cat **Mèo Smarty**. A child plays a few of them each day, one after another (the teacher sets how many).
 
-- **Runs:** in the browser, landscape iPad or computer.
+- **Runs:** in the browser: landscape iPad, computer, or a phone held sideways (iPhone 15 and up).
 - **Saves:** on the device only. There is no account and no server.
 - **Offline:** works once installed.
 - **Live:** [learn-math-grade1.vercel.app](https://learn-math-grade1.vercel.app/) · user guide: [learn-math-grade1.vercel.app/guide/](https://learn-math-grade1.vercel.app/guide/)

@@ -65,6 +65,8 @@ await send("Page.enable"); await send("Runtime.enable");
 await send("Emulation.setDeviceMetricsOverride", { width: 1180, height: 820, deviceScaleFactor: 1, mobile: false });
 await nav(URL_BASE);
 await css(".dev-bar { display: none !important; }");
+const setDaily = (patch) => ev(`__app.store.update(d => ({ ...d, settings: { ...d.settings, daily: { ...d.settings.daily, ...${JSON.stringify(patch)} } } }))`);
+await setDaily({ gamesPerDay: 0 }); // every game open for the pictures; the daily plan has its own pictures below
 
 // ---------------------------------------------------------------- children with believable progress
 console.log("seeding children");
@@ -84,7 +86,7 @@ const ids = await ev(`(async () => {
   play(an, 3, 'scale', 4, {tier:1,step:0}, {tier:1,step:1}); play(an, 2, 'basket', 3, {tier:1,step:0}, {tier:1,step:0});
   play(an, 2, 'split', 4, {tier:1,step:1}, {tier:1,step:2}); play(an, 1, 'scale', 5, {tier:1,step:1}, {tier:1,step:2});
   play(an, 1, 'robot', 4, {tier:1,step:0}, {tier:1,step:1}); play(an, 0, 'split', 5, {tier:1,step:2}, {tier:2,step:0});
-  play(an, 0, 'compare', 3, {tier:1,step:0}, {tier:1,step:0});
+  play(an, 0, 'pattern', 3, {tier:1,step:0}, {tier:1,step:0});
   play(binh, 1, 'split', 3, {tier:1,step:0}, {tier:1,step:0}); play(binh, 0, 'robot', 5, {tier:1,step:0}, {tier:1,step:1});
   play(chi, 0, 'basket', 4, {tier:1,step:0}, {tier:1,step:1});
   // every guide has been seen, except the new child's
@@ -107,6 +109,13 @@ await click(".add-card .btn-secondary");
 await ev(`__app.store.setActive(${JSON.stringify(an)})`);
 await goHash("#/home");
 await shot("03-home");
+// the daily plan: Mấy và mấy is done, the scale is next, the robot waits, the rest is not today's
+await setDaily({ gamesPerDay: 3, order: "warmup" });
+await ev(`__app.store.updateProfile(p => ({ ...p, plan: { day: __app.today(), games: ['split', 'scale', 'robot'], done: ['split'] } }))`);
+await ev(`__app.go('home')`); await sleep(900); // (the hash is already #/home, so go() redraws the screen)
+await shot("03b-home-plan", 600);
+await setDaily({ gamesPerDay: 0 });
+await ev(`__app.go('home')`); await sleep(700);
 await css(".dev-bar { display: none !important; } .gate-btn { outline: 6px solid #e8453c; outline-offset: 7px; opacity: 1 !important; } .gate-tip { opacity: 1 !important; }");
 await shot("04-padlock", 300);
 await css(".dev-bar { display: none !important; }");
@@ -118,17 +127,31 @@ await sleep(300);
 
 // ---------------------------------------------------------------- 3. every game, Vòng 1 and Vòng 3
 const GAME_SHOTS = [
-  ["split", 1, 1, 3], ["split", 3, 1, 2],
-  ["equations", 1, 1, 2], ["equations", 3, 1, 3],
-  ["basket", 1, 1, 3], ["basket", 2, 1, 2],
-  ["scale", 1, 1, 1], ["scale", 2, 1, 2],
-  ["robot", 1, 1, 3], ["robot", 3, 1, 2],
-  ["compare", 1, 1, 1], ["compare", 3, 1, 2],
+  // [game, tier, step, seed, picture name]
+  ["split", 1, 1, 8, "game-split-v1"], ["split", 3, 1, 2, "game-split-v3"],
+  ["equations", 1, 2, 4, "game-equations-v1"], ["equations", 3, 1, 3, "game-equations-v3"],
+  ["basket", 1, 1, 3, "game-basket-v1"], ["basket", 2, 1, 2, "game-basket-v2"], ["basket", 3, 1, 4, "game-basket-v3"],
+  ["scale", 1, 1, 1, "game-scale-v1"], ["scale", 2, 1, 2, "game-scale-v2"], ["scale", 3, 1, 5, "game-scale-v3"],
+  ["robot", 1, 1, 3, "game-robot-v1"], ["robot", 3, 1, 2, "game-robot-v3"],
+  ["pattern", 1, 0, 3, "game-pattern-v1"], ["pattern", 3, 2, 6, "game-pattern-v3"],
 ];
-for (const [game, tier, step, seed] of GAME_SHOTS) {
+for (const [game, tier, step, seed, name] of GAME_SHOTS) {
   await goHash(`#/dev/${game}/${tier}/${step}/${seed}`, 700);
-  await shot(`game-${game}-v${tier}`, 1200);
+  await shot(name, 1200);
 }
+
+// ---------------------------------------------------------------- 3b. a phone held sideways (iPhone 15, 852×393)
+await send("Emulation.setDeviceMetricsOverride", { width: 852, height: 393, deviceScaleFactor: 2, mobile: false });
+await sleep(300);
+await goHash("#/home", 800);
+await shot("phone-home", 600);
+await goHash("#/dev/equations/1/2/4", 700);
+await shot("phone-game", 900);
+await goHash("#/dev/basket/3/1/4", 700);
+await shot("phone-pad", 900);
+await send("Emulation.setDeviceMetricsOverride", { width: 1180, height: 820, deviceScaleFactor: 1, mobile: false });
+await sleep(300);
+await css(".dev-bar { display: none !important; }");
 
 // ---------------------------------------------------------------- 4. feedback cards
 await goHash("#/dev/split/1/1/3", 700);
@@ -180,10 +203,14 @@ await pin("1234");
 await shot("31-teacher-fx", 800);
 await click(`.t-nav [data-tab=voice]`); await sleep(500);
 await shot("35-teacher-voice", 500);
+await setDaily({ gamesPerDay: 3, order: "warmup" });
 await click(`.t-nav [data-tab=time]`); await sleep(400);
 await shot("32-teacher-time", 500);
+await ev(`document.querySelector('.t-daily').scrollIntoView({ block: 'center' })`);
+await shot("32b-teacher-daily", 500);
 await click(`.t-nav [data-tab=kids]`); await sleep(400);
 await shot("33-teacher-kids", 500);
+await setDaily({ gamesPerDay: 0 }); // every game open again for the worked examples below
 await click(`.t-nav [data-tab=backup]`); await sleep(400);
 await shot("34-teacher-backup", 500);
 await ev(`__app.go('home')`);

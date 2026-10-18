@@ -8,30 +8,31 @@
 
 - [1. Ứng dụng này là gì?](#1-ứng-dụng-này-là-gì)
 - [2. Mở ứng dụng](#2-mở-ứng-dụng)
-- [3. Mỗi em một hồ sơ](#3-mỗi-em-một-hồ-sơ)
-- [4. Trang chủ](#4-trang-chủ)
-- [5. Một vụ án (một lượt chơi)](#5-một-vụ-án-một-lượt-chơi)
-- [6. Sáu trò chơi](#6-sáu-trò-chơi)
-   - [Cái cân](#cái-cân)
+- [3. Dùng trên điện thoại](#3-dùng-trên-điện-thoại)
+- [4. Mỗi em một hồ sơ](#4-mỗi-em-một-hồ-sơ)
+- [5. Trang chủ](#5-trang-chủ)
+- [6. Một vụ án (một lượt chơi)](#6-một-vụ-án-một-lượt-chơi)
+- [7. Sáu trò chơi](#7-sáu-trò-chơi)
+   - [Thăng bằng](#thăng-bằng)
    - [Rô-bốt](#rô-bốt)
-   - [Giỏ trái cây](#giỏ-trái-cây)
-   - [Tính theo hình](#tính-theo-hình)
+   - [Chia quả](#chia-quả)
+   - [Giải mã hình](#giải-mã-hình)
    - [Mấy và mấy](#mấy-và-mấy)
-   - [So sánh cân](#so-sánh-cân)
-- [7. Nút hướng dẫn (i) và "Mèo làm mẫu"](#7-nút-hướng-dẫn-i-và-mèo-làm-mẫu)
-- [8. Ba Vòng và độ khó tự điều chỉnh](#8-ba-vòng-và-độ-khó-tự-điều-chỉnh)
-- [9. Sao và chuỗi ngày](#9-sao-và-chuỗi-ngày)
-- [10. Âm thanh và nhạc nền](#10-âm-thanh-và-nhạc-nền)
-- [11. Thời gian chơi lành mạnh](#11-thời-gian-chơi-lành-mạnh)
-- [12. Khu vực giáo viên](#12-khu-vực-giáo-viên)
-- [13. Giọng nói của Mèo (thu âm)](#13-giọng-nói-của-mèo-thu-âm)
-- [14. Gặp sự cố?](#14-gặp-sự-cố)
+   - [Quy luật](#quy-luật)
+- [8. Nút hướng dẫn (i) và "Mèo làm mẫu"](#8-nút-hướng-dẫn-i-và-mèo-làm-mẫu)
+- [9. Ba Vòng và độ khó tự điều chỉnh](#9-ba-vòng-và-độ-khó-tự-điều-chỉnh)
+- [10. Sao và chuỗi ngày](#10-sao-và-chuỗi-ngày)
+- [11. Âm thanh và nhạc nền](#11-âm-thanh-và-nhạc-nền)
+- [12. Thời gian chơi lành mạnh](#12-thời-gian-chơi-lành-mạnh)
+- [13. Khu vực giáo viên](#13-khu-vực-giáo-viên)
+- [14. Giọng nói của Mèo (thu âm)](#14-giọng-nói-của-mèo-thu-âm)
+- [15. Gặp sự cố?](#15-gặp-sự-cố)
 
 ## 1. Ứng dụng này là gì?
 
 **Thám tử Toán học Tí hon** là bộ sáu trò chơi toán nhỏ cho học sinh lớp 1 (6 tuổi). Các em cùng chú mèo thám tử **Mèo Smarty** giải các "vụ án": mỗi vụ án là một bộ 5 câu hỏi toán ngắn.
 
-- Sáu trò chơi: **Cái cân**, **Rô-bốt**, **Giỏ trái cây**, **Tính theo hình**, **Mấy và mấy**, **So sánh cân**. Cùng luyện đếm, cảm nhận về số, cộng trừ trong phạm vi 10 (về sau 20) và tư duy logic đầu tiên.
+- Sáu trò chơi: **Thăng bằng**, **Rô-bốt**, **Chia quả**, **Giải mã hình**, **Mấy và mấy**, **Quy luật**. Cùng luyện đếm, cảm nhận về số, cộng trừ trong phạm vi 10 (về sau 20) và tư duy logic đầu tiên.
 - Theo chương trình **2018** (Kết nối tri thức), bắt đầu từ các số 0–10.
 - Mọi lời nói và chữ trên màn hình dành cho các em đều bằng **tiếng Việt**, được Mèo Smarty **đọc to** vì các em còn đang học đọc.
 - **Không cần mạng** sau lần mở đầu tiên, **không cần tài khoản**. Tiến trình lưu ngay trên thiết bị.
@@ -61,7 +62,22 @@ Mở địa chỉ trang web do nhà trường cung cấp. Lần đầu cần có
 
 Có bản cài đặt cho Windows (tệp `.exe`), chạy trong cửa sổ riêng như một phần mềm bình thường, không cần trình duyệt hay mạng. Nhờ người cài đặt chạy `npm run desktop:build` hoặc dùng tệp đã được build sẵn.
 
-## 3. Mỗi em một hồ sơ
+## 3. Dùng trên điện thoại
+
+Ứng dụng chạy tốt nhất trên **máy tính bảng** nằm ngang. Theo đề nghị của các thầy cô, **điện thoại** (iPhone 15 trở lên) cũng dùng được, **khi cầm ngang**: màn hình tự đổi sang một bố cục rộng, thấp, các nút và bàn phím số vẫn đủ lớn cho ngón tay các em.
+
+- Cầm điện thoại **ngang**. Nếu cầm dọc, Mèo nhắc "Em hãy xoay ngang máy nhé!".
+- Nên **thêm vào Màn hình chính** (Chia sẻ → Thêm vào Màn hình chính) để dùng toàn màn hình và để Safari không xoá dữ liệu.
+- Màn hình điện thoại nhỏ: với các em nhỏ, **máy tính bảng vẫn là lựa chọn tốt hơn**.
+
+![Trang chủ trên điện thoại cầm ngang (iPhone 15).](img/phone-home.png)
+*Trang chủ trên điện thoại cầm ngang (iPhone 15).*
+
+<img src="img/phone-game.png" alt="" width="49%"> <img src="img/phone-pad.png" alt="" width="49%">
+
+*Hai trò chơi trên điện thoại: các nút và bàn phím số vẫn lớn.*
+
+## 4. Mỗi em một hồ sơ
 
 Nhiều em có thể dùng chung một thiết bị. Khi mở ứng dụng, mỗi em chạm vào **hình đại diện** của mình, không cần mật khẩu. Sao, chuỗi ngày, độ khó và thời gian đã chơi được lưu **riêng cho từng em**.
 
@@ -73,19 +89,23 @@ Lần đầu mở, ứng dụng mở sẵn mẫu **"Thêm bạn mới"**: gõ t�
 ![Thêm một bạn mới: tên và hình đại diện.](img/02-add-child.png)
 *Thêm một bạn mới: tên và hình đại diện.*
 
-## 4. Trang chủ
+## 5. Trang chủ
 
 - Mèo Smarty chào em bằng tên.
 - **Tổng số sao** em đã được, **chuỗi ngày** chơi liền nhau, và **thời gian còn lại** hôm nay.
 - **Tuần này**: những ngày em đã có sao, hôm nay và những ngày còn lại.
-- **Sáu ô tranh**: chạm vào một ô để bắt đầu một vụ án. Mỗi ô ghi **Vòng** em đang ở; ô có chữ "Mới!" là trò em chưa chơi, ô đã chơi hiện **số sao tốt nhất**.
+- **Sáu ô tranh**: chạm vào một ô để bắt đầu một vụ án. Mỗi ô ghi **Vòng** em đang ở; ô có chữ "Mới!" là trò em chưa chơi, ô đã chơi hiện **số sao tốt nhất**. Các ô là những khung cảnh nhỏ: lá đung đưa, mây trôi, sao lấp lánh (khi giáo viên bật hiệu ứng).
+- **Mỗi ngày vài trò, lần lượt từng trò** (giáo viên đặt số trò, mặc định 3): chỉ ô có nhãn **"Chơi tiếp"** mở; ô "Chờ nhé" phải đợi em xong trò trước (Mèo nhắc "Bé hoàn thành trò trước đã nhé!"); ô "Hôm khác" sẽ mở vào ngày khác. Trò đã xong hôm nay (dấu ✓) **chơi lại cho vui** được, nhưng không thêm sao. Dòng "Hôm nay 1/3 trò" ở trên cùng cho biết em đã xong mấy trò.
 - **Nút loa** (góc trên): **chạm** để bật hoặc tắt toàn bộ âm thanh; **giữ** khoảng nửa giây để mở bảng chỉnh âm thanh (xem phần "Âm thanh và nhạc nền"). Đây là **cài đặt duy nhất** em có thể tự đổi.
 - **Ổ khoá nhỏ** ở góc dưới bên phải dành cho người lớn: **giữ khoảng 1 giây** để vào Khu vực giáo viên (cần mã PIN).
+
+![Kế hoạch trong ngày: "Chơi tiếp" (đang mở), "Chờ nhé" (chờ trò trước), "Hôm khác" (không có trong hôm nay), dấu ✓ (đã xong, chơi lại cho vui được).](img/03b-home-plan.png)
+*Kế hoạch trong ngày: "Chơi tiếp" (đang mở), "Chờ nhé" (chờ trò trước), "Hôm khác" (không có trong hôm nay), dấu ✓ (đã xong, chơi lại cho vui được).*
 
 ![Ổ khoá (khoanh đỏ) ở góc dưới bên phải: giữ khoảng 1 giây. Chạm nhanh chỉ hiện lời nhắc.](img/04-padlock.png)
 *Ổ khoá (khoanh đỏ) ở góc dưới bên phải: giữ khoảng 1 giây. Chạm nhanh chỉ hiện lời nhắc.*
 
-## 5. Một vụ án (một lượt chơi)
+## 6. Một vụ án (một lượt chơi)
 
 - Một lượt chơi là **bộ 5 câu hỏi** trong một trò chơi. Năm chấm tròn ở trên cho biết em đã làm đến đâu, bên cạnh là **Vòng** hiện tại.
 - Mỗi câu được Mèo Smarty **đọc to**; chữ hiện trên màn hình. Nút loa nhỏ cạnh câu hỏi dùng để **nghe lại**.
@@ -104,24 +124,23 @@ Lần đầu mở, ứng dụng mở sẵn mẫu **"Thêm bạn mới"**: gõ t�
 
 *Đúng: lời khen và pháo giấy. Sai: gợi ý nhẹ nhàng và thử lại.*
 
-## 6. Sáu trò chơi
+## 7. Sáu trò chơi
 
 Mỗi trò có ba **Vòng** (1, 2, 3). Dưới đây là mỗi trò dạy gì, chơi thế nào và các Vòng khác nhau ra sao. Ảnh bên trái là Vòng 1; ảnh bên phải là một Vòng cao hơn.
 
-### Cái cân
+### Thăng bằng
 
-**Dạy gì:** "bằng nhau" nghĩa là *tổng cân nặng bằng nhau*, không nhất thiết số lượng bằng nhau; bước đầu của phép cộng và so sánh.
+**Dạy gì:** "bằng nhau" nghĩa là *tổng cân nặng bằng nhau*; so sánh và sắp xếp theo cân nặng; suy luận từ những lần cân (nếu A nặng bằng 2 B và B nặng bằng 2 cam thì A nặng bằng mấy cam?).
 
-- Hai đĩa cân, mỗi đĩa có sẵn vài quả. Em **kéo quả từ khay phía dưới vào đĩa** (hoặc chạm quả rồi chạm đĩa) cho **hai đĩa nặng bằng nhau**, rồi chạm "Xong".
-- **Cân nặng** (luôn có bảng "Bảng cân" trên màn hình): nho = 1, táo = 2, dưa hấu = 3.
-- **Vòng 1:** một loại quả; cân **nghiêng ngay** khi thêm quả, mỗi đĩa hiện số quả và có dấu **>, < hoặc =** trên trục cân.
-- **Vòng 2:** hai loại quả và bảng cân; một **ổ khoá giữ cân thăng bằng** cho đến khi em chạm "Xong".
-- **Vòng 3:** ba loại quả (nho 1, táo 2, dưa hấu 3).
-- Đáp án đúng khi **tổng cân nặng hai bên bằng nhau**; có nhiều cách xếp đúng.
+- **Vòng 1, cân cho thăng bằng:** hai đĩa cân, mỗi đĩa có sẵn vài quả. Em **kéo quả từ khay vào đĩa** (hoặc chạm quả rồi chạm đĩa) cho **hai đĩa nặng bằng nhau**, rồi chạm "Xong". Cân nặng (có "Bảng cân"): nho = 1, táo = 2, dưa hấu = 3.
+- Bước đầu: một loại quả, cân **nghiêng ngay**, mỗi đĩa hiện số quả và có dấu **>, <, =**. Các bước sau: hai rồi ba loại quả; một **ổ khoá giữ cân thăng bằng** đến khi em chạm "Xong".
+- **Vòng 2, so sánh cân:** vài cái cân nhỏ cho thấy **hộp nào nặng hơn hộp nào** (các hộp **to bằng nhau**, nên em không đoán được từ kích thước; **bên nào hạ xuống là bên nặng hơn**). Em chạm **hộp nặng nhất / nhẹ nhất**, rồi **xếp các hộp từ nhẹ đến nặng**.
+- **Vòng 3, suy luận:** hai cái cân nhỏ đã **thăng bằng** cho biết, ví dụ, *1 xoài nặng bằng 3 cam*, *1 táo nặng bằng 2 cam*. Cân lớn có quả ở đĩa trái và **đĩa phải trống có dấu ?**: em **đặt cam vào đĩa trống** cho cân thăng bằng. Cuối cùng có cả **hai bước suy luận** (1 dưa hấu = 2 táo, 1 táo = 2 cam). Số cân nặng không bao giờ hiện thành chữ: em phải đọc từ các cân nhỏ.
+- Mỗi câu chỉ có **một đáp án đúng**; riêng Vòng 1 có nhiều cách xếp đúng.
 
-<img src="img/game-scale-v1.png" alt="" width="49%"> <img src="img/game-scale-v2.png" alt="" width="49%">
+<img src="img/game-scale-v1.png" alt="" width="32%"> <img src="img/game-scale-v2.png" alt="" width="32%"> <img src="img/game-scale-v3.png" alt="" width="32%">
 
-*Cái cân: Vòng 1 (trái) và Vòng 2 (phải).*
+*Thăng bằng: Vòng 1 (cân cho bằng nhau), Vòng 2 (so sánh cân) và Vòng 3 (suy luận).*
 
 ### Rô-bốt
 
@@ -137,28 +156,28 @@ Mỗi trò có ba **Vòng** (1, 2, 3). Dưới đây là mỗi trò dạy gì, c
 
 *Rô-bốt: Vòng 1 (trái) và Vòng 3 (phải).*
 
-### Giỏ trái cây
+### Chia quả
 
 **Dạy gì:** đếm chính xác, so số với số lượng, và **chục**: một túi 10 quả.
 
 - Mèo Smarty nói, ví dụ **"Đưa cho tôi 7 quả cam"**. Em kéo quả từ **"Giỏ của em"** sang **"Giỏ của Mèo"** (hoặc chạm quả rồi chạm giỏ). Cho **đúng số**: thừa cũng sai, và em có thể kéo quả trở lại.
 - **Vòng 1:** một vài quả cùng loại; mỗi giỏ **hiện số quả** để em đối chiếu.
 - **Vòng 2:** nhiều quả hơn, **số quả bị ẩn** nên em phải đếm. Có **túi 10 quả** (một chục). Câu hỏi cố ý dạy chục: "một chục / hai chục quả cam", "mười quả cam" (cũng là 1 túi) và "mười ba quả cam" (1 túi và 3 quả).
-- **Vòng 3:** nhiều loại quả trong một câu.
+- **Vòng 3:** ba kiểu câu hỏi. (1) **Nhiều loại quả** trong một câu, hoặc "không quả chuối". (2) **Cần thêm:** "Trong giỏ của Mèo có 5 quả cam. Mèo muốn có tất cả 15 quả cam. Em đã đưa thêm mấy quả?"; em đưa quả sang rồi **gõ số quả đã đưa thêm** trên bàn phím nhỏ giữa hai giỏ. (3) **Bằng nhau:** hai giỏ có số quả khác nhau; em chuyển quả cho **hai giỏ bằng nhau** (quả xếp thành hàng năm để dễ so sánh). Quả có sẵn trong giỏ Mèo không lấy ra được.
 - Giỏ của em luôn có từ 2 đến 9 quả lẻ mỗi loại, nên muốn có một chục thì phải lấy **túi**.
 - Khi tắt tiếng, một **bảng chữ và hình** hiện lời yêu cầu; khi bật tiếng, bảng hiện sau lần sai đầu tiên. Nút **"Nghe lại"** luôn có.
 
-<img src="img/game-basket-v1.png" alt="" width="49%"> <img src="img/game-basket-v2.png" alt="" width="49%">
+<img src="img/game-basket-v1.png" alt="" width="32%"> <img src="img/game-basket-v2.png" alt="" width="32%"> <img src="img/game-basket-v3.png" alt="" width="32%">
 
-*Giỏ trái cây: Vòng 1 (trái, có số quả) và Vòng 2 (phải, có túi 10 quả).*
+*Chia quả: Vòng 1 (có số quả), Vòng 2 (có túi 10 quả) và Vòng 3 (cần thêm, có bàn phím nhỏ).*
 
 > 💡 Giáo viên nên xác nhận cách gọi tên bằng tiếng Việt ("quả cam", "chùm nho"...). Lời đọc có thể sửa trong kịch bản thu âm.
 
-### Tính theo hình
+### Giải mã hình
 
 **Dạy gì:** mỗi hình là một con số; thay số vào phép tính; suy luận ngược (tìm số chưa biết).
 
-- **Vòng 1:** **Bảng số** cho biết mỗi quả là số mấy (ví dụ táo = 1); em thay số vào rồi cộng.
+- **Vòng 1:** **Bảng số** cho biết mỗi quả là số mấy (ví dụ táo = 1, chuối = 0); em tính **từng dòng**, mỗi dòng một ô trả lời; dòng nào đúng thì giữ lại, chỉ làm lại dòng sai. Mỗi loại quả có một số riêng (không hai quả nào trùng số).
 - **Vòng 2:** tổng ba số hạng và suy luận ngược (táo + táo = 2, vậy táo = ?).
 - **Vòng 3:** một chuỗi **manh mối**; em tìm manh mối chỉ có **một** loại quả chưa biết, giải nó trước, rồi thay vào manh mối tiếp theo.
 - Mỗi bước luôn chỉ có **một ẩn số**: không bao giờ phải giải hai phương trình cùng lúc, và đáp án là **duy nhất**.
@@ -166,13 +185,13 @@ Mỗi trò có ba **Vòng** (1, 2, 3). Dưới đây là mỗi trò dạy gì, c
 
 <img src="img/game-equations-v1.png" alt="" width="49%"> <img src="img/game-equations-v3.png" alt="" width="49%">
 
-*Tính theo hình: Vòng 1 (trái) và Vòng 3 (phải).*
+*Giải mã hình: Vòng 1 (trái) và Vòng 3 (phải).*
 
 ### Mấy và mấy
 
 **Dạy gì:** tách và gộp số (bài "Mấy và mấy" ở lớp 1): một số gồm hai số nhỏ hơn; sơ đồ tách số; số 0.
 
-- **Vòng 1:** một lọ hoa hoặc giỏ quả bằng hình, **một ô trống** (thường là tổng). Em chạm vào từng bông để **đánh dấu đã đếm**.
+- **Vòng 1:** một bức tranh (khu vườn có **chú thỏ và chú gà con**, lọ hoa hoặc giỏ quả), **một ô trống** (thường là tổng). Em chạm vào từng con hoặc từng bông để **đánh dấu đã đếm**.
 - **Vòng 2:** hình ảnh cùng **sơ đồ tách số** (số trên cùng nối với hai số dưới), **hai ô trống**; có thể có số 0.
 - **Vòng 3:** chỉ còn sơ đồ tách số với **một phần còn thiếu** (ví dụ 7 = 3 + ?) và số lớn hơn.
 - Câu hỏi được đọc to; mỗi ô trống có hình nhỏ của vật tương ứng. Các loại vật khác nhau về **hình dạng** chứ không chỉ về màu sắc.
@@ -181,20 +200,20 @@ Mỗi trò có ba **Vòng** (1, 2, 3). Dưới đây là mỗi trò dạy gì, c
 
 *Mấy và mấy: Vòng 1 (trái) và Vòng 3 (phải).*
 
-### So sánh cân
+### Quy luật
 
-**Dạy gì:** suy luận từ những lần so sánh (nếu A nhẹ hơn B và B nhẹ hơn C thì...).
+**Dạy gì:** tìm quy luật; quan sát và dự đoán cái tiếp theo. Mỗi câu chỉ có **một đáp án đúng** (máy kiểm tra từng câu trước khi ra đề).
 
-- Vài cái cân nhỏ cho thấy **hộp nào nặng hơn hộp nào**. Các hộp **to bằng nhau**, nên em không đoán được từ kích thước.
-- **Bên nào hạ xuống là bên nặng hơn.** Em đọc từng cân để tìm ra manh mối.
-- Em **chạm vào hộp nặng nhất (hoặc nhẹ nhất)**, hoặc **xếp các hộp từ nhẹ đến nặng** rồi bấm "Xong". Không có câu hỏi có/không.
-- **Vòng 1:** 3 hộp, 2 cân. **Vòng 2:** 4 hộp, 3 cân. **Vòng 3:** có một cân được vẽ theo chiều ngược lại.
+- Một hàng hình (hoặc một bảng 3×3) có **một ô trống**. Em chạm vào hình **phù hợp quy luật** (hoặc kéo hình vào ô trống) rồi bấm "Xong"; em có thể đổi ý.
+- **Vòng 1:** hàng hình lặp lại (🍎🍐🍎🍐🍎?, rồi ba hình lặp lại, rồi hình khối có màu), ô trống ở **cuối** hàng.
+- **Vòng 2:** ô trống ở **giữa** hàng; hàng **số** (cộng 1, cộng 2, cộng 10, giảm 1); kiểu lặp bốn hình (hai hình này rồi hai hình kia).
+- **Vòng 3:** một **chấm xanh đi vòng quanh các góc** của khung; bảng **3×3** hình trong hình (mỗi hàng và mỗi cột có đủ ba hình lớn và ba hình nhỏ, không lặp).
 
-<img src="img/game-compare-v1.png" alt="" width="49%"> <img src="img/game-compare-v3.png" alt="" width="49%">
+<img src="img/game-pattern-v1.png" alt="" width="49%"> <img src="img/game-pattern-v3.png" alt="" width="49%">
 
-*So sánh cân: Vòng 1 (trái) và Vòng 3 (phải).*
+*Quy luật: Vòng 1 (trái) và Vòng 3 (phải).*
 
-## 7. Nút hướng dẫn (i) và "Mèo làm mẫu"
+## 8. Nút hướng dẫn (i) và "Mèo làm mẫu"
 
 Mỗi trò chơi có nút **(i)** ở góc trên bên phải. Chạm vào đó, Mèo Smarty chỉ cách chơi bằng **bốn bước ngắn, vừa hiện chữ vừa đọc to** (bước đang đọc được tô vàng). Nút **"Nghe lại"** đọc lại từ đầu.
 
@@ -203,12 +222,12 @@ Hướng dẫn **tự mở ở lần đầu tiên** mỗi em chơi một trò. S
 ![Hướng dẫn tự mở ở lần đầu: bốn bước, "Nghe lại" và "Em hiểu rồi!".](img/22-guide-card.png)
 *Hướng dẫn tự mở ở lần đầu: bốn bước, "Nghe lại" và "Em hiểu rồi!".*
 
-#### "Xem Mèo làm mẫu" (Rô-bốt và Cái cân)
+#### "Xem Mèo làm mẫu" (Rô-bốt và Thăng bằng)
 
 Hai trò khó giải thích bằng lời nhất có thêm nút **"Xem Mèo làm mẫu"**. Một **bàn tay ma** làm mẫu một câu hoàn chỉnh trên màn hình, đúng bằng những thao tác em sẽ làm (chạm mũi tên rồi chạm "Chạy!"; chạm quả rồi chạm đĩa cân), Mèo vừa làm vừa nói. Đây chỉ là mẫu: **không tính điểm** và không đụng tới câu hỏi thật. Em có thể **"Dừng"**, **"Xem lại"** hoặc bấm **"Đến lượt em!"**.
 
-![Với Rô-bốt và Cái cân, thẻ hướng dẫn có thêm nút "Xem Mèo làm mẫu".](img/22b-guide-with-demo.png)
-*Với Rô-bốt và Cái cân, thẻ hướng dẫn có thêm nút "Xem Mèo làm mẫu".*
+![Với Rô-bốt và Thăng bằng, thẻ hướng dẫn có thêm nút "Xem Mèo làm mẫu".](img/22b-guide-with-demo.png)
+*Với Rô-bốt và Thăng bằng, thẻ hướng dẫn có thêm nút "Xem Mèo làm mẫu".*
 
 <img src="img/demo-robot-1.png" alt="" width="32%"> <img src="img/demo-robot-2.png" alt="" width="32%"> <img src="img/demo-robot-3.png" alt="" width="32%">
 
@@ -218,11 +237,11 @@ Hai trò khó giải thích bằng lời nhất có thêm nút **"Xem Mèo làm 
 
 <img src="img/demo-scale-1.png" alt="" width="32%"> <img src="img/demo-scale-2.png" alt="" width="32%"> <img src="img/demo-scale-3.png" alt="" width="32%">
 
-*Cái cân: nhìn bảng cân, thêm quả vào đĩa nhẹ hơn cho hai đĩa bằng nhau.*
+*Thăng bằng: nhìn bảng cân, thêm quả vào đĩa nhẹ hơn cho hai đĩa bằng nhau.*
 
-▶ [Xem video: Mèo làm mẫu trò Cái cân.](video/demo-scale.webm)
+▶ [Xem video: Mèo làm mẫu trò Thăng bằng.](video/demo-scale.webm)
 
-## 8. Ba Vòng và độ khó tự điều chỉnh
+## 9. Ba Vòng và độ khó tự điều chỉnh
 
 | Vòng | Cảm giác |
 | --- | --- |
@@ -248,7 +267,7 @@ Trong mỗi Vòng còn có **các bậc nhỏ ẩn** (ví dụ số đến 5, r�
 
 > 💡 Lên tới **Vòng 3 là khó và cần vài ngày**: điểm xuất phát chỉ nhích một bậc nhỏ mỗi lượt. Điều này có chủ ý, để thưởng cho sự cẩn thận chứ không phải sự nhanh tay. Với giới hạn thời gian mỗi ngày, mỗi em thường chơi khoảng **một lượt cho mỗi trò mỗi ngày**.
 
-## 9. Sao và chuỗi ngày
+## 10. Sao và chuỗi ngày
 
 | Kết quả của một lượt | Sao |
 | --- | --- |
@@ -263,7 +282,7 @@ Trong mỗi Vòng còn có **các bậc nhỏ ẩn** (ví dụ số đến 5, r�
 ![Cuối lượt chơi: sao, điểm và chuỗi ngày.](img/23-stars.png)
 *Cuối lượt chơi: sao, điểm và chuỗi ngày.*
 
-## 10. Âm thanh và nhạc nền
+## 11. Âm thanh và nhạc nền
 
 Mèo Smarty **đọc to** mọi câu hỏi, và có **nhạc nền nhẹ**: một bản nhạc vui cho trang chủ và **một bản riêng cho mỗi trò chơi** (tổng cộng 7). Nhạc nhỏ đi khi Mèo nói, và tắt ở khu vực giáo viên, màn hình nghỉ mắt và màn hình hết giờ.
 
@@ -275,7 +294,7 @@ Mèo Smarty **đọc to** mọi câu hỏi, và có **nhạc nền nhẹ**: mộ
 ![Bảng âm thanh: giữ nút loa để mở.](img/05-sound-mixer.png)
 *Bảng âm thanh: giữ nút loa để mở.*
 
-## 11. Thời gian chơi lành mạnh
+## 12. Thời gian chơi lành mạnh
 
 Thời gian được tính **riêng cho từng em**. Giới hạn do người lớn cài trong Khu vực giáo viên (mặc định như bảng dưới).
 
@@ -292,7 +311,7 @@ Thời gian được tính **riêng cho từng em**. Giới hạn do người l�
 
 Trên cả hai màn hình có nút **"Bạn khác chơi"**: một em khác có thể tiếp tục trên cùng thiết bị (mỗi em có đồng hồ riêng).
 
-## 12. Khu vực giáo viên
+## 13. Khu vực giáo viên
 
 **Mọi cài đặt** (hiệu ứng, thời gian, bạn nào dùng máy, sao lưu, mã PIN) nằm **chỉ ở đây**, không bao giờ trên màn hình của các em. Mã PIN giúp các em không tự đổi cài đặt. **Đây không phải bảo mật thật:** người lớn rành máy tính vẫn có thể sửa dữ liệu trên trình duyệt.
 
@@ -319,7 +338,7 @@ Chọn **giọng đọc** của Mèo cho mọi câu hỏi, lời khen và lời 
 
 - **Giọng của máy:** dùng giọng tiếng Việt có sẵn trong thiết bị (nếu có). Không cần tệp âm thanh; chất lượng tuỳ máy.
 - **Giọng giáo viên:** các bản thu âm của giáo viên. Thẻ này mờ cho đến khi có bản thu (xem phần "Giọng nói của Mèo (thu âm)").
-- **Các bộ giọng máy tạo** (nếu người cài đặt có thêm), ví dụ "Hoài My", "Nam Minh": giọng tổng hợp, dùng tạm cho đến khi có bản thu của giáo viên. Thẻ cho biết có bao nhiêu trên 132 đoạn; đoạn nào thiếu sẽ được đọc bằng giọng của máy.
+- **Các bộ giọng máy tạo** (nếu người cài đặt có thêm), ví dụ "Nam Minh" (giọng miền Bắc, **dùng mặc định**) và "Hoài My": giọng tổng hợp, dùng tạm cho đến khi có bản thu của giáo viên. Thẻ cho biết có bao nhiêu trên 161 đoạn; đoạn nào thiếu sẽ được đọc bằng giọng của máy.
 - Nếu chưa chọn gì, ứng dụng tự dùng bộ giọng **đầy đủ** đầu tiên, nên giọng giáo viên sẽ tự thay thế khi đã thu xong. "Dùng bộ mặc định" quay lại cách này.
 
 ![Chọn giọng nói: mỗi bộ giọng một thẻ, "Nghe thử" để nghe mẫu.](img/35-teacher-voice.png)
@@ -330,6 +349,9 @@ Chọn **giọng đọc** của Mèo cho mọi câu hỏi, lời khen và lời 
 - **Hôm nay của (tên em đang chơi):** thời gian đã chơi, còn lại; nút **+10 phút** và **+20 phút** (mở khoá khi em đã hết giờ), **−10 phút** và **−20 phút** (lấy lại nếu bấm nhầm), **"Cho bé [tên] nghỉ sớm"** (kết thúc buổi chơi hôm nay ngay: bé thấy màn hình "Hôm nay mình chơi đủ rồi!" khi về trang chủ, bấm **+10 phút** để mở lại) và **"Kết thúc nghỉ mắt"** khi em đang nghỉ.
 - Thanh trượt: **mỗi lượt chơi** (5–30 phút), **thời gian nghỉ mắt** (2–10 phút), **tối đa mỗi ngày** (10–60 phút), **Mèo nhắc khi không chạm màn hình** (10–120 giây, mặc định 1 phút; trò tạm dừng sau gấp 3 lần).
 - Công tắc **Cuối tuần không làm đứt chuỗi ngày**.
+
+![Số trò mỗi ngày và thứ tự (Khởi động hoặc Ngẫu nhiên).](img/32b-teacher-daily.png)
+*Số trò mỗi ngày và thứ tự (Khởi động hoặc Ngẫu nhiên).*
 
 ![Thời gian chơi: thêm giờ cho em đang chơi và các thanh trượt.](img/32-teacher-time.png)
 *Thời gian chơi: thêm giờ cho em đang chơi và các thanh trượt.*
@@ -355,14 +377,14 @@ Chọn **giọng đọc** của Mèo cho mọi câu hỏi, lời khen và lời 
 
 > ⚠️ Dữ liệu chỉ nằm trên **thiết bị này**; không có máy chủ. Hãy **tải bản sao lưu mỗi tuần** hoặc trước khi xoá dữ liệu trình duyệt, đổi thiết bị hay xoá một bạn.
 
-## 13. Giọng nói của Mèo (thu âm)
+## 14. Giọng nói của Mèo (thu âm)
 
 Giọng đọc được ghép từ các **đoạn thu ngắn dùng lại được** (số 0–20, phép tính, lời khen, lời nhắc, các bước hướng dẫn...), do **giáo viên thu âm** để giọng quen thuộc và đúng dấu thanh. Danh sách đầy đủ, với đúng lời cần đọc, ở tệp **`docs/AUDIO_SCRIPT.md`**.
 
 1. Thu từng đoạn trong kịch bản, lưu thành `<mã>.mp3` (ví dụ `n7.mp3`) vào thư mục **`public/audio/teacher/`**.
-2. Build lại ứng dụng và đưa lên (hoặc chạy lại bản Windows). Trong Khu vực giáo viên, tab **Giọng nói**, chọn **Giọng giáo viên** (hoặc để mặc định: khi đủ 132 đoạn, giọng giáo viên được dùng tự động). Đoạn nào chưa thu thì ứng dụng **đọc bằng giọng tiếng Việt của thiết bị** (nếu có), hoặc im lặng và chỉ hiện chữ.
+2. Build lại ứng dụng và đưa lên (hoặc chạy lại bản Windows). Trong Khu vực giáo viên, tab **Giọng nói**, chọn **Giọng giáo viên** (hoặc để mặc định: khi đủ 161 đoạn, giọng giáo viên được dùng tự động). Đoạn nào chưa thu thì ứng dụng **đọc bằng giọng tiếng Việt của thiết bị** (nếu có), hoặc im lặng và chỉ hiện chữ.
 
-## 14. Gặp sự cố?
+## 15. Gặp sự cố?
 
 | Hiện tượng | Cách xử lý |
 | --- | --- |

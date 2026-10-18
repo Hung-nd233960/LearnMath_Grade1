@@ -110,10 +110,10 @@ check("offline: the fonts are loaded", await ev(`document.fonts.ready.then(() =>
 check("offline: Baloo 2 and Be Vietnam Pro are really used", await ev(`document.fonts.check('800 24px "Baloo 2"', 'Chào') && document.fonts.check('400 16px "Be Vietnam Pro"', 'Chào')`));
 await click(".kid[data-profile]");
 check("offline: a child can go to the home screen", await waitFor(`!!document.querySelector('.screen-home') && document.querySelectorAll('.tile').length === 6`, 4000));
-await click(".tile[data-game=split]");
+await click(".tile[data-state=next]"); // the daily plan opens one game at a time: take the one that is open
 check("offline: a game opens (the guide shows the first time)", await waitFor(`!!document.querySelector('.guide-card')`, 4000));
 await click(".guide-card .btn-primary");
-check("offline: the question is drawn", await ev(`!!document.querySelector('.sp') && document.querySelectorAll('.sp img').length > 0`));
+check("offline: the question is drawn", await ev(`!!document.querySelector('.screen-play .game-body > *') && document.querySelectorAll('.screen-play .game-body img, .screen-play .game-body svg').length > 0`));
 await shot("pwa-offline-game");
 await send("Page.navigate", { url: URL_BASE + "#/home" });
 await sleep(800);
