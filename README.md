@@ -5,6 +5,7 @@ A math game web app for Vietnamese grade 1 children (6 years old). It has six mi
 - **Runs:** in the browser, landscape iPad or computer.
 - **Saves:** on the device only. There is no account and no server.
 - **Offline:** works once installed.
+- **Live:** [learn-math-grade1.vercel.app](https://learn-math-grade1.vercel.app/) · user guide: [learn-math-grade1.vercel.app/guide/](https://learn-math-grade1.vercel.app/guide/)
 
 ```bash
 npm install
@@ -24,7 +25,7 @@ The game and the user guide go to **GitHub Pages**, the Windows app to a **GitHu
    - the guide at `https://<user>.github.io/<repo>/guide/`
 3. For the Windows app, push a version tag (`git tag v0.1.0 && git push origin v0.1.0`). The installer and a portable `.exe` appear under **Releases**.
 
-Works on any other static host too: upload the `dist/` folder (`npm run build`), plus `docs/guide/` as `dist/guide/`. See [THIRD_PARTY.md](THIRD_PARTY.md) for the licences of the pictures and fonts.
+The game is also on **Vercel** (`vercel.json`): every push to `main` redeploys it, with the user guide at `/guide/`. It works on any other static host too: upload the `dist/` folder (`npm run build`), plus `docs/guide/` as `dist/guide/`. See [THIRD_PARTY.md](THIRD_PARTY.md) for the licences of the pictures and fonts.
 
 ## Documents
 
