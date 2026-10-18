@@ -14,7 +14,10 @@
     "audio:script": "node scripts/audio-script.ts",
     "ui:check": "node scripts/ui-check.mjs",
     "pwa:check": "node scripts/pwa-check.mjs",
-    "desktop:build": "npm run build && tauri build"
+    "desktop:build": "npm run build && tauri build",
+    "desktop:build:16x9": "npm run build && tauri build --config src-tauri/tauri.16x9.conf.json",
+    "desktop:build:iphone15": "npm run build && tauri build --config src-tauri/tauri.iphone15.conf.json",
+    "desktop:build:all": "npm run build && tauri build && tauri build --config src-tauri/tauri.16x9.conf.json && tauri build --config src-tauri/tauri.iphone15.conf.json"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.12.3",

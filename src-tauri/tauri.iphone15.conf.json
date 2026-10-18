@@ -1,0 +1,17 @@
+{
+  "productName": "Tham tu Toan hoc iPhone15",
+  "identifier": "vn.thamtutoanhoc.app.phone",
+  "app": {
+    "windows": [
+      {
+        "title": "Thám tử Toán học Tí hon (iPhone 15)",
+        "width": 852,
+        "height": 393,
+        "minWidth": 640,
+        "minHeight": 300,
+        "resizable": true,
+        "center": true
+      }
+    ]
+  }
+}
