@@ -5,7 +5,7 @@
 import type { GameId, Position } from "../../core/types.ts";
 import { say, type Speech } from "../../i18n/speech.ts";
 import type { Dir } from "../../games/robot/logic.ts";
-import type { ScaleAnswer } from "../../games/scale/logic.ts";
+import type { BalanceAnswer } from "../../games/scale/logic.ts";
 
 export interface DemoHelpers {
   /** Mèo says it: caption on screen + voice. Resolves when it has been read (never faster than a child can follow). */
@@ -41,8 +41,8 @@ const robot: DemoScript<unknown, Dir[]> = {
   },
 };
 
-const scale: DemoScript<unknown, ScaleAnswer> = {
-  pos: { tier: 2, step: 1 },
+const scale: DemoScript<unknown, BalanceAnswer> = {
+  pos: { tier: 1, step: 1 },
   seed: 2, // two kinds of fruit and a weight table: one apple and one grape make the left pan as heavy as the right
   async play(h, _q, answer) {
     await h.say(say("demo_scale_key"));

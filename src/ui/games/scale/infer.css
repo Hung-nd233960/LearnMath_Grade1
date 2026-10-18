@@ -1,0 +1,14 @@
+/* Thăng bằng, Vòng 3 (infer): clue scales on the left, the big scale drawn at 76% on the right. */
+.in-clues { position: absolute; left: 40px; top: 176px; width: 320px; display: flex; flex-direction: column; gap: 14px; }
+.in-clues .cp-mini { background: var(--scale-bg); }
+.in-items { position: absolute; left: 4px; right: 4px; bottom: 32px; display: flex; flex-wrap: wrap-reverse; justify-content: center; align-content: flex-start; }
+
+/* The big scale keeps its own coordinates (the 1180-wide Vòng 1 layout) and is scaled down; only its pieces take clicks. */
+.in-scale { position: absolute; left: 237px; top: 45px; width: 1180px; height: 820px; transform: scale(0.76); transform-origin: 0 0; pointer-events: none; }
+.in-scale .sc > * { pointer-events: auto; }
+.in-scale .sc-tray { left: 215px; right: 55px; top: 610px; height: 180px; }
+.in-scale .sc-pan.L .sc-fz { justify-content: center; }
+
+/* A question mark on the empty pan; it goes away once something is on it. */
+.in-qmark { position: absolute; left: 50%; top: 92px; width: 70px; height: 70px; margin-left: -35px; border-radius: 50%; display: grid; place-items: center; font: 800 52px/1 "Baloo 2"; color: var(--red); background: #fff; border: 5px dashed var(--red); }
+.sc-pan.R:has([data-item]) .in-qmark { display: none; }

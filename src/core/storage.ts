@@ -3,13 +3,14 @@
 // Safari may evict localStorage after 7 days unless the app is installed to the home
 // screen — the teacher area therefore offers export/import of this same document.
 import { dayKey } from "./dates.ts";
+import { START_POSITION, fromIndex, toIndex } from "./difficulty.ts";
 import { createProfile, repairProfile, type Profile } from "./profiles.ts";
 import { defaultSettings, sanitizeMix, type Settings } from "./settings.ts";
 import { DEFAULT_LIMITS } from "./config.ts";
 import { defaultLimits, type Limits } from "./screentime.ts";
 
 export const STORAGE_KEY = "ttth.data";
-export const SCHEMA = 1;
+export const SCHEMA = 2;
 const EXPORT_APP = "tham-tu-toan-hoc";
 
 export interface AppData {
@@ -54,16 +55,31 @@ function upgradeIdle(l: Limits): Limits {
   return l.idleNudgeSec === 20 && l.idlePauseSec === 60 ? { ...l, idleNudgeSec: DEFAULT_LIMITS.idleNudgeSec, idlePauseSec: DEFAULT_LIMITS.idlePauseSec } : l;
 }
 
+/**
+ * Schema 1 → 2 (feedback round 2): "So sánh cân" was folded into "Thăng bằng" and "Quy luật" was added.
+ * repairProfile already drops `games.compare` (it only keeps known games) and gives `games.pattern` a fresh start;
+ * the history keeps its old "compare" records. The scale's rounds changed meaning (Vòng 2/3 are now compare and inference),
+ * so a child saved beyond Vòng 1 step 2 restarts from there rather than in content they have never seen.
+ */
+function upgradeFrom1(p: Profile): Profile {
+  const scale = p.games.scale;
+  if (toIndex(scale.seed) <= toIndex(fromIndex(2))) return p;
+  return { ...p, games: { ...p.games, scale: { ...scale, seed: { ...START_POSITION, step: 2 } } } };
+}
+
 /** Turn anything parsed from storage or an import file into valid AppData (or null). */
 export function migrate(raw: unknown, now = Date.now()): AppData | null {
   if (!raw || typeof raw !== "object") return null;
-  const r = raw as Partial<AppData> & { schema?: number };
-  if (r.schema !== SCHEMA) return null; // future schemas: add upgrade steps here
+  const r = raw as Partial<Omit<AppData, "schema">> & { schema?: number };
+  if (r.schema !== 1 && r.schema !== SCHEMA) return null; // older schemas get upgrade steps below; a newer one is refused
   const today = dayKey(new Date(now));
   const base = emptyData();
   const profiles: Record<string, Profile> = {};
   for (const [id, p] of Object.entries(r.profiles ?? {})) {
-    if (p && typeof p === "object") profiles[id] = repairProfile({ ...(p as Profile), id }, now, today);
+    if (p && typeof p === "object") {
+      const repaired = repairProfile({ ...(p as Profile), id }, now, today);
+      profiles[id] = r.schema === 1 ? upgradeFrom1(repaired) : repaired;
+    }
   }
   const order = (Array.isArray(r.order) ? r.order : []).filter((id) => id in profiles);
   for (const id of Object.keys(profiles)) if (!order.includes(id)) order.push(id);

@@ -140,7 +140,10 @@
 The teachers' second round (2026-10-18). Each item has a detailed task file in [docs/tasks/](tasks/README.md); do them in order. Where a task file disagrees with CLAUDE.md, the task file wins until task 10 updates CLAUDE.md.
 - [x] 00 Tidy the feedback into `docs/feedbacks/`, move the images ([task](tasks/00-feedback-docs.md))
 - [x] 01 Giải mã hình: rename, several rows in Vòng 1, distinct values ([task](tasks/01-giai-ma-hinh.md))
-- [ ] 02 Thăng bằng: merge Cái cân + So sánh cân, inference in Vòng 3, `SCHEMA` 2 ([task](tasks/02-thang-bang.md))
+- [x] 02 Thăng bằng: merge Cái cân + So sánh cân, inference in Vòng 3, `SCHEMA` 2 ([task](tasks/02-thang-bang.md))
+  - Game id `scale` kept. `games/scale/{balance,compare,infer}.ts` hold the three kinds (`kind` tag); `logic.ts` dispatches. Views: `ui/games/scale.ts` picks `scale/{balance,compare,infer}.ts`; the big scale is one `mountBalance()` shared by Vòng 1 and the inference (drawn at 76%, left pan locked).
+  - `compare` is gone from `GAME_IDS`; `pattern` is in, as a stub with `ready: false` (task 03). `SCHEMA` is 2: `games.compare` is dropped, history kept, a scale seed past Vòng 1 step 2 restarts there. Mango emoji added (Fluent, MIT).
+  - Guide steps for the scale were re-worded (`guide_scale_1…4`), so the voice packs need those clips regenerated (task 09). `scripts/guide-shots.mjs` and `guide-content.mjs` still mention `compare` (task 10).
 - [ ] 03 Quy luật: new game `pattern` ([task](tasks/03-quy-luat.md))
 - [ ] 04 Daily plan: games per day, one at a time, replay for no credit ([task](tasks/04-daily-plan.md))
 - [ ] 05 Chia quả: rename, "cần thêm" and "bằng nhau" modes ([task](tasks/05-chia-qua.md))

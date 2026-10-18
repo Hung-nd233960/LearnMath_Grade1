@@ -2,7 +2,6 @@
 // `ready` flag is set in src/games/index.ts. Add each view as its step in docs/BUILD_PLAN.md is built.
 import type { GameId } from "../../core/types.ts";
 import { createBasketView } from "./basket.ts";
-import { createCompareView } from "./compare.ts";
 import { createEquationsView } from "./equations.ts";
 import { createRobotView } from "./robot.ts";
 import { createScaleView } from "./scale.ts";
@@ -11,7 +10,6 @@ import type { ViewFactory } from "./types.ts";
 
 export const VIEWS: Partial<Record<GameId, ViewFactory>> = {
   basket: createBasketView,
-  compare: createCompareView,
   robot: createRobotView,
   scale: createScaleView,
   equations: createEquationsView,

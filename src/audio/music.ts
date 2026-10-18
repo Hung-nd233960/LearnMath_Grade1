@@ -76,7 +76,7 @@ export const TRACKS: Record<TrackId, Track> = {
   // Mấy và mấy: a cheerful waltz in three
   split: { id: "split", bpm: 112, beats: 3, root: 57, scale: MAJOR_PENT, progression: [0, 3, 2, 4], rhythms: [[0, 1, 1.5, 2], [0, 0.5, 1, 2], [0, 1, 2, 2.5], [0, 1.5, 2, 2.5]], rest: 0.1, maxLen: 1.5, lead: "box", comp: "strum", strumAt: [1, 2], bass: [0], perc: "shaker", sparkleAt: [1.5, 2.5], seed: 67 },
   // So sánh cân: easy-going, bells and a gentle bounce
-  compare: { id: "compare", bpm: 88, beats: 4, root: 58, scale: MAJOR_PENT, progression: [0, 2, 4, 3], rhythms: [[0, 1, 2, 3], [0, 1.5, 2.5, 3], [0, 0.5, 1, 2, 3], [0.5, 1.5, 2, 3.5]], rest: 0.12, maxLen: 2, lead: "bell", comp: "strum", strumAt: [1, 3], bass: [0, 2], perc: "shaker", sparkleAt: [2.5, 3.5], seed: 79 },
+  pattern: { id: "pattern", bpm: 88, beats: 4, root: 58, scale: MAJOR_PENT, progression: [0, 2, 4, 3], rhythms: [[0, 1, 2, 3], [0, 1.5, 2.5, 3], [0, 0.5, 1, 2, 3], [0.5, 1.5, 2, 3.5]], rest: 0.12, maxLen: 2, lead: "bell", comp: "strum", strumAt: [1, 3], bass: [0, 2], perc: "shaker", sparkleAt: [2.5, 3.5], seed: 79 },
 };
 
 export const TRACK_IDS = Object.keys(TRACKS) as TrackId[];

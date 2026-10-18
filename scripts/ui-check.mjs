@@ -3,7 +3,7 @@
 //   1) npm run dev            (in another terminal)
 //   2) npm run ui:check       (env: APP_URL, CHROME, OUT for screenshots; defaults below)
 // It checks the shared UI through the dev-only gallery at #/kit, then profiles + home (step 2),
-// then plays whole sets of Mấy và mấy (step 3), Giải mã hình (step 4), Giỏ trái cây (step 5), Cái cân (step 6), Rô-bốt (step 7), So sánh cân (step 8), screen time (step 9), the teacher area (step 10), the guide (step 11) Mèo's worked examples, voice packs, sound mixer and music (step 13).
+// then plays whole sets of Mấy và mấy (step 3), Giải mã hình (step 4), Giỏ trái cây (step 5), Thăng bằng (steps 6 and 8), Rô-bốt (step 7), screen time (step 9), the teacher area (step 10), the guide (step 11) Mèo's worked examples, voice packs, sound mixer and music (step 13).
 // Extend it with the checks for each screen you build (BUILD_PLAN.md "Done when" lines).
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -226,7 +226,7 @@ await click(`.kid[data-profile="${binhId}"]`);
 check("tapping a child opens home as that child", (await ev(`location.hash`)) === "#/home" && (await ev(`document.querySelector('#greeting').textContent`)) === "Chào thám tử nhí Bình!" && (await ev(`__app.store.data.activeId`)) === binhId);
 const chips = async () => (await ev(`[...document.querySelectorAll('.chip')].map(c => c.textContent.trim()).join('|')`)).replace(/còn \d+ phút/, 'còn N phút');
 check("home shows that child's stars, streak and time", (await chips()) === "4 sao|1 ngày liền|còn N phút", await chips());
-check("home: six tiles; all six games are playable", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 0 && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Cái cân,Rô-bốt,Giỏ trái cây,Giải mã hình,Mấy và mấy,So sánh cân'`));
+check("home: six tiles; five games are playable and Quy luật says it is coming soon", await ev(`document.querySelectorAll('.tile').length === 6 && document.querySelectorAll('.tile.soon').length === 1 && document.querySelector('.tile[data-game=pattern]').classList.contains('soon') && !document.querySelector('.tile[data-game=split]').classList.contains('soon') && [...document.querySelectorAll('.tile h3')].map(h => h.textContent).join(',') === 'Thăng bằng,Rô-bốt,Giỏ trái cây,Giải mã hình,Mấy và mấy,Quy luật'`));
 check("home: week strip has today marked and one starred day", await ev(`document.querySelectorAll('.week span').length === 7 && document.querySelectorAll('.week .is-today').length === 1 && document.querySelectorAll('.week .ok').length === 1`));
 check("home: padlock present, speaker works", await ev(`!!document.querySelector('.gate-btn') && !!document.querySelector('.speaker')`));
 await shot("ui-5-home");
@@ -664,7 +664,35 @@ check("Vòng 2 panel: the number, and the bags with the ones underneath", (await
 await shot("ui-8-basket-panel-t2");
 await click(".speaker");
 
-// ---------- 9. Cái cân (step 6) ----------
+// ---------- 9. Thăng bằng: Vòng 1 (balance), and the Vòng 2 questions a set reaches (compare) ----------
+const readCompare = () => ev(`(() => ({
+  mode: document.querySelector('.cp').dataset.mode, tier: document.querySelector('.tier-badge').textContent,
+  items: [...document.querySelectorAll('.cp-choice')].map(c => c.dataset.k),
+  scales: [...document.querySelectorAll('.cp-mini')].map(m => ({ l: m.dataset.left, r: m.dataset.right, h: m.dataset.heavier })) }))()`);
+/** Lightest → heaviest, worked out from the scales on screen (follow the chain A<B, B<C …). */
+const truthOf = (q) => {
+  const boxes = [...new Set(q.scales.flatMap((x) => [x.l, x.r]))];
+  const beats = new Set();
+  for (const x of q.scales) beats.add(x.h === "left" ? `${x.l}>${x.r}` : `${x.r}>${x.l}`);
+  for (let round = 0; round < boxes.length; round++) for (const a of boxes) for (const b of boxes) for (const c of boxes) if (beats.has(`${a}>${b}`) && beats.has(`${b}>${c}`)) beats.add(`${a}>${c}`);
+  const wins = (b) => boxes.filter((o) => beats.has(`${b}>${o}`)).length;
+  return [...boxes].sort((a, b) => wins(a) - wins(b));
+};
+const pickBox = (k) => click(`.cp-choice[data-k="${k}"]`);
+const placeInOrder = async (order) => { for (const k of order) await pickBox(k); };
+/** Answer like a child; with wrong = true give an answer that is certainly wrong. */
+const answerCompare = async (q, { wrong = false } = {}) => {
+  const truth = truthOf(q);
+  if (q.mode === "order") {
+    await placeInOrder(wrong ? [...truth].reverse() : truth);
+    await click("#xong");
+  } else {
+    const target = q.mode === "heaviest" ? truth[truth.length - 1] : truth[0];
+    await pickBox(wrong ? q.items.find((k) => k !== target) : target);
+  }
+};
+
+let cq;
 const readScale = () => ev(`(() => {
   const w = (sel) => [...document.querySelectorAll(sel)].map(i => Number(i.dataset.w));
   return { tier: document.querySelector('.tier-badge').textContent, left: w('.sc-pan.L [data-fixed]'), right: w('.sc-pan.R [data-fixed]'),
@@ -683,7 +711,8 @@ const solveScale = (q) => {
   return null;
 };
 const putOn = async (kinds, side) => { for (const k of kinds) { await click(`.sc-tray .sc-fruit[data-k="${k}"]`); await click(`.sc-pan.${side}`); } };
-const scaleReady = (idx) => waitFor(`!document.querySelector('.overlay') && !!document.querySelector('.sc-beam') && document.querySelectorAll('.dots .done').length === ${idx}`);
+const scaleReady = (idx) => waitFor(`!document.querySelector('.overlay') && !!(document.querySelector('.sc-beam') || document.querySelector('.cp')) && document.querySelectorAll('.dots .done').length === ${idx} && !document.querySelector('.cp-choice.right, .cp-choice.wrong, .cp-slot.right, .cp-slot.wrong')`);
+const kindNow = () => ev(`document.querySelector('.cp') ? 'compare' : 'balance'`);
 
 await ev(`location.hash = '#/home'`); await sleep(400);
 check("home: the scale tile is playable", await ev(`!document.querySelector('.tile[data-game=scale]').classList.contains('soon')`));
@@ -721,23 +750,34 @@ check("fruit can be dragged from the tray onto a pan", (await ev(`document.query
 await click(`.sc-pan.${plan.side} [data-item]:not([data-fixed])`); await click(".sc-tray"); // back to the tray
 
 // --- set 1: all correct ---
-const scTiers = [];
+const scTiers = [], scKinds = [];
 for (let i = 0; i < 5; i++) {
-  sq = await readScale();
-  scTiers.push(sq.tier);
-  plan = solveScale(sq);
-  if (sq.tier !== "Vòng 1") {
-    check(`scale question ${i + 1} (${sq.tier}): weight table shown and the padlock holds the scale level`, sq.keyRows >= 2 && (await beamAngle()) === 0 && (await ev(`!document.querySelector('.sc-lock').classList.contains('off')`)));
+  const kind = await kindNow();
+  scKinds.push(kind);
+  if (kind === "compare") {
+    cq = await readCompare();
+    scTiers.push(cq.tier);
+    check(`scale question ${i + 1} (${cq.tier}, ${cq.mode}): the chain of scales gives one order`, truthOf(cq).length === cq.items.length);
+    await answerCompare(cq);
+    if (cq.mode === "order") check("scale: boxes placed in the slots, and the placed boxes are greyed out below", (await ev(`document.querySelectorAll('.cp-slot[data-k]').length`)) === cq.items.length && (await ev(`document.querySelectorAll('.cp-choice.used').length`)) === cq.items.length);
+  } else {
+    sq = await readScale();
+    scTiers.push(sq.tier);
+    plan = solveScale(sq);
+    if (sq.keyRows >= 2) {
+      check(`scale question ${i + 1} (${sq.tier}): weight table shown and the padlock holds the scale level`, (await beamAngle()) === 0 && (await ev(`!document.querySelector('.sc-lock').classList.contains('off')`)));
+    }
+    await putOn(plan.pick, plan.side);
+    if (sq.keyRows === 0) check(`scale question ${i + 1}: the sign shows = when balanced`, (await ev(`document.querySelector('.sc-sign').textContent`)) === "=" && (await ev(`document.querySelector('.sc-sign').classList.contains('eq')`)));
+    else check(`scale question ${i + 1}: still held level before Xong (the child must work it out)`, (await beamAngle()) === 0);
+    await click("#xong");
   }
-  await putOn(plan.pick, plan.side);
-  if (sq.tier === "Vòng 1") check(`scale question ${i + 1}: the sign shows = when balanced`, (await ev(`document.querySelector('.sc-sign').textContent`)) === "=" && (await ev(`document.querySelector('.sc-sign').classList.contains('eq')`)));
-  else check(`scale question ${i + 1}: still held level before Xong (the child must work it out)`, (await beamAngle()) === 0);
-  await click("#xong");
-  check(`scale set, question ${i + 1}: balanced is praised`, (await overlayKind()) === "correct");
+  check(`scale set, question ${i + 1} (${kind}): the right answer is praised`, (await overlayKind()) === "correct");
   if (i === 1) await shot("ui-9-scale-feedback");
   await closeOverlay();
   if (i < 4) await scaleReady(i + 1);
 }
+check("scale: the set starts with a balance question in Vòng 1 and goes on with compare questions in Vòng 2", scKinds[0] === "balance" && scKinds.slice(1).every((k) => k === "compare"), scKinds.join());
 check("scale: starts at Vòng 1 and rises", scTiers[0] === "Vòng 1" && scTiers[1] === "Vòng 2", scTiers.join());
 check("scale: star screen, 3 stars; saved", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await ev(`document.querySelectorAll('.star-row img:not(.dim)').length`)) === 3 && (await profileOf(anId)).games.scale.sets === 1);
 await click("#back-home");
@@ -756,20 +796,34 @@ await click("#xong");
 check("fixed after the retry: praised", (await overlayKind()) === "correct");
 await closeOverlay();
 await scaleReady(1);
-sq = await readScale();
-await click("#xong");
-await overlayKind(); await closeOverlay();
-if (sq.tier !== "Vòng 1") check("scale: after a wrong try the padlock is back (level again)", (await beamAngle()) === 0 && (await ev(`!document.querySelector('.sc-lock').classList.contains('off')`)));
-await click("#xong");
-check("scale: out of tries, the answer is revealed", (await overlayKind()) === "reveal");
-const rw = await scaleWeights();
-check("scale: the reveal balances the pans", rw.L === rw.R, JSON.stringify(rw));
+if ((await kindNow()) === "balance") {
+  sq = await readScale();
+  await click("#xong");
+  await overlayKind(); await closeOverlay();
+  if (sq.keyRows >= 2) check("scale: after a wrong try the padlock is back (level again)", (await beamAngle()) === 0 && (await ev(`!document.querySelector('.sc-lock').classList.contains('off')`)));
+  await click("#xong");
+  check("scale: out of tries, the answer is revealed", (await overlayKind()) === "reveal");
+  const rw = await scaleWeights();
+  check("scale: the reveal balances the pans", rw.L === rw.R, JSON.stringify(rw));
+} else {
+  cq = await readCompare();
+  await answerCompare(cq, { wrong: true });
+  check("a wrong compare answer: retry card with the hint", (await overlayKind()) === "retry" && /cân/.test(await ev(`document.querySelector('.overlay p').textContent`)));
+  await closeOverlay();
+  check("after a wrong try the answer is editable again", await ev(`!document.querySelector('.cp-choice.wrong, .cp-slot.wrong') && !document.querySelector('.overlay')`));
+  if (cq.mode === "order") await placeInOrder([...truthOf(cq)].reverse());
+  await answerCompare(cq, { wrong: true }).catch(() => {});
+  check("wrong twice: the answer is revealed", (await overlayKind()) === "reveal");
+  check("reveal marks the right box / fills the slots in the right order", cq.mode === "order"
+    ? (await ev(`[...document.querySelectorAll('.cp-slot[data-k]')].map(s => s.dataset.k).join()`)) === truthOf(cq).join()
+    : (await ev(`document.querySelector('.cp-choice.right')?.dataset.k`)) === (cq.mode === "heaviest" ? truthOf(cq).slice(-1)[0] : truthOf(cq)[0]));
+}
 await closeOverlay();
 await ev(`location.hash = '#/home'`); await sleep(300);
 
-// --- dev route: Vòng 3 has three kinds in the weight table; 'Giải' balances ---
-await ev(`__app.go('dev/scale/3/1/6')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 3')`); await sleep(300);
-check("dev: Vòng 3 weight table lists grapes, apple and watermelon", (await ev(`document.querySelectorAll('.sc-key .row').length`)) === 3);
+// --- dev route: Vòng 1 step 2 has three kinds in the weight table; 'Giải' balances ---
+await ev(`__app.go('dev/scale/1/2/6')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 1')`); await sleep(300);
+check("dev: Vòng 1 step 2 weight table lists grapes, apple and watermelon", (await ev(`document.querySelectorAll('.sc-key .row').length`)) === 3);
 await click("#dev-solve");
 await sleep(2600);
 const dw = await scaleWeights();
@@ -914,119 +968,94 @@ check("dev: Vòng 2 level shows walls and bricks drawn from the question", dq.si
 await click("#dev-solve");
 check("dev: 'Giải' walks the shortest route to the flag", await waitFor(`document.querySelector('#bot').dataset.rc === '${dq.goal}' && document.querySelectorAll('.rb-slot.on').length === ${routeOf(dq).length}`, 20000));
 
-// ---------- 11. So sánh cân (step 8) ----------
-const readCompare = () => ev(`(() => ({
-  mode: document.querySelector('.cp').dataset.mode, tier: document.querySelector('.tier-badge').textContent,
-  items: [...document.querySelectorAll('.cp-choice')].map(c => c.dataset.k),
-  scales: [...document.querySelectorAll('.cp-mini')].map(m => ({ l: m.dataset.left, r: m.dataset.right, h: m.dataset.heavier })) }))()`);
-/** Lightest → heaviest, worked out from the scales on screen (follow the chain A<B, B<C …). */
-const truthOf = (q) => {
-  const boxes = [...new Set(q.scales.flatMap((x) => [x.l, x.r]))];
-  const beats = new Set();
-  for (const x of q.scales) beats.add(x.h === "left" ? `${x.l}>${x.r}` : `${x.r}>${x.l}`);
-  for (let round = 0; round < boxes.length; round++) for (const a of boxes) for (const b of boxes) for (const c of boxes) if (beats.has(`${a}>${b}`) && beats.has(`${b}>${c}`)) beats.add(`${a}>${c}`);
-  const wins = (b) => boxes.filter((o) => beats.has(`${b}>${o}`)).length;
-  return [...boxes].sort((a, b) => wins(a) - wins(b));
-};
-const pickBox = (k) => click(`.cp-choice[data-k="${k}"]`);
-const placeInOrder = async (order) => { for (const k of order) await pickBox(k); };
-/** Answer like a child; with wrong = true give an answer that is certainly wrong. */
-const answerCompare = async (q, { wrong = false } = {}) => {
-  const truth = truthOf(q);
-  if (q.mode === "order") {
-    await placeInOrder(wrong ? [...truth].reverse() : truth);
-    await click("#xong");
-  } else {
-    const target = q.mode === "heaviest" ? truth[truth.length - 1] : truth[0];
-    await pickBox(wrong ? q.items.find((k) => k !== target) : target);
-  }
-};
-const cpReady = (idx) => waitFor(`!document.querySelector('.overlay') && !!document.querySelector('.cp') && document.querySelectorAll('.dots .done').length === ${idx} && !document.querySelector('.cp-choice.right, .cp-choice.wrong, .cp-slot.right, .cp-slot.wrong')`);
-
-await ev(`location.hash = '#/home'`); await sleep(400);
-await click(".tile[data-game=compare]");
-await cpReady(0);
-await shot("ui-11-compare-first");
-let cq = await readCompare();
-check("compare Vòng 1: 3 boxes, 2 small scales, the heavier box always on the right", cq.tier === "Vòng 1" && cq.items.length === 3 && cq.scales.length === 2 && cq.scales.every((x) => x.h === "right"));
-check("compare: the beam of each small scale tips toward the heavier box", await ev(`[...document.querySelectorAll('.cp-mini')].every(m => { const deg = parseFloat(m.querySelector('.cp-mbeam').style.transform.match(/-?[\\d.]+/)[0]); return m.dataset.heavier === 'right' ? deg > 0 : deg < 0; })`));
-check("compare: Vòng 1 asks for the heaviest or the lightest", ["heaviest", "lightest"].includes(cq.mode));
-
-// --- set 1: all correct ---
-const cpModes = [];
-for (let i = 0; i < 5; i++) {
-  cq = await readCompare();
-  cpModes.push(cq.mode);
-  check(`compare question ${i + 1} (${cq.tier}, ${cq.mode}): the chain of scales gives one order`, truthOf(cq).length === cq.items.length);
-  await answerCompare(cq);
-  if (cq.mode === "order") check("compare: boxes placed in the slots, and the placed boxes are greyed out below", (await ev(`document.querySelectorAll('.cp-slot[data-k]').length`)) === cq.items.length && (await ev(`document.querySelectorAll('.cp-choice.used').length`)) === cq.items.length);
-  check(`compare set, question ${i + 1}: right answer is praised`, (await overlayKind()) === "correct");
-  if (i === 1) await shot("ui-11-compare-feedback");
-  await closeOverlay();
-  if (i < 4) await cpReady(i + 1);
-}
-check("compare: star screen, saved", (await waitFor(`!!document.querySelector('.screen-stars')`)) && (await profileOf(anId)).games.compare.sets === 1);
-await click("#back-home");
-
-// --- set 2: wrong then right; wrong twice → reveal ---
-await click(".tile[data-game=compare]");
-await cpReady(0);
-cq = await readCompare();
-await answerCompare(cq, { wrong: true });
-check("a wrong answer: retry card with the hint", (await overlayKind()) === "retry" && /cân/.test(await ev(`document.querySelector('.overlay p').textContent`)));
-await closeOverlay();
-check("after a wrong try the answer is editable again", await ev(`!document.querySelector('.cp-choice.wrong, .cp-slot.wrong') && !document.querySelector('.overlay')`));
-if (cq.mode === "order") await placeInOrder(truthOf(cq)); // reversed order: every slot was wrong, so all were cleared
-await answerCompare(cq).catch(() => {});
-await overlayKind();
-await closeOverlay();
-await cpReady(1);
-cq = await readCompare();
-await answerCompare(cq, { wrong: true });
-await overlayKind(); await closeOverlay();
-if (cq.mode === "order") await placeInOrder([...truthOf(cq)].reverse());
-await answerCompare(cq, { wrong: true }).catch(() => {});
-check("wrong twice: the answer is revealed", (await overlayKind()) === "reveal");
-check("reveal marks the right box / fills the slots in the right order", cq.mode === "order"
-  ? (await ev(`[...document.querySelectorAll('.cp-slot[data-k]')].map(s => s.dataset.k).join()`)) === truthOf(cq).join()
-  : (await ev(`document.querySelector('.cp-choice.right')?.dataset.k`)) === (cq.mode === "heaviest" ? truthOf(cq).slice(-1)[0] : truthOf(cq)[0]));
-await closeOverlay();
-await ev(`location.hash = '#/home'`); await sleep(300);
-
-// --- dev route: ordering details (Vòng 2, step 0 is always "order") ---
-await ev(`__app.go('dev/compare/2/0/4')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 2')`); await sleep(300);
+// ---------- 11. Thăng bằng: Vòng 2 (compare) and Vòng 3 (inference) on the dev route ----------
+// (a whole set reaches Vòng 2 from section 9; Vòng 3 needs several good sets, so it is tested here)
+const devAt = async (route, round) => { await ev(`__app.go('${route}')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('${round}')`); await sleep(300); };
+await devAt('dev/scale/2/2/4', 'Vòng 2');
 let cdq = await readCompare();
-check("dev: Vòng 2 has 4 boxes and 3 scales, sides can be flipped", cdq.mode === "order" && cdq.items.length === 4 && cdq.scales.length === 3);
-const dTruth = truthOf(cdq);
+check("dev: Vòng 2 step 2 puts 3–4 boxes in order, one small scale fewer than boxes", cdq.mode === "order" && [3, 4].includes(cdq.items.length) && cdq.scales.length === cdq.items.length - 1);
+const dTruth = truthOf(cdq), dn = dTruth.length;
 await click("#xong");
 await sleep(400);
-check("dev: Xong before all boxes are placed is a nudge, not an answer", (await ev(`document.querySelector('#dev-status').textContent.startsWith('compare')`)));
+check("dev: Xong before all boxes are placed is a nudge, not an answer", (await ev(`document.querySelector('#dev-status').textContent.startsWith('scale')`)));
 await pickBox(dTruth[0]); await pickBox(dTruth[1]);
 await click('.cp-slot[data-i="0"]');
 check("dev: tapping a placed box takes it out (the next ones shift left)", (await ev(`document.querySelectorAll('.cp-slot[data-k]').length`)) === 1 && (await ev(`document.querySelector('.cp-slot[data-i="0"]').dataset.k`)) === dTruth[1]);
 await click('.cp-slot[data-i="0"]');
-await placeInOrder([dTruth[0], dTruth[1], dTruth[3], dTruth[2]]); // last two swapped
+await placeInOrder([...dTruth.slice(0, dn - 2), dTruth[dn - 1], dTruth[dn - 2]]); // last two swapped
 await click("#xong");
 check("dev: last two swapped is judged wrong", await waitFor(`document.querySelector('#dev-status').textContent === '✘ wrongOrder'`));
 await sleep(1200);
-check("dev: after the wrong try the correct start of the row stays (2 of 4), the rest is cleared", (await ev(`document.querySelectorAll('.cp-slot[data-k]').length`)) === 2 && (await ev(`document.querySelector('.cp-slot[data-i="0"]').dataset.k`)) === dTruth[0]);
-await placeInOrder([dTruth[2], dTruth[3]]);
+check(`dev: after the wrong try the correct start of the row stays (${dn - 2} of ${dn}), the rest is cleared`, (await ev(`document.querySelectorAll('.cp-slot[data-k]').length`)) === dn - 2 && (await ev(`document.querySelector('.cp-slot[data-i="0"]').dataset.k`)) === dTruth[0]);
+await placeInOrder([dTruth[dn - 2], dTruth[dn - 1]]);
 await click("#xong");
 check("dev: finishing the row correctly is right", await waitFor(`document.querySelector('#dev-status').textContent === '✔ right'`));
-await ev(`__app.go('dev/compare/1/0/3')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 1')`); await sleep(300);
+await devAt('dev/scale/2/0/3', 'Vòng 2');
 cdq = await readCompare();
-const dt = truthOf(cdq), dTarget = cdq.mode === "heaviest" ? dt[dt.length - 1] : dt[0];
+check("dev: Vòng 2 step 0 has 3 boxes, 2 small scales with the heavier box on the right, and asks for the heaviest", cdq.items.length === 3 && cdq.scales.length === 2 && cdq.scales.every((x) => x.h === "right") && cdq.mode === "heaviest");
+check("dev: the beam of each small scale tips toward the heavier box", await ev(`[...document.querySelectorAll('.cp-mini')].every(m => { const deg = parseFloat(m.querySelector('.cp-mbeam').style.transform.match(/-?[\\d.]+/)[0]); return m.dataset.heavier === 'right' ? deg > 0 : deg < 0; })`));
+const dt = truthOf(cdq), dTarget = dt[dt.length - 1];
 await pickBox(cdq.items.find((k) => k !== dTarget));
 check("dev: a wrong box is marked red and judged wrong", await waitFor(`document.querySelector('#dev-status').textContent === '✘ wrongPick'`) && (await ev(`!!document.querySelector('.cp-choice.wrong')`)));
 await sleep(1200);
 await pickBox(dTarget);
 check("dev: the right box is judged right", await waitFor(`document.querySelector('#dev-status').textContent === '✔ right'`));
-await ev(`__app.go('dev/compare/3/1/9')`); await waitFor(`document.querySelector('#dev-status').textContent.includes('Vòng 3')`); await sleep(300);
+await devAt('dev/scale/2/1/9', 'Vòng 2');
 cdq = await readCompare();
-check("dev: Vòng 3 shows three scales (shuffled) and can still be solved from them", cdq.scales.length === 3 && truthOf(cdq).length === cdq.items.length);
+check("dev: Vòng 2 step 1 shows four boxes and three scales (sides can be flipped) and can be solved from them", cdq.items.length === 4 && cdq.scales.length === 3 && truthOf(cdq).length === 4 && ["heaviest", "lightest"].includes(cdq.mode));
 await click("#dev-solve");
 await sleep(2000);
 check("dev: 'Giải' shows the answer", (await ev(`document.querySelector('#dev-status').textContent`)) === "revealed");
+
+// --- Vòng 3: two level clue scales; fill the empty pan with cam ---
+const readInfer = () => ev(`(() => ({
+  clues: [...document.querySelectorAll('.in-clues .cp-mini')].map(m => ({ l: m.dataset.left.split(','), r: m.dataset.right.split(',') })),
+  asked: [...document.querySelectorAll('.sc-pan.L [data-fixed]')].map(i => i.dataset.k),
+  tray: document.querySelectorAll('.sc-tray [data-item]').length }))()`);
+/** Every answer that fits the clues, over every whole weight 1..10 (the unit, cam, weighs 1). */
+const inferAnswers = (q) => {
+  const kinds = [...new Set([...q.clues.flatMap((c) => [...c.l, ...c.r]), ...q.asked])].filter((k) => k !== "tangerine");
+  const w = { tangerine: 1 }, out = new Set();
+  const total = (items) => items.reduce((s, i) => s + w[i], 0);
+  const rec = (i) => {
+    if (i === kinds.length) { if (q.clues.every((c) => total(c.l) === total(c.r))) out.add(total(q.asked)); return; }
+    for (let x = 1; x <= 10; x++) { w[kinds[i]] = x; rec(i + 1); }
+  };
+  rec(0);
+  return out;
+};
+const putCam = async (n) => { for (let i = 0; i < n; i++) { await click(".sc-tray .sc-fruit"); await click(".sc-pan.R"); } };
+await devAt('dev/scale/3/1/5', 'Vòng 3');
+let iq = await readInfer();
+const iAnswer = [...inferAnswers(iq)][0];
+await shot("ui-11-infer-step1");
+check("dev: Vòng 3 shows two clue scales, a left pan with fruit and an empty right pan", iq.clues.length === 2 && iq.asked.length >= 3 && (await ev(`document.querySelectorAll('.sc-pan.R [data-item]').length`)) === 0);
+check("dev: the clue scales are level and the beam of the big scale is held level by the padlock", (await ev(`[...document.querySelectorAll('.in-clues .cp-mbeam')].every(b => /rotate\\(0deg\\)/.test(b.style.transform))`)) && (await beamAngle()) === 0);
+check("dev: the weights are never written on screen (no digits besides 'Cân 1/2')", await ev(`![...document.querySelectorAll('.in-clues, .in-scale')].some(e => /[0-9]/.test(e.textContent.replace(/Cân [12]/g, '')))`));
+check("dev: exactly one answer fits the clues on screen", inferAnswers(iq).size === 1, [...inferAnswers(iq)].join());
+check("dev: the empty pan shows a question mark", await ev(`getComputedStyle(document.querySelector('.in-qmark')).display !== 'none'`));
+await click(".sc-tray .sc-fruit"); await click(".sc-pan.L");
+check("dev: the left pan (the question) does not take cam", (await ev(`document.querySelectorAll('.sc-pan.L [data-item]:not([data-fixed])').length`)) === 0);
+await click("#xong");
+await sleep(400);
+check("dev: Xong with nothing on the empty pan is a nudge, not an answer", await ev(`document.querySelector('#dev-status').textContent.startsWith('scale')`));
+await click(".sc-tray .sc-fruit"); // the cam picked above is still selected: tap it again to drop the selection
+await putCam(iAnswer - 1);
+check("dev: once there is something on the pan the question mark goes away", await ev(`getComputedStyle(document.querySelector('.in-qmark')).display === 'none'`));
+await click("#xong");
+check("dev: one cam too few is judged tooFew", await waitFor(`document.querySelector('#dev-status').textContent === '✘ tooFew'`));
+await sleep(1200);
+check("dev: after the wrong try the cam stay on the pan and the beam is level again", (await ev(`document.querySelectorAll('.sc-pan.R [data-item]').length`)) === iAnswer - 1 && (await beamAngle()) === 0);
+await putCam(1);
+await click("#xong");
+check("dev: the right number of cam is judged right, and the beam balances", await waitFor(`document.querySelector('#dev-status').textContent === '✔ right'`) && (await beamAngle()) === 0);
+await devAt('dev/scale/3/2/7', 'Vòng 3');
+iq = await readInfer();
+await shot("ui-11-infer-step2");
+check("dev: Vòng 3 step 2 has a chain: one clue scale with only fruit, one with cam", iq.clues.some((c) => [...c.l, ...c.r].every((k) => k !== "tangerine")) && iq.clues.some((c) => [...c.l, ...c.r].includes("tangerine")) && iq.asked.length === 1);
+await click("#dev-solve");
+await sleep(4600);
+check("dev: 'Giải' puts the right number of cam on the empty pan", (await ev(`document.querySelector('#dev-status').textContent`)) === "revealed" && (await ev(`document.querySelectorAll('.sc-pan.R [data-item]').length`)) === [...inferAnswers(iq)][0]);
 
 // ---------- 12. screen time (step 9) ----------
 // Tiny limits (seconds, not minutes) let the real clock be tested end to end.
@@ -1353,7 +1382,7 @@ await ev(`__app.go('play/split')`);
 check("guide: opens by itself the first time a child plays a game", await waitFor(`!!document.querySelector('.guide-card')`, 3000));
 check("guide: four steps, a replay button and an OK button", (await ev(`document.querySelectorAll('.guide-card ol li').length`)) === 4 && await ev(`!!document.querySelector('.guide-replay') && !!document.querySelector('.guide-card .btn-primary')`));
 check("guide: the question behind it is already there", await ev(`!!document.querySelector('.sp')`));
-check("guide: that game is now marked as seen, the others are not", (await seenGuides()) === JSON.stringify({ scale: false, robot: false, basket: false, equations: false, split: true, compare: false }), await seenGuides());
+check("guide: that game is now marked as seen, the others are not", (await seenGuides()) === JSON.stringify({ scale: false, robot: false, basket: false, equations: false, split: true, pattern: false }), await seenGuides());
 await shot("ui-14-guide");
 await click(".guide-card .btn-primary");
 check("guide: 'Em hiểu rồi!' closes it", await ev(`!document.querySelector('.overlay')`));
@@ -1430,9 +1459,9 @@ await click("#demo-stop");
 check("demo: 'Dừng' stops it at once and leaves the real question as it was", await waitFor(`!document.querySelector('.demo-layer')`, 2000) && (await ev(`document.querySelectorAll('.rb').length`)) === 1 && (await ev(`document.querySelectorAll('.rb-slot.on').length`)) === 0);
 await sleep(1500);
 check("demo: after stopping nothing keeps running (no stray hand or console error)", await ev(`!document.querySelector('.demo-hand')`) && consoleErrors.length === 0, JSON.stringify(consoleErrors));
-check("demo: Cái cân's demo starts", await openDemo("scale"));
+check("demo: Thăng bằng's demo starts", await openDemo("scale"));
 await shot("ui-15-demo-scale-start");
-check("demo: Cái cân's demo ends with both pans equal", await waitFor(`document.querySelector('.demo-layer.finished')`, 180000) && (await ev(`(() => { const w = [...document.querySelectorAll('.demo-layer .sc-pan')].map(p => [...p.querySelectorAll('[data-item]')].reduce((s, i) => s + Number(i.dataset.w), 0)); return w[0] === w[1] && w[0] > 0; })()`)));
+check("demo: Thăng bằng's demo ends with both pans equal", await waitFor(`document.querySelector('.demo-layer.finished')`, 180000) && (await ev(`(() => { const w = [...document.querySelectorAll('.demo-layer .sc-pan')].map(p => [...p.querySelectorAll('[data-item]')].reduce((s, i) => s + Number(i.dataset.w), 0)); return w[0] === w[1] && w[0] > 0; })()`)));
 await shot("ui-15-demo-scale-end");
 await click("#demo-ok");
 check("demo: 'Đến lượt em!' closes it and the real scale is untouched", await waitFor(`!document.querySelector('.demo-layer')`, 2000) && (await ev(`document.querySelectorAll('.sc-tray [data-item]').length`)) > 0 && (await ev(`document.querySelectorAll('.screen-play .sc-pan [data-item]:not([data-fixed])').length`)) === 0);

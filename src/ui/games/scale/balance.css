@@ -1,4 +1,4 @@
-/* Cái cân. Ported from mockup/v2/scale.html (class names prefixed sc-). */
+/* Thăng bằng, Vòng 1 (balance) and the big scale of Vòng 3. Ported from mockup/v2/scale.html (class names prefixed sc-). */
 .sc-key { position: absolute; left: 40px; top: 186px; width: 150px; padding: 16px 14px 10px; text-align: center; z-index: 3; }
 .sc-key h3 { font-size: 22px; margin-bottom: 6px; }
 .sc-key .row { display: flex; align-items: center; justify-content: center; gap: 6px; font-family: "Baloo 2"; font-weight: 800; font-size: 32px; margin-bottom: 2px; }

@@ -1,4 +1,4 @@
-/* So sánh cân. Ported from mockup/v2/compare.html (class names prefixed cp-). */
+/* Thăng bằng, Vòng 2 (compare). Ported from mockup/v2/compare.html (class names prefixed cp-). */
 .cp-clues { position: absolute; left: 40px; right: 40px; top: 176px; height: 280px; display: flex; justify-content: center; gap: 26px; padding: 18px; }
 .cp-mini { width: 320px; height: 240px; position: relative; background: var(--cmp-bg); border-radius: 24px; }
 .cp-mini .tag { position: absolute; left: 14px; top: 10px; display: flex; align-items: center; gap: 4px; font: 700 16px "Baloo 2"; color: var(--ink-muted); }

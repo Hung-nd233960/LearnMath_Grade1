@@ -8,7 +8,7 @@ export interface Position {
   step: number;
 }
 
-export const GAME_IDS = ["scale", "robot", "basket", "equations", "split", "compare"] as const;
+export const GAME_IDS = ["scale", "robot", "basket", "equations", "split", "pattern"] as const;
 export type GameId = (typeof GAME_IDS)[number];
 
 /**

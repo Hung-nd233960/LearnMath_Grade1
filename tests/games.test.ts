@@ -7,12 +7,11 @@ import { createRng } from "../src/core/rng.ts";
 import type { Position } from "../src/core/types.ts";
 import { basketLogic, BAG_SIZE, MAX_LOOSE, MIN_LOOSE } from "../src/games/basket/logic.ts";
 import * as basketText from "../src/games/basket/text.ts";
-import { compareLogic } from "../src/games/compare/logic.ts";
 import { countSolutions, distinctValues, equationsLogic, isChainSolvable, questionRepeatsClue, rowsAreUnique } from "../src/games/equations/logic.ts";
 import { GAMES } from "../src/games/index.ts";
 import { DEMOS } from "../src/ui/games/demos.ts";
 import { robotLogic, shortestPath, simulate } from "../src/games/robot/logic.ts";
-import { scaleLogic, weightOf } from "../src/games/scale/logic.ts";
+import { inferWeight, possibleAnswers, scaleLogic, UNIT, weightOf, type BalanceAnswer, type BalanceQuestion, type CompareQuestion, type InferQuestion } from "../src/games/scale/logic.ts";
 import { splitLogic } from "../src/games/split/logic.ts";
 import * as splitText from "../src/games/split/text.ts";
 import { numberWords } from "../src/i18n/numbers.ts";
@@ -36,19 +35,97 @@ describe("every game: solve() passes check()", () => {
   }
 });
 
-describe("scale", () => {
+describe("scale (Thăng bằng): Vòng 1 balance", () => {
+  const gen = (p: Position, seed: number) => scaleLogic.generate(p, createRng(seed)) as BalanceQuestion;
+  it("each round has its own kind of question", () => {
+    each((p, s) => scaleLogic.generate(p, createRng(s)), (q, p) => expect(q.kind).toBe(p.tier === 1 ? "balance" : p.tier === 2 ? "compare" : "infer"));
+  });
   it("pans start unequal and the tray can balance them", () => {
-    each((p, s) => scaleLogic.generate(p, createRng(s)), (q, p) => {
+    each((p, s) => (p.tier === 1 ? gen(p, s) : null), (q, p) => {
+      if (!q) return;
       expect(weightOf(q.left)).not.toBe(weightOf(q.right));
-      if (p.tier === 1) expect(new Set([...q.left, ...q.right, ...q.tray])).toEqual(new Set(["red_apple"]));
-      expect(q.liveTilt).toBe(p.tier === 1);
+      if (p.step === 0) expect(new Set([...q.left, ...q.right, ...q.tray])).toEqual(new Set(["red_apple"]));
+      expect(q.liveTilt).toBe(p.step === 0);
+      expect(q.key.length).toBe(p.step === 0 ? 0 : p.step + 1);
     });
   });
   it("adding to the heavier pan is wrong", () => {
-    const q = { left: ["red_apple"], right: [], tray: ["grapes", "grapes"], key: [], liveTilt: false, showCounts: false } as const;
-    expect(scaleLogic.check({ ...q, left: [...q.left], right: [], tray: [...q.tray], key: [] }, { addedLeft: ["grapes"], addedRight: [] }).reason).toBe("leftHeavier");
-    expect(scaleLogic.check({ ...q, left: [...q.left], right: [], tray: [...q.tray], key: [] }, { addedLeft: [], addedRight: ["grapes", "grapes"] }).correct).toBe(true);
-    expect(scaleLogic.check({ ...q, left: [...q.left], right: [], tray: [...q.tray], key: [] }, { addedLeft: [], addedRight: ["red_apple"] }).reason).toBe("invalid");
+    const q = { kind: "balance", left: ["red_apple"], right: [], tray: ["grapes", "grapes"], key: [], liveTilt: false, showCounts: false } as BalanceQuestion;
+    expect(scaleLogic.check(q, { addedLeft: ["grapes"], addedRight: [] }).reason).toBe("leftHeavier");
+    expect(scaleLogic.check(q, { addedLeft: [], addedRight: ["grapes", "grapes"] }).correct).toBe(true);
+    expect(scaleLogic.check(q, { addedLeft: [], addedRight: ["red_apple"] }).reason).toBe("invalid");
+  });
+});
+
+describe("scale (Thăng bằng): Vòng 2 compare", () => {
+  it("weighings agree with the hidden order and are enough to find it", () => {
+    each((p, s) => scaleLogic.generate(p, createRng(s)) as CompareQuestion, (q, p) => {
+      if (p.tier !== 2) return;
+      expect(q.items).toHaveLength(p.step === 0 ? 3 : p.step === 1 ? 4 : q.truth.length);
+      if (p.step === 2) expect([3, 4]).toContain(q.items.length);
+      expect(q.weighings).toHaveLength(q.items.length - 1);
+      for (const w of q.weighings) {
+        const heavy = w.heavier === "left" ? w.left : w.right, light = w.heavier === "left" ? w.right : w.left;
+        expect(q.truth.indexOf(heavy)).toBeGreaterThan(q.truth.indexOf(light));
+      }
+      if (p.step === 0) {
+        q.weighings.forEach((w) => expect(w.heavier).toBe("right"));
+        expect(q.mode).toBe("heaviest");
+      }
+      if (p.step === 1) expect(["heaviest", "lightest"]).toContain(q.mode);
+      if (p.step === 2) expect(q.mode).toBe("order");
+    });
+  });
+});
+
+describe("scale (Thăng bằng): Vòng 3 inference", () => {
+  const eachInfer = (fn: (q: InferQuestion, step: number) => void) => {
+    for (let step = 0; step < 3; step++) for (let s = 1; s <= 400; s++) fn(scaleLogic.generate({ tier: 3, step }, createRng(s)) as InferQuestion, step);
+  };
+  it("exactly one answer fits the clues, and it is the intended one, at most 10 cam", () => {
+    eachInfer((q) => {
+      expect([...possibleAnswers(q)]).toEqual([q.answer]);
+      expect(q.answer).toBeLessThanOrEqual(10);
+      expect(q.answer).toBeGreaterThanOrEqual(2);
+    });
+  });
+  it("every clue scale is balanced by the hidden weights, and the answer is the asked fruit in cam", () => {
+    eachInfer((q) => {
+      const total = (items: readonly (typeof q.asked)[number][]) => items.reduce((s, i) => s + inferWeight(q, i), 0);
+      q.clues.forEach((c) => expect(total(c.left)).toBe(total(c.right)));
+      expect(total(q.asked)).toBe(q.answer);
+    });
+  });
+  it("limits: two clue scales, at most five items a pan, spare cam on the tray", () => {
+    eachInfer((q) => {
+      expect(q.clues).toHaveLength(2);
+      q.clues.forEach((c) => { expect(c.left.length).toBeLessThanOrEqual(5); expect(c.right.length).toBeLessThanOrEqual(5); });
+      expect(q.tray).toBeGreaterThanOrEqual(q.answer + 2);
+      expect(q.tray).toBeLessThanOrEqual(q.answer + 3);
+    });
+  });
+  it("step 0 asks 2 of one kind; step 1 a mix of two kinds; step 2 a two-link chain", () => {
+    eachInfer((q, step) => {
+      const kinds = new Set(q.asked);
+      if (step === 0) { expect(q.asked).toHaveLength(2); expect(kinds.size).toBe(1); }
+      if (step === 1) { expect(kinds.size).toBe(2); expect(q.asked.length).toBeGreaterThanOrEqual(3); expect(kinds.has(UNIT)).toBe(false); }
+      if (step === 2) {
+        expect(q.asked).toHaveLength(1);
+        // one clue says how many of a middle fruit equal the asked fruit, the other how many cam equal that middle fruit
+        const link = q.clues.find((c) => [...c.left, ...c.right].every((i) => i !== UNIT));
+        expect(link).toBeDefined();
+        expect(q.clues.some((c) => [...c.left, ...c.right].includes(UNIT))).toBe(true);
+      }
+    });
+  });
+  it("check: right, too few, too many, and nothing on the pan", () => {
+    const q = scaleLogic.generate({ tier: 3, step: 1 }, createRng(3)) as InferQuestion;
+    expect(scaleLogic.check(q, { placed: q.answer }).correct).toBe(true);
+    const few = scaleLogic.check(q, { placed: q.answer - 1 });
+    expect(few.reason).toBe("tooFew");
+    expect(few.data).toEqual({ placed: q.answer - 1, need: q.answer });
+    expect(scaleLogic.check(q, { placed: q.answer + 1 }).reason).toBe("tooMany");
+    expect(scaleLogic.check(q, { placed: 0 }).reason).toBe("empty");
   });
 });
 
@@ -221,20 +298,6 @@ describe("split", () => {
   });
 });
 
-describe("compare", () => {
-  it("weighings agree with the hidden order and are enough to find it", () => {
-    each((p, s) => compareLogic.generate(p, createRng(s)), (q, p) => {
-      expect(q.items).toHaveLength(p.tier === 1 ? 3 : 4);
-      expect(q.weighings).toHaveLength(q.items.length - 1);
-      for (const w of q.weighings) {
-        const heavy = w.heavier === "left" ? w.left : w.right, light = w.heavier === "left" ? w.right : w.left;
-        expect(q.truth.indexOf(heavy)).toBeGreaterThan(q.truth.indexOf(light));
-      }
-      if (p.tier === 1) q.weighings.forEach((w) => expect(w.heavier).toBe("right"));
-    });
-  });
-});
-
 describe("Vietnamese numbers and speech", () => {
   it("number words", () => {
     expect([0, 1, 5, 10, 11, 14, 15, 20, 21, 24, 25, 30, 99, 100].map(numberWords)).toEqual([
@@ -278,7 +341,9 @@ describe("Mèo's worked examples", () => {
   it("the scale sample uses two kinds of fruit, shows the table and holds the scale level", () => {
     const script = DEMOS.scale!;
     const q = scaleLogic.generate(script.pos, createRng(script.seed));
-    const answer = scaleLogic.solve!(q);
+    const answer = scaleLogic.solve!(q) as BalanceAnswer;
+    expect(q.kind).toBe("balance");
+    if (q.kind !== "balance") return;
     expect(new Set([...answer.addedLeft, ...answer.addedRight]).size).toBe(2);
     expect(q.key.length).toBe(2);
     expect(q.liveTilt).toBe(false);

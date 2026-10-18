@@ -40,7 +40,7 @@ function tileArt(id: GameId): HTMLElement {
       art.append(emoji("tulip", 78), sun, small);
       break;
     }
-    case "compare":
+    case "pattern":
       art.append(emoji("wrapped_gift", 66), emoji("wrapped_gift", 84, "gift-b"), emoji("wrapped_gift", 66, "gift-g"));
       break;
   }

@@ -1,14 +1,14 @@
-// View for "So sánh cân": small scales compare pairs of same-sized gift boxes; the child works out
+// Thăng bằng, Vòng 2: small scales compare pairs of same-sized gift boxes; the child works out
 // which box is the heaviest or lightest, or puts all of them in order.
 // The boxes are one picture recoloured, so real-world weight cannot give the answer away: the scales are the only clue.
-//   Vòng 1  3 boxes, 2 scales in chain order     Vòng 2  4 boxes, sides flipped
-//   Vòng 3  the scales also come in a shuffled order
-import { say } from "../../i18n/speech.ts";
-import { STR } from "../../i18n/ui.ts";
-import { BOXES, type Box, type CompareAnswer, type CompareQuestion, type Weighing } from "../../games/compare/logic.ts";
-import { emoji, h, html, wait } from "../dom.ts";
-import { ICON } from "../icons.ts";
-import type { GameView } from "./types.ts";
+//   step 0  3 boxes, 2 scales in chain order     step 1  4 boxes, sides flipped
+//   step 2  the scales also come in a shuffled order, and the boxes are put in order
+import { say } from "../../../i18n/speech.ts";
+import { STR } from "../../../i18n/ui.ts";
+import { BOXES, type Box, type CompareAnswer, type CompareQuestion, type Weighing } from "../../../games/scale/logic.ts";
+import { emoji, h, html, wait } from "../../dom.ts";
+import { ICON } from "../../icons.ts";
+import type { GameView } from "../types.ts";
 import "./compare.css";
 
 const ARROW = '<svg width="34" height="24" viewBox="0 0 34 24"><path d="M3 12h26M20 3l9 9-9 9" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -26,20 +26,28 @@ const BOWL = `<svg class="bw" width="110" height="34" viewBox="0 0 110 34"><path
 const STAND = `<svg class="cp-mstand" width="80" height="146" viewBox="0 0 80 146"><path d="M34 0 H46 L52 112 H28 Z" fill="url(#brassV)" stroke="#1e2a4a" stroke-width="3" stroke-linejoin="round"/><rect x="30" y="44" width="20" height="7" rx="3.5" fill="url(#brass)" stroke="#1e2a4a" stroke-width="2.5"/><rect x="14" y="108" width="52" height="15" rx="6" fill="url(#wood)" stroke="#1e2a4a" stroke-width="3"/><rect x="3" y="120" width="74" height="20" rx="9" fill="url(#wood)" stroke="#1e2a4a" stroke-width="3"/></svg>`;
 const BEAM = `<svg width="230" height="22" viewBox="0 0 230 22"><rect x="8" y="4" width="214" height="14" rx="7" fill="url(#brass)" stroke="#1e2a4a" stroke-width="3"/><rect x="16" y="6.5" width="198" height="3" rx="1.5" fill="#fff6cf" opacity=".8"/><circle cx="10" cy="11" r="6.5" fill="url(#brass)" stroke="#1e2a4a" stroke-width="3"/><circle cx="220" cy="11" r="6.5" fill="url(#brass)" stroke="#1e2a4a" stroke-width="3"/></svg>`;
 
-/** One small scale: the heavier box's side hangs lower. */
-function miniScale(w: Weighing, index: number): HTMLElement {
-  const deg = w.heavier === "right" ? 9 : -9;
+/**
+ * One small scale. `deg` tips the beam (positive: the right side hangs lower); `content` is what sits in each pan.
+ * Shared with the inference clues (infer.ts), which are level.
+ */
+export function miniScaleFrame(index: number, deg: number, content: { L: HTMLElement; R: HTMLElement }, attrs: Record<string, string> = {}): HTMLElement {
   const dy = 105 * Math.sin((deg * Math.PI) / 180);
-  const pan = (box: Box, side: "L" | "R", shift: number) => {
-    const el = h("div", { class: `cp-mpan ${side}` }, html(CHAIN), gift(box, 70), html(BOWL));
+  const pan = (side: "L" | "R", shift: number) => {
+    const el = h("div", { class: `cp-mpan ${side}` }, html(CHAIN), content[side], html(BOWL));
     el.style.transform = `translateY(${shift}px)`;
     return el;
   };
   const beam = h("div", { class: "cp-mbeam" }, html(BEAM));
   beam.style.transform = `rotate(${deg}deg)`;
-  return h("div", { class: "cp-mini", "data-left": w.left, "data-right": w.right, "data-heavier": w.heavier },
+  return h("div", { class: "cp-mini", ...attrs },
     h("span", { class: "tag" }, emoji("balance_scale", 22), STR.compareScale(index + 1)),
-    html(STAND), beam, h("div", { class: "cp-mpivot" }), pan(w.left, "L", -dy), pan(w.right, "R", dy));
+    html(STAND), beam, h("div", { class: "cp-mpivot" }), pan("L", -dy), pan("R", dy));
+}
+
+/** One small scale: the heavier box's side hangs lower. */
+function miniScale(w: Weighing, index: number): HTMLElement {
+  return miniScaleFrame(index, w.heavier === "right" ? 9 : -9, { L: gift(w.left, 70), R: gift(w.right, 70) },
+    { "data-left": w.left, "data-right": w.right, "data-heavier": w.heavier });
 }
 
 export function createCompareView(): GameView<CompareQuestion, CompareAnswer> {

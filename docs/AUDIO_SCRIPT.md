@@ -86,7 +86,7 @@ Mẹo thu âm:
 | `daily_done.mp3` | Hôm nay mình chơi đủ rồi! Hẹn gặp lại em ngày mai nhé. |
 | `rotate.mp3` | Em hãy xoay ngang máy nhé! |
 
-## Cái cân
+## Thăng bằng
 
 | Tên tệp | Câu cần đọc |
 | --- | --- |
@@ -97,6 +97,15 @@ Mẹo thu âm:
 | `scale_right_heavier.mp3` | Đĩa bên phải còn nặng hơn. |
 | `scale_fix.mp3` | Em thêm hoặc bớt quả xem nào. |
 | `scale_ok.mp3` | Hai đĩa nặng bằng nhau rồi! |
+| `cmp_heaviest.mp3` | Nhìn các cái cân. Hộp quà nào nặng nhất? |
+| `cmp_lightest.mp3` | Nhìn các cái cân. Hộp quà nào nhẹ nhất? |
+| `cmp_order.mp3` | Xếp các hộp quà từ nhẹ nhất đến nặng nhất nhé! |
+| `cmp_hint.mp3` | Bên nào cân hạ xuống là bên nặng hơn. Em đọc từng cân một nhé. |
+| `cmp_ok.mp3` | Thám tử tài ba! |
+| `infer_one.mp3` | Nhìn các cân nhỏ. Em đặt bao nhiêu quả cam để cân thăng bằng? |
+| `infer_hint_few.mp3` | Đĩa cam còn nhẹ quá. Em xem lại các cân nhỏ nhé! |
+| `infer_hint_many.mp3` | Nhiều cam quá rồi! Em xem lại các cân nhỏ nhé. |
+| `infer_ok.mp3` | Đúng rồi! Em suy luận giỏi lắm! |
 
 ## Rô-bốt
 
@@ -145,16 +154,6 @@ Mẹo thu âm:
 | `split_hint_sum.mp3` | Hai phần cộng lại phải bằng số ở trên. |
 | `split_ok.mp3` | Em đếm rất cẩn thận! |
 
-## So sánh cân
-
-| Tên tệp | Câu cần đọc |
-| --- | --- |
-| `cmp_heaviest.mp3` | Nhìn các cái cân. Hộp quà nào nặng nhất? |
-| `cmp_lightest.mp3` | Nhìn các cái cân. Hộp quà nào nhẹ nhất? |
-| `cmp_order.mp3` | Xếp các hộp quà từ nhẹ nhất đến nặng nhất nhé! |
-| `cmp_hint.mp3` | Bên nào cân hạ xuống là bên nặng hơn. Em đọc từng cân một nhé. |
-| `cmp_ok.mp3` | Thám tử tài ba! |
-
 ## Hướng dẫn (i)
 
 | Tên tệp | Câu cần đọc |
@@ -163,10 +162,14 @@ Mẹo thu âm:
 | `guide_split_2.mp3` | Chạm vào từng bông để đánh dấu, đếm không sót bông nào. |
 | `guide_split_3.mp3` | Số ở trên là tất cả, gồm hai số ở dưới là hai phần. |
 | `guide_split_4.mp3` | Chạm vào ô trống, chọn số trên bàn phím, rồi bấm Xong. |
-| `guide_scale_1.mp3` | Nhìn hai đĩa cân: đĩa nào nặng hơn? |
-| `guide_scale_2.mp3` | Xem bảng cân: mỗi loại quả nặng khác nhau. Ở Vòng một, em chỉ cần đếm. |
-| `guide_scale_3.mp3` | Kéo quả từ khay vào đĩa nhẹ hơn, hoặc chạm quả rồi chạm đĩa. |
-| `guide_scale_4.mp3` | Bấm Xong để thả cân và xem kết quả. |
+| `guide_scale_1.mp3` | Vòng một: kéo quả từ khay vào đĩa nhẹ hơn cho hai đĩa nặng bằng nhau. |
+| `guide_scale_2.mp3` | Vòng hai: đọc các cân nhỏ. Bên nào hạ xuống là bên nặng hơn. |
+| `guide_scale_3.mp3` | Vòng ba: các cân nhỏ cho biết mỗi quả nặng bằng mấy quả cam. Em đặt cam vào đĩa trống cho cân thăng bằng. |
+| `guide_scale_4.mp3` | Chạm quả rồi chạm đĩa, hoặc kéo thả. Bấm Xong để xem kết quả. |
+| `guide_pattern_1.mp3` | Mỗi hàng có một quy luật: các hình lặp lại theo một thứ tự. |
+| `guide_pattern_2.mp3` | Nhìn kỹ xem những hình đầu lặp lại như thế nào. |
+| `guide_pattern_3.mp3` | Tìm hình còn thiếu ở ô có dấu hỏi. |
+| `guide_pattern_4.mp3` | Chạm vào hình đúng, rồi bấm Xong. |
 | `guide_basket_1.mp3` | Nghe Mèo nói cần những quả gì, bao nhiêu quả. |
 | `guide_basket_2.mp3` | Kéo quả từ giỏ của em sang giỏ của Mèo, hoặc chạm quả rồi chạm giỏ. |
 | `guide_basket_3.mp3` | Mỗi túi là một chục, bằng mười quả. Hai chục là hai túi. Mười ba quả là một túi và ba quả. |
@@ -179,10 +182,6 @@ Mẹo thu âm:
 | `guide_robot_2.mp3` | Chạm các mũi tên để xếp từng bước đi cho rô-bốt. Mỗi mũi tên là một ô. |
 | `guide_robot_3.mp3` | Rô-bốt không đi qua được tường đỏ và ô gạch. |
 | `guide_robot_4.mp3` | Bấm Chạy để xem rô-bốt đi. Sai thì bấm Làm lại. |
-| `guide_cmp_1.mp3` | Mỗi cái cân so sánh hai hộp quà. Các hộp to bằng nhau nhưng nặng khác nhau. |
-| `guide_cmp_2.mp3` | Bên nào cân hạ xuống là bên nặng hơn. |
-| `guide_cmp_3.mp3` | Đọc từng cân để tìm ra manh mối. |
-| `guide_cmp_4.mp3` | Chạm vào hộp đúng, hoặc xếp các hộp từ nhẹ đến nặng rồi bấm Xong. |
 
 ## Mèo làm mẫu
 
@@ -200,4 +199,4 @@ Mẹo thu âm:
 | `demo_scale_light.mp3` | Đĩa này nhẹ hơn, nên Mèo thêm quả vào đây. |
 | `demo_scale_done.mp3` | Hai đĩa đã nặng bằng nhau. Mèo bấm Xong! |
 
-Tổng cộng: **134** tệp.
+Tổng cộng: **138** tệp.
